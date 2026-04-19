@@ -18,8 +18,13 @@
   .signal-trend { background: #EEF2FF; border-left: 4px solid #4F46E5; }
   .data-table { table-layout: fixed; }
   .data-table th { background: #f8fafc; position: sticky; top: 0; font-weight: 600; }
+  .data-table .edit-col { width: 32px; padding: 6px 4px !important; text-align: center !important; opacity: 0.5; transition: opacity 0.15s; }
+  .data-table:hover .edit-col, .data-table .edit-col input:checked { opacity: 1; }
+  .data-table [contenteditable="true"]:focus { outline: 2px solid #3b82f6; outline-offset: -2px; background: #fff; border-radius: 2px; }
+  .data-table [contenteditable="true"]:hover:not(:focus) { background: #f1f5f9; cursor: text; }
   .data-table td, .data-table th { padding: 10px 16px; border-bottom: 1px solid #e2e8f0; text-align: right; white-space: nowrap; }
-  .data-table td:first-child, .data-table th:first-child { text-align: left; white-space: normal; width: 35%; }
+  .data-table td:first-child:not(.edit-col), .data-table th:first-child:not(.edit-col),
+  .data-table .edit-col + td, .data-table .edit-col + th { text-align: left; white-space: normal; width: 35%; }
   .data-table tr:hover { background: #f1f5f9; }
   .data-table td:not(:first-child), .data-table th:not(:first-child) { font-variant-numeric: tabular-nums; }
   .section-header { cursor: pointer; user-select: none; }
@@ -45,6 +50,63 @@
   .methodology-body { display: none; font-size: 11.5px; color: #475569; background: #f8fafc; border-left: 2px solid #cbd5e1; padding: 10px 14px; margin-top: 6px; line-height: 1.6; }
   .methodology-body.open { display: block; }
   @media print { .no-print { display: none !important; } .section-body { display: block !important; } .copy-btn, .methodology-toggle { display: none !important; } }
+
+  /* ---------- Council One-Pager ---------- */
+  #onePager { display: none; }
+  body.onepager-open { overflow: hidden; }
+  body.onepager-open #onePager {
+    display: block; position: fixed; inset: 0; z-index: 50;
+    background: rgba(15, 23, 42, 0.55); overflow: auto; padding: 24px;
+  }
+  #onePager .op-controls { max-width: 8.5in; margin: 0 auto 12px; display: flex; justify-content: flex-end; gap: 8px; }
+  #onePager .op-page {
+    background: #fff; width: 8.5in; min-height: 11in; margin: 0 auto;
+    padding: 0.5in; color: #1e293b; font-size: 10.5pt; line-height: 1.45;
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+  }
+  #onePager .op-header { border-bottom: 2pt solid #4F46E5; padding-bottom: 8pt; margin-bottom: 12pt; }
+  #onePager .op-title { font-size: 16pt; font-weight: 700; color: #0f172a; }
+  #onePager .op-subtitle { font-size: 9pt; color: #64748b; margin-top: 2pt; }
+  #onePager .op-grid { display: grid; grid-template-columns: 4.7in 2.3in; column-gap: 0.3in; align-items: start; }
+  #onePager .op-block { page-break-inside: avoid; margin-bottom: 10pt; }
+  #onePager .op-block h3 { font-size: 10.5pt; font-weight: 700; color: #1e293b; margin-bottom: 4pt; letter-spacing: 0.02em; text-transform: uppercase; }
+  #onePager .op-block h3 .op-band { font-size: 8pt; color: #64748b; font-weight: 500; letter-spacing: 0.08em; margin-left: 8pt; }
+  #onePager .op-block p { margin: 0 0 6pt; }
+  #onePager .op-sidebar { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 9pt; border-left: 1px solid #e2e8f0; padding-left: 14pt; }
+  #onePager .op-sidebar h3 { font-family: 'Inter', sans-serif; font-size: 10pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #475569; margin-bottom: 6pt; padding-bottom: 4pt; border-bottom: 1px solid #e2e8f0; }
+  #onePager .op-tile { margin-bottom: 6pt; page-break-inside: avoid; }
+  #onePager .op-tile-label { color: #64748b; font-size: 8pt; letter-spacing: 0.02em; }
+  #onePager .op-tile-value { color: #0f172a; font-size: 11.5pt; font-weight: 700; line-height: 1.15; }
+  #onePager .op-tile-note { color: #94a3b8; font-size: 7.5pt; }
+  #onePager .op-footer { border-top: 1px solid #e2e8f0; padding-top: 6pt; margin-top: 14pt; font-size: 7.5pt; color: #94a3b8; line-height: 1.35; }
+  #onePager .op-flag { background: #fef3c7; color: #78350f; padding: 0 3pt; border-radius: 3px; font-weight: 600; }
+  #onePager .op-flag-critical { background: #fee2e2; color: #7f1d1d; }
+  #onePager .op-eligibility { margin-bottom: 12pt; padding: 8pt 10pt; background: #F5F3FF; border-left: 3pt solid #6366F1; border-radius: 4px; page-break-inside: avoid; }
+  #onePager .op-eligibility.op-hidden { display: none; }
+  #onePager .op-elig-header { font-size: 9.5pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: #3730A3; margin-bottom: 4pt; }
+  #onePager .op-elig-hint { font-weight: 400; font-size: 8pt; color: #6B7280; letter-spacing: 0; text-transform: none; }
+  #onePager .op-elig-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; column-gap: 10pt; row-gap: 3pt; }
+  #onePager .op-elig-item { font-size: 8.5pt; line-height: 1.35; padding: 2pt 4pt; border-radius: 3px; page-break-inside: avoid; }
+  #onePager .op-elig-title { font-weight: 700; color: #111827; display: block; }
+  #onePager .op-elig-detail { color: #4B5563; display: block; font-size: 8pt; }
+  #onePager .op-elig-critical { background: #FEF2F2; border-left: 2pt solid #DC2626; }
+  #onePager .op-elig-critical .op-elig-title { color: #991B1B; }
+  #onePager .op-elig-warn { background: #FFFBEB; border-left: 2pt solid #D97706; }
+  #onePager .op-elig-warn .op-elig-title { color: #92400E; }
+  #onePager .op-elig-info { background: #EEF2FF; border-left: 2pt solid #6366F1; }
+  #onePager .op-elig-info .op-elig-title { color: #3730A3; }
+
+  @media print {
+    @page { size: letter portrait; margin: 0.5in; }
+    body.printing-onepager > *:not(#onePager) { display: none !important; }
+    body.printing-onepager { overflow: visible !important; }
+    body.printing-onepager #onePager {
+      position: static !important; inset: auto !important; background: none !important;
+      padding: 0 !important; overflow: visible !important; display: block !important; z-index: auto !important;
+    }
+    body.printing-onepager #onePager .op-controls { display: none !important; }
+    body.printing-onepager #onePager .op-page { width: auto !important; min-height: 0 !important; margin: 0 !important; padding: 0 !important; box-shadow: none !important; }
+  }
 </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -134,6 +196,9 @@
         <button onclick="window.print()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors border border-gray-200">
           🖨 Print / PDF
         </button>
+        <button onclick="showOnePager()" class="px-4 py-2 bg-white text-indigo-700 rounded-lg text-sm font-medium hover:bg-indigo-50 transition-colors border border-indigo-300">
+          📋 Council One-Pager
+        </button>
         <button onclick="alert('Word export coming in Sprint 2 — will generate a formatted .docx with cover page, tables, narratives, and signal summary.')" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors">
           📄 Download Word
         </button>
@@ -171,6 +236,33 @@
     <div id="signalList" class="space-y-2"></div>
   </div>
 
+  <div id="onePager" aria-hidden="true" role="dialog" aria-labelledby="opTitle">
+    <div class="op-controls no-print">
+      <button onclick="printOnePager()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700">🖨 Print / Save as PDF</button>
+      <button onclick="hideOnePager()" class="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50">Close</button>
+    </div>
+    <div class="op-page" data-audience="council">
+      <div class="op-header">
+        <div class="op-title" id="opTitle">Council One-Pager</div>
+        <div class="op-subtitle" id="opSubtitle"></div>
+      </div>
+      <div class="op-eligibility" id="opEligibility"></div>
+      <div class="op-grid">
+        <div class="op-narrative">
+          <div class="op-block"><h3>Our Community <span class="op-band">· Hook</span></h3><p id="opHook"></p></div>
+          <div class="op-block"><h3>The Economic Picture <span class="op-band">· Context</span></h3><p id="opContext"></p></div>
+          <div class="op-block"><h3>Housing &amp; Affordability <span class="op-band">· Evidence</span></h3><p id="opEvidence"></p></div>
+          <div class="op-block"><h3>What This Means <span class="op-band">· Meaning</span></h3><p id="opMeaning"></p></div>
+        </div>
+        <aside class="op-sidebar">
+          <h3>Critical Numbers</h3>
+          <div id="opTiles"></div>
+        </aside>
+      </div>
+      <div class="op-footer" id="opFooter"></div>
+    </div>
+  </div>
+
   <div id="sections" class="space-y-4"></div>
 
   <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mt-4">
@@ -190,6 +282,77 @@
 // ============================================================
 const SE_API = 'https://data-delivery.socialexplorer.com';
 const SE_DEV_API = 'https://dev-data-delivery.socialexplorer.com';
+const REDFIN_DATA_URL = 'data/redfin_states.json'; // generated by scripts/fetch_redfin.py
+
+// Cached Redfin data (fetched on-demand, cached after first pull)
+let _redfinData = null;
+async function loadRedfinData() {
+  if (_redfinData !== null) return _redfinData;
+  try {
+    const r = await fetch(REDFIN_DATA_URL);
+    _redfinData = r.ok ? await r.json() : {};
+  } catch (e) { _redfinData = {}; }
+  return _redfinData;
+}
+
+// User-triggered: "Pull Market Data" button handler
+async function pullRedfinData(anchorId) {
+  const anchor = document.getElementById(anchorId);
+  if (!anchor) return;
+  const geos = window._redfinGeos;
+  // Loading state
+  anchor.innerHTML = `
+    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
+      <div class="flex items-center gap-3">
+        <div class="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+        <span class="text-sm text-blue-800 font-medium">Fetching latest Redfin market data…</span>
+      </div>
+    </div>`;
+  try {
+    const redfin = await loadRedfinData();
+    const label = (geos.state.label || '').toUpperCase();
+    const name  = (geos.state.name  || '').toUpperCase();
+    let rec = redfin[label];
+    if (!rec) {
+      rec = Object.values(redfin).find(r => (r.state_name || '').toUpperCase() === name || (r.state_name || '').toUpperCase() === label);
+    }
+    if (!rec) {
+      anchor.innerHTML = `<div class="bg-amber-50 border border-amber-200 rounded-lg p-3"><p class="text-sm text-amber-800">No Redfin data available for ${label || name}.</p></div>`;
+      return;
+    }
+    const fmtDollar = (n) => n == null ? '—' : '$' + Math.round(n).toLocaleString();
+    const fmtYoY = (n) => n == null ? '—' : (n >= 0 ? '+' : '') + (n * 100).toFixed(1) + '%';
+    const l = rec.latest;
+    const tid = 'tbl_redfin_' + Math.random().toString(36).slice(2, 8);
+    anchor.innerHTML = `
+      <div class="flex items-center justify-between mt-4 mb-2 flex-wrap gap-2">
+        <h4 class="text-sm font-semibold text-gray-700">
+          <span class="inline-block w-2 h-2 rounded-full bg-green-500 mr-2"></span>
+          Real-Time Housing Market (Redfin, ${rec.latest_period}, ${rec.state_name})
+        </h4>
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-gray-400">State-level snapshot</span>
+          <button class="copy-btn" onclick="copyTable('${tid}')">⧉ Copy</button>
+          <button onclick="pullRedfinData('${anchorId}')" class="text-xs px-2 py-1 bg-gray-50 hover:bg-blue-50 border border-gray-200 rounded text-gray-700 hover:text-blue-700">⟳ Refresh</button>
+        </div>
+      </div>
+      <table id="${tid}" class="data-table w-full text-sm"><thead><tr>
+        <th>Indicator</th><th>${rec.state_name}</th><th>YoY Change</th>
+      </tr></thead><tbody>
+        <tr><td class="font-medium text-gray-700">Median sale price</td><td class="font-semibold text-gray-900">${fmtDollar(l.median_sale_price)}</td><td class="${l.sale_price_yoy > 0 ? 'text-green-700' : l.sale_price_yoy < 0 ? 'text-red-700' : 'text-gray-600'}">${fmtYoY(l.sale_price_yoy)}</td></tr>
+        <tr><td class="font-medium text-gray-700">Median list price</td><td class="text-gray-900">${fmtDollar(l.median_list_price)}</td><td class="text-gray-400">—</td></tr>
+        <tr><td class="font-medium text-gray-700">Median price per sq ft</td><td class="text-gray-900">${fmtDollar(l.median_ppsf)}</td><td class="text-gray-400">—</td></tr>
+        <tr><td class="font-medium text-gray-700">Homes sold (month)</td><td class="text-gray-900">${l.homes_sold?.toLocaleString() || '—'}</td><td class="text-gray-400">—</td></tr>
+        <tr><td class="font-medium text-gray-700">Active inventory</td><td class="text-gray-900">${l.inventory?.toLocaleString() || '—'}</td><td class="text-gray-400">—</td></tr>
+        <tr><td class="font-medium text-gray-700">Months of supply</td><td class="text-gray-900">${l.months_of_supply?.toFixed(1) || '—'}</td><td class="text-gray-400">—</td></tr>
+        <tr><td class="font-medium text-gray-700">Median days on market</td><td class="text-gray-900">${l.median_dom || '—'}</td><td class="text-gray-400">—</td></tr>
+      </tbody></table>
+      <p class="text-xs text-gray-500 italic mt-1 px-1">Source: Redfin Data Center — updated weekly. State-level in current prototype; city and metro pipelines run via GitHub Actions. Complements ACS 2-year lag with near-real-time market conditions.</p>
+    `;
+  } catch (err) {
+    anchor.innerHTML = `<div class="bg-red-50 border border-red-200 rounded-lg p-3"><p class="text-sm text-red-700">Error fetching Redfin data: ${err.message}</p></div>`;
+  }
+}
 
 const SURVEYS = {
   current: 'ACS2024_5yr',
@@ -569,7 +732,7 @@ function fmt(v, type = 'number') {
   if (type === 'dollar') return '$' + Math.round(n).toLocaleString();
   if (type === 'pct')    return n.toFixed(1) + '%';
   if (type === 'pct0')   return Math.round(n) + '%';
-  if (type === 'delta')  return (n >= 0 ? '+' : '') + n.toFixed(1);
+  if (type === 'delta')  return (n >= 0 ? '+' : '') + n.toFixed(1) + ' pp';
   if (type === 'decimal') return n.toFixed(1);
   return Math.round(n).toLocaleString();
 }
@@ -628,25 +791,34 @@ function compareTable(rows, geos, opts = {}) {
 
   let html = '';
   if (title) {
-    html += `<div class="flex items-center justify-between mt-4 mb-2">
-      <h4 class="text-sm font-semibold text-gray-700">${title}</h4>
-      <button class="copy-btn" onclick="copyTable('${tid}')">⧉ Copy table</button>
+    html += `<div class="flex items-center justify-between mt-4 mb-2 flex-wrap gap-2">
+      <h4 class="text-sm font-semibold text-gray-700" contenteditable="true" spellcheck="false">${title}</h4>
+      <div class="flex items-center gap-2">
+        <div id="toolbar_${tid}" class="hidden items-center gap-1 text-xs">
+          <span class="text-gray-500"><span data-sel-count>0</span> selected</span>
+          <button onclick="deleteSelectedRows('${tid}')" class="px-2 py-0.5 bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 rounded">Delete</button>
+          <button onclick="mergeSelectedRows('${tid}')" class="px-2 py-0.5 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 rounded">Merge</button>
+        </div>
+        <button class="copy-btn" onclick="copyTable('${tid}')">⧉ Copy</button>
+      </div>
     </div>`;
   }
-  html += `<table id="${tid}" class="data-table w-full text-sm"><thead><tr><th class="text-left">Indicator</th>`;
-  for (const c of cols) html += `<th>${c.label}</th>`;
+  html += `<table id="${tid}" class="data-table editable-table w-full text-sm"><thead><tr>
+    <th class="edit-col w-8 text-center"><input type="checkbox" onchange="toggleAllRows('${tid}', this.checked)" title="Select all"></th>
+    <th class="text-left" contenteditable="true" spellcheck="false">Indicator</th>`;
+  for (const c of cols) html += `<th contenteditable="true" spellcheck="false">${c.label}</th>`;
   html += `</tr></thead><tbody>`;
   for (const row of rows) {
-    html += `<tr><td class="font-medium text-gray-700">${row.label}</td>`;
+    html += `<tr><td class="edit-col text-center"><input type="checkbox" class="row-select" onchange="updateToolbar('${tid}')"></td><td class="font-medium text-gray-700" contenteditable="true" spellcheck="false">${row.label}</td>`;
     for (const c of cols) {
       const v = row.values[c.key];
       const flag = row.flags ? (row.flags[c.key] || '') : '';
-      html += `<td class="${c.bold ? 'font-semibold text-gray-900' : 'text-gray-600'}">${fmt(v, row.format || 'number')}${flag}</td>`;
+      html += `<td class="${c.bold ? 'font-semibold text-gray-900' : 'text-gray-600'}" data-fmt="${row.format || 'number'}" data-raw="${v == null ? '' : v}" contenteditable="true" spellcheck="false">${fmt(v, row.format || 'number')}${flag}</td>`;
     }
     html += '</tr>';
   }
   if (rows.some(r => r.flags)) {
-    html += `<tr><td colspan="${cols.length + 1}" class="text-xs text-gray-400 border-0 pt-1">† Moderate margin of error (CV &gt; 30%) · ‡ High margin of error (CV &gt; 40%) — interpret with caution</td></tr>`;
+    html += `<tr><td colspan="${cols.length + 2}" class="text-xs text-gray-400 border-0 pt-1">† Moderate margin of error (CV &gt; 30%) · ‡ High margin of error (CV &gt; 40%) — interpret with caution</td></tr>`;
   }
   html += '</tbody></table>';
   return html;
@@ -697,17 +869,87 @@ function placeholderCard(title, body, meta) {
 // ============================================================
 function copyTable(tid) {
   const t = document.getElementById(tid); if (!t) return;
-  // Convert to tab-separated for Excel paste + keep HTML for Word paste.
+  // Build TSV skipping the edit-col (checkbox column) — respects user edits.
   let tsv = '';
-  for (const row of t.rows) {
-    tsv += [...row.cells].map(c => c.innerText.replace(/\s+/g, ' ').trim()).join('\t') + '\n';
+  const rows = Array.from(t.rows).filter(r => !r.cells[0]?.colSpan || r.cells[0].colSpan === 1); // skip MOE legend spans
+  for (const row of rows) {
+    const cells = [...row.cells].filter(c => !c.classList.contains('edit-col'));
+    tsv += cells.map(c => c.innerText.replace(/\s+/g, ' ').trim()).join('\t') + '\n';
   }
-  const html = t.outerHTML;
+  // Clone table, strip edit-col cells, then serialize for HTML paste.
+  const clone = t.cloneNode(true);
+  clone.querySelectorAll('.edit-col').forEach(td => td.remove());
+  clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+  const html = clone.outerHTML;
   const item = new ClipboardItem({
     'text/plain': new Blob([tsv], { type: 'text/plain' }),
     'text/html':  new Blob([html], { type: 'text/html' }),
   });
   navigator.clipboard.write([item]).catch(() => navigator.clipboard.writeText(tsv));
+}
+
+// --- Editable table helpers ---
+function toggleAllRows(tid, checked) {
+  const t = document.getElementById(tid); if (!t) return;
+  t.querySelectorAll('tbody input.row-select').forEach(cb => cb.checked = checked);
+  updateToolbar(tid);
+}
+function updateToolbar(tid) {
+  const t = document.getElementById(tid); if (!t) return;
+  const checked = t.querySelectorAll('tbody input.row-select:checked');
+  const tb = document.getElementById('toolbar_' + tid);
+  if (!tb) return;
+  const count = checked.length;
+  tb.querySelector('[data-sel-count]').textContent = count;
+  if (count > 0) { tb.classList.remove('hidden'); tb.classList.add('flex'); }
+  else { tb.classList.add('hidden'); tb.classList.remove('flex'); }
+}
+function deleteSelectedRows(tid) {
+  const t = document.getElementById(tid); if (!t) return;
+  t.querySelectorAll('tbody input.row-select:checked').forEach(cb => cb.closest('tr').remove());
+  updateToolbar(tid);
+}
+function mergeSelectedRows(tid) {
+  const t = document.getElementById(tid); if (!t) return;
+  const checked = Array.from(t.querySelectorAll('tbody input.row-select:checked'));
+  if (checked.length < 2) return;
+  const rows = checked.map(cb => cb.closest('tr'));
+  const labels = rows.map(r => r.cells[1]?.innerText.trim()).filter(Boolean);
+  const newLabel = labels.join(' + ');
+  const target = rows[0];
+  // Merge rule (v1 hotfix — Amelia blocker, 2026-04):
+  //   pct / pct0 → SUM (shares of a common denominator: income brackets, age cohorts,
+  //                    mode share, structure type, race/ethnicity, year-built brackets).
+  //   number / dollar → SUM (counts / totals).
+  //   decimal → AVG (metrics like average household size — summing is nonsensical).
+  //   delta → AVG (percentage-point changes; sum has no clean interpretation).
+  // Independent rates (poverty, unemployment, disability) should not be merged across rows
+  // within a single column — there is no shared denominator. Users are trusted not to do this;
+  // v2 will compute from count numerators + denominators via data-raw-num / data-raw-den.
+  for (let colIdx = 2; colIdx < target.cells.length; colIdx++) {
+    const fmtType = target.cells[colIdx].dataset.fmt || 'number';
+    const nums = rows.map(r => parseFloat(r.cells[colIdx]?.dataset?.raw || r.cells[colIdx]?.innerText.replace(/[^0-9.\-]/g, '')))
+                     .filter(n => !isNaN(n));
+    if (!nums.length) continue;
+    const useAvg = (fmtType === 'decimal' || fmtType === 'delta');
+    const merged = useAvg
+      ? nums.reduce((a, b) => a + b, 0) / nums.length
+      : nums.reduce((a, b) => a + b, 0);
+    target.cells[colIdx].dataset.raw = merged;
+    target.cells[colIdx].innerText = fmt(merged, fmtType);
+  }
+  target.cells[1].innerText = newLabel;
+  target.cells[0].querySelector('input').checked = false;
+  rows.slice(1).forEach(r => r.remove());
+  updateToolbar(tid);
+  // Focus the merged label cell so the user can rename inline — replaces the old prompt().
+  const labelCell = target.cells[1];
+  labelCell.focus();
+  const range = document.createRange();
+  range.selectNodeContents(labelCell);
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
 }
 function copyNarrative(nid) {
   const n = document.getElementById(nid); if (!n) return;
@@ -892,15 +1134,21 @@ async function generateBrief() {
     const crimeAllGuids = [GUIDS.crime_total, GUIDS.crime_violent, GUIDS.crime_property,
       GUIDS.crime_murder, GUIDS.crime_rsa, GUIDS.crime_robbery, GUIDS.crime_assault,
       GUIDS.crime_burglary, GUIDS.crime_larceny, GUIDS.crime_gla];
-    const [curTarget, curMsa, curCounty, curState, histTarget, histMsa, histCounty, histState, chasT7, chasT9, chasT7County, chasT7State, fmr, easiTarget, easiMsa, easiCounty, easiState, lausTarget, lausCounty, lausMsa, lausState, cbpCounty, cbpMsa, cbpState, lehdCounty, lehdState, sviCounty, crimeTarget, crimeCounty, crimeState] = await Promise.all([
+    const [curTarget, curMsa, curCounty, curState, histTarget, histMsa, histCounty, histState, histOwnerTarget, histOwnerMsa, histOwnerCounty, histOwnerState, chasT7, chasT9, chasT7County, chasT7State, fmr, easiTarget, easiMsa, easiCounty, easiState, lausTarget, lausCounty, lausMsa, lausState, cbpCounty, cbpMsa, cbpState, lehdCounty, lehdState, sviCounty, crimeTarget, crimeCounty, crimeState] = await Promise.all([
       fetchComputed(SURVEYS.current, mainTableIds, geos.target.sl, [geos.target.fips], computed),
       fetchComputed(SURVEYS.current, mainTableIds, geos.msa.sl,    [geos.msa.fips],    computed),
       fetchComputed(SURVEYS.current, mainTableIds, geos.county.sl, [geos.county.fips], computed),
       fetchComputed(SURVEYS.current, mainTableIds, geos.state.sl,  [geos.state.fips],  computed),
-      fetchData(SURVEYS.historical, [TABLES.population.id, TABLES.medianIncome.id, TABLES.medianRent.id, TABLES.homeValue.id, TABLES.tenure.id, TABLES.rentBurden.id, TABLES.povertyRatio.id, TABLES.commute.id, TABLES.raceEth.id, TABLES.age.id, TABLES.householdType.id], geos.target.sl, [geos.target.fips]),
-      fetchData(SURVEYS.historical, [TABLES.population.id, TABLES.medianIncome.id, TABLES.medianRent.id, TABLES.rentBurden.id], geos.msa.sl, [geos.msa.fips]).catch(() => null),
-      fetchData(SURVEYS.historical, [TABLES.population.id, TABLES.medianIncome.id, TABLES.medianRent.id, TABLES.rentBurden.id], geos.county.sl, [geos.county.fips]).catch(() => null),
-      fetchData(SURVEYS.historical, [TABLES.population.id, TABLES.medianIncome.id, TABLES.medianRent.id, TABLES.rentBurden.id], geos.state.sl, [geos.state.fips]).catch(() => null),
+      fetchData(SURVEYS.historical, [TABLES.population.id, TABLES.medianIncome.id, TABLES.medianRent.id, TABLES.homeValue.id, TABLES.tenure.id, TABLES.vacancy.id, TABLES.rentBurden.id, TABLES.povertyRatio.id, TABLES.unemployment.id, TABLES.commute.id, TABLES.educAttain.id, TABLES.raceEth.id, TABLES.age.id, TABLES.householdType.id], geos.target.sl, [geos.target.fips]),
+      fetchData(SURVEYS.historical, [TABLES.population.id, TABLES.medianIncome.id, TABLES.medianRent.id, TABLES.tenure.id, TABLES.vacancy.id, TABLES.rentBurden.id, TABLES.povertyRatio.id, TABLES.unemployment.id, TABLES.commute.id, TABLES.educAttain.id], geos.msa.sl, [geos.msa.fips]).catch(() => null),
+      fetchData(SURVEYS.historical, [TABLES.population.id, TABLES.medianIncome.id, TABLES.medianRent.id, TABLES.tenure.id, TABLES.vacancy.id, TABLES.rentBurden.id, TABLES.povertyRatio.id, TABLES.unemployment.id, TABLES.commute.id, TABLES.educAttain.id], geos.county.sl, [geos.county.fips]).catch(() => null),
+      fetchData(SURVEYS.historical, [TABLES.population.id, TABLES.medianIncome.id, TABLES.medianRent.id, TABLES.tenure.id, TABLES.vacancy.id, TABLES.rentBurden.id, TABLES.povertyRatio.id, TABLES.unemployment.id, TABLES.commute.id, TABLES.educAttain.id], geos.state.sl, [geos.state.fips]).catch(() => null),
+      // Historical owner cost burden (B25091) — only available via data-delivery v2 endpoint, not llm_api.
+      // Fields come back prefixed ACS14_5yr_B25091xxx (vintage-specific, not ORG_*).
+      fetchDataV2(SURVEYS.historical, ['B25091'], geos.target.sl, [geos.target.fips]).catch(() => null),
+      fetchDataV2(SURVEYS.historical, ['B25091'], geos.msa.sl,    [geos.msa.fips]).catch(() => null),
+      fetchDataV2(SURVEYS.historical, ['B25091'], geos.county.sl, [geos.county.fips]).catch(() => null),
+      fetchDataV2(SURVEYS.historical, ['B25091'], geos.state.sl,  [geos.state.fips]).catch(() => null),
       fetchData(SURVEYS.chas, ['T7_est'], geos.target.sl, [geos.target.fips]),
       fetchData(SURVEYS.chas, ['T9_est'], geos.target.sl, [geos.target.fips]),
       fetchData(SURVEYS.chas, ['T7_est'], geos.county.sl, [geos.county.fips]).catch(() => null),
@@ -941,6 +1189,7 @@ async function generateBrief() {
       histMsa:   histMsa    ? (extractRecords(histMsa).records[geos.msa.fips]       || {}) : {},
       histCounty:histCounty ? (extractRecords(histCounty).records[geos.county.fips] || {}) : {},
       histState: histState  ? (extractRecords(histState).records[geos.state.fips]   || {}) : {},
+      // Owner-burden historical B25091 records (v2 endpoint) merged later via Object.assign
       chasT7: extractRecords(chasT7).records[geos.target.fips] || {},
       chasT9: extractRecords(chasT9).records[geos.target.fips] || {},
       chasT7County: chasT7County ? (extractRecords(chasT7County).records[geos.county.fips] || {}) : {},
@@ -965,6 +1214,17 @@ async function generateBrief() {
       crimeState:  crimeState  ? (extractRecords(crimeState).records[geos.state.fips]   || {}) : {},
     };
     if (!Object.keys(D.target).length) throw new Error('No data returned for ' + geos.target.fips);
+
+    // Merge historical owner-burden (B25091) from the v2 endpoint into the corresponding hist records.
+    const mergeIfPresent = (target, resp, fips) => {
+      if (!resp) return;
+      const rec = extractRecords(resp).records[fips];
+      if (rec) Object.assign(target, rec);
+    };
+    mergeIfPresent(D.hist,       histOwnerTarget, geos.target.fips);
+    mergeIfPresent(D.histMsa,    histOwnerMsa,    geos.msa.fips);
+    mergeIfPresent(D.histCounty, histOwnerCounty, geos.county.fips);
+    mergeIfPresent(D.histState,  histOwnerState,  geos.state.fips);
 
     renderBrief(geos, D);
     showOutput(true);
@@ -1066,6 +1326,300 @@ function computeSignals(D, geos) {
 }
 
 // ============================================================
+// COUNCIL ONE-PAGER — user-triggered council-facing summary.
+// Consumes existing computed values; templates authored in the
+// Communication_Skill.md voice (Hook → Context → Evidence → Meaning).
+// ============================================================
+function computeOnePagerFacts(D, geos) {
+  const t = D.target || {}, h = D.hist || {}, s = D.state || {}, m = D.msa || {}, c = D.county || {}, fmr = D.fmr || {};
+  const popNew = val(t, 'SE_A00001_001');
+  const popOld = val(h, 'SE_A00001_001');
+  const popPct = (popOld && popNew) ? ((popNew - popOld) / popOld) * 100 : null;
+  const popDelta = (popOld != null && popNew != null) ? popNew - popOld : null;
+  // Household growth — same decade frame as population, but only target geography
+  const hhNew = val(t, 'SE_A11001_001');
+  const hhOld = val(h, 'SE_A11001_001');
+  const hhPct = (hhOld && hhNew) ? ((hhNew - hhOld) / hhOld) * 100 : null;
+  const hhDelta = (hhOld != null && hhNew != null) ? hhNew - hhOld : null;
+  const medianAge = val(t, 'SE_A01004_001');
+  const medInc    = val(t, 'SE_A14006_001');
+  const incOld    = val(h, 'SE_A14006_001');
+  const incOldReal = toReal2022(incOld);
+  const incPctReal = (incOldReal && medInc) ? ((medInc - incOldReal) / incOldReal) * 100 : null;
+  const rentNew  = val(t, 'SE_A18009_001');
+  const rentOld  = val(h, 'SE_A18009_001');
+  const rentOldReal = toReal2022(rentOld);
+  const rentPctReal = (rentOldReal && rentNew) ? ((rentNew - rentOldReal) / rentOldReal) * 100 : null;
+  const rentIncSpread = (rentPctReal != null && incPctReal != null) ? rentPctReal - incPctReal : null;
+  const bachOver = (() => {
+    const tot = val(t, 'SE_A12002_001');
+    if (!tot) return null;
+    return ((val(t, 'SE_A12002_005') || 0) + (val(t, 'SE_A12002_006') || 0)) / tot * 100;
+  })();
+  const bachStateOver = (() => {
+    const tot = val(s, 'SE_A12002_001');
+    if (!tot) return null;
+    return ((val(s, 'SE_A12002_005') || 0) + (val(s, 'SE_A12002_006') || 0)) / tot * 100;
+  })();
+  // HUD FMR income limits (FY2025) — 4-person thresholds are the regulatory standard
+  const ami80_4p = val(fmr, 'SE_T003_004'); // 80% AMI (low-income) 4-person
+  const ami50_4p = val(fmr, 'SE_T004_004'); // 50% AMI (very-low) 4-person
+  const ami30_4p = val(fmr, 'SE_T005_004'); // 30% AMI (extremely-low) 4-person
+  const amfi     = val(fmr, 'SE_T002_001'); // Area Median Family Income
+  // Equity indicator — rank by excess above state avg, fall back to absolute
+  const equityCandidates = [
+    { key: 'PctDisabled',  label: 'Disability rate',           value: t.PctDisabled,  stateAvg: s.PctDisabled  != null ? s.PctDisabled  : null },
+    { key: 'PctLEP',       label: 'Limited English Proficient',value: t.PctLEP,       stateAvg: s.PctLEP       != null ? s.PctLEP       : null },
+    { key: 'PctNoVehicle', label: 'Households w/o vehicle',    value: t.PctNoVehicle, stateAvg: s.PctNoVehicle != null ? s.PctNoVehicle : null },
+  ].filter(c => c.value != null);
+  equityCandidates.sort((a, b) => {
+    const ae = a.stateAvg != null ? (a.value - a.stateAvg) : a.value;
+    const be = b.stateAvg != null ? (b.value - b.stateAvg) : b.value;
+    return be - ae;
+  });
+  const equityPick = equityCandidates[0] || null;
+
+  // Jurisdictional character flags (auto-derived from data, used in narrative + eligibility)
+  const isRenterMajority = t.PctRenter != null && t.PctRenter >= 50;
+  const isCollegeTown = medianAge != null && medianAge <= 30 && bachOver != null && bachOver >= 40;
+  const isSmallJurisdiction = popNew != null && popNew < 50000;
+
+  return {
+    popNew, popOld, popPct, popDelta,
+    hhNew, hhOld, hhPct, hhDelta,
+    medianAge,
+    medInc, incPctReal, incState: val(s, 'SE_A14006_001'),
+    bachOver, bachStateOver,
+    unemp: t.UnempRate, unempState: s.UnempRate,
+    pctRenter: t.PctRenter, pctRenterState: s.PctRenter,
+    rentNew, rentPctReal, rentIncSpread,
+    sevBurden: t.PctSevereBurden, sevBurdenState: s.PctSevereBurden, sevBurdenMsa: m.PctSevereBurden,
+    ownerBurden: t.PctOwnerCostBurdened, ownerBurdenState: s.PctOwnerCostBurdened,
+    poverty: t.PctPoverty, povertyState: s.PctPoverty,
+    pre1960: t.PctPre1960,
+    pctLEP: t.PctLEP, pctLEPState: s.PctLEP,
+    pctDisabled: t.PctDisabled, pctDisabledState: s.PctDisabled,
+    equityPick,
+    ami30_4p, ami50_4p, ami80_4p, amfi,
+    isRenterMajority, isCollegeTown, isSmallJurisdiction,
+  };
+}
+
+function onePagerNarrative(f, geos) {
+  // CDBG low/mod benchmark is a fixed federal rule (HUD 24 CFR 570.208 — 20%).
+  // EPA lead-paint risk threshold for pre-1960 stock is likewise a federal convention (30%).
+  // The user-editable thresholds only control Signal Summary severity ranking.
+  const CDBG_LOW_MOD = 20;
+  const LEAD_PAINT_RISK = 30;
+  const thSev  = getThreshold('severeBurden', 20);
+  const place = geos.target.name;
+
+  // Comparison helpers — describe a rate relative to the state average in one short phrase.
+  const vsState = (val, stateVal, {bigger = 'above', smaller = 'below', equal = 'in line with'} = {}) => {
+    if (val == null || stateVal == null) return '';
+    const diff = val - stateVal;
+    if (Math.abs(diff) < 0.5) return `${equal} the <strong>${stateVal.toFixed(1)}%</strong> state average`;
+    const pp = Math.abs(diff).toFixed(1);
+    return `${diff > 0 ? bigger : smaller} the state average of <strong>${stateVal.toFixed(1)}%</strong> (${diff > 0 ? '+' : '−'}${pp} pp)`;
+  };
+
+  // HOOK — character framing (college-town / renter-majority) + population + household growth
+  const charParts = [];
+  if (f.isCollegeTown)     charParts.push(`a college-town community (median age <strong>${Math.round(f.medianAge)}</strong>, <strong>${f.bachOver.toFixed(0)}%</strong> with a bachelor's degree)`);
+  if (f.isRenterMajority)  charParts.push(`a renter-majority jurisdiction (<strong>${f.pctRenter.toFixed(0)}%</strong> renters)`);
+  const characterSentence = charParts.length ? `${place} is ${charParts.join(' and ')}. ` : '';
+
+  const popFrame = f.popPct == null ? `${place} has held steady in population over the decade.` :
+    f.popPct >= 2 ? `Population grew <strong>${f.popPct.toFixed(1)}%</strong> over the decade — roughly <strong>${fmt(Math.round(Math.abs(f.popDelta)))}</strong> new neighbors`
+    : f.popPct <= -2 ? `Population contracted <strong>${Math.abs(f.popPct).toFixed(1)}%</strong> over the decade — about <strong>${fmt(Math.round(Math.abs(f.popDelta)))}</strong> fewer residents`
+    : `Population held essentially stable (<strong>${(f.popPct >= 0 ? '+' : '') + f.popPct.toFixed(1)}%</strong>) over the decade`;
+  const hhFrame = f.hhPct == null ? '' :
+    `, and <strong>${f.hhDelta >= 0 ? '+' : '−'}${fmt(Math.round(Math.abs(f.hhDelta)))}</strong> households (<strong>${(f.hhPct >= 0 ? '+' : '') + f.hhPct.toFixed(1)}%</strong>) — the unit of demand our housing policy has to meet`;
+  const hook = `${characterSentence}${popFrame}${hhFrame}.`;
+
+  // CONTEXT — income / education / unemployment with state comparisons
+  const incCompare = f.incState != null && f.medInc != null ?
+    ` — ${f.medInc > f.incState ? 'above' : 'below'} the <strong>${fmt(f.incState, 'dollar')}</strong> state median` : '';
+  const incFrame = f.incPctReal == null ? '' :
+    f.incPctReal >= 5 ? ` In real (2022$) terms, household incomes rose <strong>${f.incPctReal.toFixed(1)}%</strong> over the decade — outpacing inflation.`
+    : f.incPctReal >= 0 ? ` In real (2022$) terms, household incomes rose <strong>${f.incPctReal.toFixed(1)}%</strong> — essentially treading water against inflation.`
+    : ` In real (2022$) terms, household incomes fell <strong>${Math.abs(f.incPctReal).toFixed(1)}%</strong>, eroding purchasing power before housing costs.`;
+  const bachFrame = f.bachOver == null ? '' :
+    f.bachStateOver != null
+      ? ` <strong>${f.bachOver.toFixed(1)}%</strong> of adults hold a bachelor's degree or higher, ${vsState(f.bachOver, f.bachStateOver)}.`
+      : ` <strong>${f.bachOver.toFixed(1)}%</strong> of adults hold a bachelor's degree or higher.`;
+  const unempFrame = f.unemp == null ? '' :
+    f.unempState != null
+      ? ` Unemployment sits at <strong>${f.unemp.toFixed(1)}%</strong>, ${vsState(f.unemp, f.unempState)}.`
+      : ` Unemployment sits at <strong>${f.unemp.toFixed(1)}%</strong>.`;
+  const context = `Median household income is <strong>${fmt(f.medInc, 'dollar')}</strong>${incCompare}.${incFrame}${bachFrame}${unempFrame}`;
+
+  // EVIDENCE — housing cost burden with 80% AMI threshold + state/MSA comparisons
+  const spreadFrame = f.rentIncSpread == null ? '' :
+    f.rentIncSpread > 5 ? `Rent outpaced income by <strong>${(f.rentIncSpread >= 0 ? '+' : '') + f.rentIncSpread.toFixed(1)} points</strong> in real dollars — a gap that shows up on kitchen tables every month.`
+    : f.rentIncSpread > 0 ? `Rent rose <strong>${f.rentIncSpread.toFixed(1)} points</strong> faster than income in real dollars — a narrow but meaningful gap.`
+    : `Rent did not outpace income in real dollars over the decade.`;
+  const amiFrame = f.ami80_4p != null ?
+    ` For reference, the 4-person 80% AMI threshold — the standard HUD "low-income" cutoff — is <strong>${fmt(f.ami80_4p, 'dollar')}</strong> for our FMR area, which anchors CDBG, HOME, LIHTC, and HCV eligibility.`
+    : '';
+  const burdenFrame = f.sevBurden == null ? '' :
+    f.sevBurden >= thSev
+      ? ` <strong class="op-flag op-flag-critical">${f.sevBurden.toFixed(1)}%</strong> of renter households are severely cost-burdened (paying 50%+ of income on housing)${f.sevBurdenState != null ? `, ${vsState(f.sevBurden, f.sevBurdenState)}` : ''}.`
+      : ` ${f.sevBurden.toFixed(1)}% of renter households are severely cost-burdened${f.sevBurdenState != null ? `, ${vsState(f.sevBurden, f.sevBurdenState)}` : ''}.`;
+  const ownerFrame = f.ownerBurden == null ? '' :
+    f.ownerBurdenState != null
+      ? ` Among owners, <strong>${f.ownerBurden.toFixed(1)}%</strong> pay 30%+ of income on housing, ${vsState(f.ownerBurden, f.ownerBurdenState)}.`
+      : ` Among owners, <strong>${f.ownerBurden.toFixed(1)}%</strong> pay 30%+ of income on housing.`;
+  const evidence = `Median gross rent is <strong>${fmt(f.rentNew, 'dollar')}</strong>. ${spreadFrame}${burdenFrame}${ownerFrame}${amiFrame}`;
+
+  // MEANING — CDBG band + pre-1960 + equity watch (federal thresholds, fixed)
+  let cdbgFrame;
+  if (f.poverty == null) cdbgFrame = '';
+  else if (f.poverty >= CDBG_LOW_MOD) cdbgFrame = `Our poverty rate of <strong class="op-flag op-flag-critical">${f.poverty.toFixed(1)}%</strong>${f.povertyState != null ? ` (${vsState(f.poverty, f.povertyState)})` : ''} exceeds the 20% CDBG low/moderate-income benchmark, making the full jurisdiction eligible for area-benefit investments under HUD 24 CFR 570.208.`;
+  else if (f.poverty >= 15) cdbgFrame = `Our poverty rate of <strong class="op-flag">${f.poverty.toFixed(1)}%</strong>${f.povertyState != null ? ` (${vsState(f.poverty, f.povertyState)})` : ''} is elevated — below the 20% CDBG low/mod benchmark but worth monitoring.`;
+  else cdbgFrame = `Our poverty rate of <strong>${f.poverty.toFixed(1)}%</strong>${f.povertyState != null ? ` (${vsState(f.poverty, f.povertyState)})` : ''} sits below the 20% CDBG low/mod benchmark.`;
+  const pre1960Frame = f.pre1960 == null ? '' :
+    f.pre1960 >= LEAD_PAINT_RISK ? ` <strong class="op-flag">${f.pre1960.toFixed(1)}%</strong> of our housing stock predates 1960 — above the 30% EPA lead-paint risk threshold that carries rehabilitation and childhood-exposure obligations.`
+    : ` ${f.pre1960.toFixed(1)}% of our housing stock predates 1960, below the 30% EPA lead-paint risk threshold.`;
+  const equityFrame = f.equityPick == null ? '' :
+    ` Equity watch: ${f.equityPick.label.toLowerCase()} stands at <strong>${f.equityPick.value.toFixed(1)}%</strong>${f.equityPick.stateAvg != null ? ` versus <strong>${f.equityPick.stateAvg.toFixed(1)}%</strong> statewide` : ''} — a dimension our plan should name explicitly.`;
+  const meaning = `${cdbgFrame}${pre1960Frame}${equityFrame}`.trim();
+
+  return { hook, context, evidence, meaning };
+}
+
+// Auto-derived program-eligibility callouts for the one-pager.
+// Rules fire deterministically from already-computed facts; returns
+// array of {title, detail, flag} — flag controls the chip color.
+function onePagerEligibility(f) {
+  const items = [];
+  if (f.poverty != null && f.poverty >= 20) {
+    items.push({
+      title: 'CDBG Area-Benefit Eligibility',
+      detail: `Poverty rate ${f.poverty.toFixed(1)}% ≥ 20% low/moderate-income benchmark (HUD 24 CFR 570.208). Full-jurisdiction area-benefit activities qualify.`,
+      flag: 'critical',
+    });
+  }
+  if (f.sevBurden != null && f.sevBurden >= 20) {
+    items.push({
+      title: 'HOME / LIHTC / HCV Priority',
+      detail: `Severe renter cost burden at ${f.sevBurden.toFixed(1)}% signals acute need for rental assistance (HCV), rental production (LIHTC, HOME CHDO), and tenant-based rental assistance (TBRA).`,
+      flag: 'warn',
+    });
+  }
+  if (f.pre1960 != null && f.pre1960 >= 30) {
+    items.push({
+      title: 'Lead-Based Paint Reduction',
+      detail: `${f.pre1960.toFixed(1)}% of housing predates 1960. HUD LBP control (24 CFR 35), EPA RRP Rule, and CDC childhood-exposure prevention all apply. Eligible for HUD Lead Hazard Reduction Demonstration / Healthy Homes grants.`,
+      flag: 'warn',
+    });
+  }
+  if (f.pctLEP != null && f.pctLEP >= 5) {
+    items.push({
+      title: 'Language Access Plan Required',
+      detail: `${f.pctLEP.toFixed(1)}% of residents are Limited English Proficient, above the 5% threshold that triggers Language Access Plan obligations under Executive Order 13166 for federally funded programs.`,
+      flag: 'warn',
+    });
+  }
+  if (f.pctDisabled != null && f.pctDisabledState != null && f.pctDisabled > f.pctDisabledState) {
+    items.push({
+      title: 'ADA Title II Priority',
+      detail: `Disability rate of ${f.pctDisabled.toFixed(1)}% exceeds the state average (${f.pctDisabledState.toFixed(1)}%). Elevates ADA Title II obligations on public facilities, housing accessibility (Section 504), and transit service equity.`,
+      flag: 'info',
+    });
+  }
+  if (f.isSmallJurisdiction) {
+    items.push({
+      title: 'State-Administered CDBG (Non-Entitlement)',
+      detail: `Population under 50,000 — unless part of an Urban County or designated metro, CDBG funds flow through the state small-cities program rather than direct HUD entitlement.`,
+      flag: 'info',
+    });
+  }
+  return items;
+}
+
+function buildOnePagerTiles(f) {
+  const tile = (label, value, note) =>
+    `<div class="op-tile"><div class="op-tile-label">${label}</div><div class="op-tile-value">${value}</div>${note ? `<div class="op-tile-note">${note}</div>` : ''}</div>`;
+  const signed = (v, d = 1) => v == null ? '—' : (v >= 0 ? '+' : '') + v.toFixed(d) + '%';
+
+  const tiles = [];
+  // HOOK (3)
+  tiles.push(tile('Population', fmt(f.popNew), 'ACS A00001'));
+  tiles.push(tile('10-yr change', signed(f.popPct), f.popDelta == null ? '' : (f.popDelta >= 0 ? '+' : '−') + fmt(Math.round(Math.abs(f.popDelta))) + ' residents'));
+  tiles.push(tile('Median age', f.medianAge == null ? '—' : Math.round(f.medianAge), 'years'));
+  // CONTEXT (4)
+  tiles.push(tile('Median HH income', fmt(f.medInc, 'dollar'), 'ACS A14006'));
+  tiles.push(tile('Real income Δ (10-yr)', signed(f.incPctReal), 'CPI-U 2022$'));
+  tiles.push(tile("Bachelor's +", f.bachOver == null ? '—' : f.bachOver.toFixed(1) + '%', 'ACS A12002'));
+  tiles.push(tile('Unemployment', fmt(f.unemp, 'pct'), 'ACS A17005'));
+  // EVIDENCE (5)
+  tiles.push(tile('% Renter', fmt(f.pctRenter, 'pct'), 'Tenure'));
+  tiles.push(tile('Median gross rent', fmt(f.rentNew, 'dollar'), 'ACS A18009'));
+  tiles.push(tile('Real rent Δ (10-yr)', signed(f.rentPctReal), 'CPI-U 2022$'));
+  tiles.push(tile('Severe renter burden', fmt(f.sevBurden, 'pct'), '50%+ of income'));
+  tiles.push(tile('Owner 30%+ burden', fmt(f.ownerBurden, 'pct'), 'ACS B25091'));
+  // MEANING (3) — CDBG 20% is federal, fixed
+  const povNote = f.poverty == null ? '' : f.poverty >= 20 ? '≥ CDBG 20% threshold' : 'below CDBG 20% threshold';
+  tiles.push(tile('Poverty rate', fmt(f.poverty, 'pct'), povNote));
+  tiles.push(tile('Pre-1960 housing', fmt(f.pre1960, 'pct'), 'Lead-paint risk'));
+  tiles.push(tile(f.equityPick ? f.equityPick.label : 'Equity indicator',
+                  f.equityPick ? fmt(f.equityPick.value, 'pct') : '—',
+                  f.equityPick && f.equityPick.stateAvg != null ? 'vs ' + fmt(f.equityPick.stateAvg, 'pct') + ' statewide' : ''));
+  return tiles.join('');
+}
+
+function showOnePager() {
+  const D = window._D, geos = window._geos;
+  if (!D || !geos) { alert('Please generate the Existing Conditions Package first.'); return; }
+  const f = computeOnePagerFacts(D, geos);
+  const n = onePagerNarrative(f, geos);
+
+  document.getElementById('opTitle').textContent = `${geos.target.name} — Council One-Pager`;
+  document.getElementById('opSubtitle').innerHTML =
+    `Critical numbers for council briefings, grant applications, and comp-plan executive summaries · Comparison: ${geos.msa.label} · ${geos.county.label} · ${geos.state.label}`;
+  document.getElementById('opHook').innerHTML     = n.hook;
+  document.getElementById('opContext').innerHTML  = n.context;
+  document.getElementById('opEvidence').innerHTML = n.evidence;
+  document.getElementById('opMeaning').innerHTML  = n.meaning;
+  document.getElementById('opTiles').innerHTML    = buildOnePagerTiles(f);
+
+  // Programs this jurisdiction qualifies for (auto-derived)
+  const elig = onePagerEligibility(f);
+  const eligEl = document.getElementById('opEligibility');
+  if (elig.length === 0) {
+    eligEl.innerHTML = '';
+    eligEl.classList.add('op-hidden');
+  } else {
+    eligEl.classList.remove('op-hidden');
+    eligEl.innerHTML = `
+      <div class="op-elig-header">Programs this jurisdiction qualifies for <span class="op-elig-hint">· auto-derived from metrics above</span></div>
+      <ul class="op-elig-list">
+        ${elig.map(e => `<li class="op-elig-item op-elig-${e.flag}"><span class="op-elig-title">${e.title}</span><span class="op-elig-detail">${e.detail}</span></li>`).join('')}
+      </ul>`;
+  }
+  document.getElementById('opFooter').innerHTML =
+    `Sources: ACS 5-yr 2020–2024 (current) &amp; 2010–2014 (decade baseline) · HUD Fair Market Rent FY2025 · BLS LAUS · CPI-U BLS CUUR0000SA0 (2012→2022 scale ≈ ${CPI_2012_TO_2022.toFixed(3)}). ` +
+    `Generated ${new Date().toLocaleDateString()} · Social Explorer Community Intelligence Platform.`;
+
+  document.body.classList.add('onepager-open');
+  const op = document.getElementById('onePager');
+  op.setAttribute('aria-hidden', 'false');
+  op.scrollTop = 0;
+}
+
+function hideOnePager() {
+  document.body.classList.remove('onepager-open');
+  document.getElementById('onePager').setAttribute('aria-hidden', 'true');
+}
+
+function printOnePager() {
+  document.body.classList.add('printing-onepager');
+  window.print();
+  setTimeout(() => document.body.classList.remove('printing-onepager'), 250);
+}
+
+// ============================================================
 // RENDER
 // ============================================================
 function renderBrief(geos, D) {
@@ -1162,6 +1716,14 @@ function renderPopulation(parent, geos, D) {
   ];
   body.innerHTML += compareTable(overview, geos, { title: 'Overview' });
 
+  // 10-year trend — Bachelor's+ educational attainment (A12002 _005 + _006 / _001)
+  const bachelorsPct = (geo) => {
+    const total = val(geo, 'SE_A12002_001');
+    if (!total) return null;
+    return ((val(geo, 'SE_A12002_005') || 0) + (val(geo, 'SE_A12002_006') || 0)) / total * 100;
+  };
+  appendTrendBlock(body, geos, `Bachelor's+`, bachelorsPct, D, `Bachelor's or Higher — 10-Year Trend (All Geographies)`);
+
   // Age distribution by cohort (Sprint 1.1)
   const ag = TABLES.age.prefix;
   const ageCohorts = [
@@ -1234,19 +1796,19 @@ function renderPopulation(parent, geos, D) {
   // 10-year population change — all 4 geographies (Amelia feedback: "I need to know if Burlington is shrinking faster than the state")
   const hM = D.histMsa, hC = D.histCounty, hS = D.histState;
   const popChgRows = [
-    { label: 'Population change (10-yr %)', format: 'pct', values: {
+    { label: 'Population (%Δ, 10-yr relative change)', format: 'pct', values: {
       target: trendChange(popOld, popNew),
       msa:    trendChange(val(hM, `${p}_001`), val(m, `${p}_001`)),
       county: trendChange(val(hC, `${p}_001`), val(c, `${p}_001`)),
       state:  trendChange(val(hS, `${p}_001`), val(s, `${p}_001`)),
     }},
-    { label: 'Median HH income change (10-yr %, nominal)', format: 'pct', values: {
+    { label: 'Median HH income (%Δ, nominal)', format: 'pct', values: {
       target: trendChange(val(h, `${TABLES.medianIncome.prefix}_001`), val(t, `${TABLES.medianIncome.prefix}_001`)),
       msa:    trendChange(val(hM, `${TABLES.medianIncome.prefix}_001`), val(m, `${TABLES.medianIncome.prefix}_001`)),
       county: trendChange(val(hC, `${TABLES.medianIncome.prefix}_001`), val(c, `${TABLES.medianIncome.prefix}_001`)),
       state:  trendChange(val(hS, `${TABLES.medianIncome.prefix}_001`), val(s, `${TABLES.medianIncome.prefix}_001`)),
     }},
-    { label: 'Median rent change (10-yr %, nominal)', format: 'pct', values: {
+    { label: 'Median rent (%Δ, nominal)', format: 'pct', values: {
       target: trendChange(val(h, `${TABLES.medianRent.prefix}_001`), val(t, `${TABLES.medianRent.prefix}_001`)),
       msa:    trendChange(val(hM, `${TABLES.medianRent.prefix}_001`), val(m, `${TABLES.medianRent.prefix}_001`)),
       county: trendChange(val(hC, `${TABLES.medianRent.prefix}_001`), val(c, `${TABLES.medianRent.prefix}_001`)),
@@ -1254,6 +1816,7 @@ function renderPopulation(parent, geos, D) {
     }},
   ];
   body.innerHTML += compareTable(popChgRows, geos, { title: '10-Year Change — All Geographies (ACS 2010-2014 vs. 2020-2024)' });
+  body.innerHTML += `<p class="text-xs text-gray-500 italic mt-1 px-1">%Δ = relative change in a value (e.g., population grew 5.5% of its 2014 level). Use percentage points (pp) when comparing two rates directly.</p>`;
 
   // Detailed target compositional shifts (age, race)
   body.innerHTML += `<div class="mt-4 mb-2"><h4 class="text-sm font-semibold text-gray-700">10-Year Composition Shifts — ${geos.target.label}</h4></div>`;
@@ -1332,6 +1895,32 @@ function shareRow(prefix, numSuffix, denSuffix, D) {
   };
 }
 
+// Build a 3-row trend block (2014 rate / 2024 rate / ppΔ) for any rate-based indicator across all 4 geos.
+// `rateFn` takes a geo record and returns a percentage (0-100) or null.
+// D must have both current (target/msa/county/state) and historical (hist/histMsa/histCounty/histState) records.
+function trendRows(label, rateFn, D) {
+  const old = { target: rateFn(D.hist), msa: rateFn(D.histMsa), county: rateFn(D.histCounty), state: rateFn(D.histState) };
+  const now = { target: rateFn(D.target), msa: rateFn(D.msa), county: rateFn(D.county), state: rateFn(D.state) };
+  const dlt = { target: null, msa: null, county: null, state: null };
+  for (const k of ['target','msa','county','state']) {
+    if (old[k] != null && now[k] != null) dlt[k] = now[k] - old[k];
+  }
+  return [
+    { label: `${label} (2010-2014)`, format: 'pct', values: old },
+    { label: `${label} (2020-2024)`, format: 'pct', values: now },
+    { label: `Change (ppΔ, absolute)`, format: 'delta', values: dlt },
+  ];
+}
+
+// Helper to append both a trend table and the ppΔ footnote in one call.
+function appendTrendBlock(body, geos, label, rateFn, D, title) {
+  const rows = trendRows(label, rateFn, D);
+  // Only render if at least one of the 2014 values exists
+  if (rows[0].values.target == null && rows[0].values.state == null) return;
+  body.innerHTML += compareTable(rows, geos, { title });
+  body.innerHTML += `<p class="text-xs text-gray-500 italic mt-1 px-1"><strong>ppΔ</strong> = absolute change in the rate (percentage points) between 2014 and 2024.</p>`;
+}
+
 // ============================================================
 // SECTION 2 — ECONOMIC CONDITIONS (PARTIAL: ACS only; BLS planned)
 // ============================================================
@@ -1355,6 +1944,20 @@ function renderEconomic(parent, geos, D) {
     }},
   ];
   body.innerHTML += compareTable(acsRows, geos, { title: 'Income, Employment & Poverty (ACS)' });
+
+  // 10-year trends — poverty and unemployment rates across 4 geos
+  const povRate = (geo) => {
+    const total = val(geo, 'SE_A13004_001');
+    if (!total) return null;
+    return ((val(geo, 'SE_A13004_002') || 0) + (val(geo, 'SE_A13004_003') || 0) + (val(geo, 'SE_A13004_004') || 0)) / total * 100;
+  };
+  const unempRate = (geo) => {
+    const total = val(geo, 'SE_A17005_001');
+    if (!total) return null;
+    return (val(geo, 'SE_A17005_003') || 0) / total * 100;
+  };
+  appendTrendBlock(body, geos, 'Poverty rate', povRate, D, 'Poverty Rate — 10-Year Trend (All Geographies)');
+  appendTrendBlock(body, geos, 'Unemployment rate (ACS 5-yr)', unempRate, D, 'Unemployment Rate — 10-Year Trend (ACS, All Geographies)');
 
   // Income distribution (Sprint 1.2)
   const inc = TABLES.incomeDist.prefix;
@@ -1506,13 +2109,29 @@ function renderHousing(parent, geos, D) {
   ];
   body.innerHTML += compareTable(market, geos, { title: 'Housing Market Indicators' });
 
+  // 10-year trends — % Renter and Vacancy rate across 4 geos
+  const renterShare = (geo) => {
+    const total = val(geo, 'SE_A10060_001');
+    if (!total) return null;
+    return (val(geo, 'SE_A10060_003') || 0) / total * 100;
+  };
+  const vacancyRate = (geo) => {
+    const occ = val(geo, 'SE_A10060_001');
+    const vac = val(geo, 'SE_A10047_001');
+    if (!occ && !vac) return null;
+    return (vac || 0) / ((occ || 0) + (vac || 0)) * 100;
+  };
+  appendTrendBlock(body, geos, '% Renter', renterShare, D, '% Renter — 10-Year Trend (All Geographies)');
+  appendTrendBlock(body, geos, 'Vacancy rate', vacancyRate, D, 'Vacancy Rate — 10-Year Trend (All Geographies)');
+
   const burden = [
     { label: 'Renter households 30%+ cost-burdened (%)', format: 'pct', values: { target: t.PctCostBurdened, msa: D.msa.PctCostBurdened, county: D.county.PctCostBurdened, state: D.state.PctCostBurdened }},
     { label: 'Renter households 50%+ severely cost-burdened (%)', format: 'pct', values: { target: t.PctSevereBurden, msa: D.msa.PctSevereBurden, county: D.county.PctSevereBurden, state: D.state.PctSevereBurden }},
   ];
   body.innerHTML += compareTable(burden, geos, { title: 'Renter Cost Burden (ACS)' });
 
-  // Cost burden change over time — all 4 geos (Amelia feedback: "are places becoming more cost-burdened?")
+  // 10-year trends — Renter 30%+ and 50%+ cost burden across 4 geos
+  // (Amelia feedback: "are places becoming more cost-burdened?")
   const rb = TABLES.rentBurden.prefix; // SE_A18002
   const costBurdenPct = (geo) => {
     const total = val(geo, `${rb}_001`);
@@ -1524,16 +2143,8 @@ function renderHousing(parent, geos, D) {
     if (!total) return null;
     return (val(geo, `${rb}_005`) || 0) / total * 100;
   };
-  const cbOldT = costBurdenPct(h), cbOldM = costBurdenPct(D.histMsa), cbOldC = costBurdenPct(D.histCounty), cbOldS = costBurdenPct(D.histState);
-  const cbNewT = t.PctCostBurdened, cbNewM = D.msa.PctCostBurdened, cbNewC = D.county.PctCostBurdened, cbNewS = D.state.PctCostBurdened;
-  const cbDelta = (o, n) => (o != null && n != null) ? n - o : null;
-
-  const burdenTrendRows = [
-    { label: 'Renter 30%+ burden (2010-2014)', format: 'pct', values: { target: cbOldT, msa: cbOldM, county: cbOldC, state: cbOldS }},
-    { label: 'Renter 30%+ burden (2020-2024)', format: 'pct', values: { target: cbNewT, msa: cbNewM, county: cbNewC, state: cbNewS }},
-    { label: 'Change (percentage points)', format: 'delta', values: { target: cbDelta(cbOldT, cbNewT), msa: cbDelta(cbOldM, cbNewM), county: cbDelta(cbOldC, cbNewC), state: cbDelta(cbOldS, cbNewS) }},
-  ];
-  body.innerHTML += compareTable(burdenTrendRows, geos, { title: 'Renter Cost Burden Change Over Time (10-Year, All Geographies)' });
+  appendTrendBlock(body, geos, 'Renter 30%+ burden', costBurdenPct,   D, 'Renter 30%+ Cost Burden — 10-Year Trend (All Geographies)');
+  appendTrendBlock(body, geos, 'Renter 50%+ burden', costBurdenPct50, D, 'Renter 50%+ Severe Burden — 10-Year Trend (All Geographies)');
 
   // Owner cost burden (Sprint 1.3) — with MOE flags from B25091
   const moeB25091 = (geo, numVars) => {
@@ -1558,6 +2169,26 @@ function renderHousing(parent, geos, D) {
       flags: { target: moeB25091(t, ob50Vars), msa: moeB25091(D.msa, ob50Vars), county: moeB25091(D.county, ob50Vars), state: moeB25091(D.state, ob50Vars) }},
   ];
   body.innerHTML += compareTable(ownerBurden, geos, { title: 'Owner Cost Burden (ACS)' });
+
+  // 10-year trends — Owner 30%+ and 50%+ cost burden across 4 geos.
+  // Current vintage (ACS2024_5yr via fetchComputed) prefixes fields ORG_B25091xxx.
+  // Historical (ACS2014_5yr) comes through the data-delivery /v2 endpoint (not llm_api)
+  // and prefixes fields ACS14_5yr_B25091xxx. Rate fns try both prefixes.
+  const B25091_FIELD = (geo, suffix) => val(geo, `ORG_B25091${suffix}`) ?? val(geo, `ACS14_5yr_B25091${suffix}`);
+  const ownerBurdenPct = (geo) => {
+    const total = B25091_FIELD(geo, '001');
+    if (!total) return null;
+    const num = ['008','009','010','011','012','019','020','021','022','023']
+                .reduce((s, sfx) => s + (B25091_FIELD(geo, sfx) || 0), 0);
+    return num / total * 100;
+  };
+  const ownerSevereBurdenPct = (geo) => {
+    const total = B25091_FIELD(geo, '001');
+    if (!total) return null;
+    return ((B25091_FIELD(geo, '011') || 0) + (B25091_FIELD(geo, '022') || 0)) / total * 100;
+  };
+  appendTrendBlock(body, geos, 'Owner 30%+ burden', ownerBurdenPct,       D, 'Owner 30%+ Cost Burden — 10-Year Trend (All Geographies)');
+  appendTrendBlock(body, geos, 'Owner 50%+ burden', ownerSevereBurdenPct, D, 'Owner 50%+ Severe Burden — 10-Year Trend (All Geographies)');
 
   // Chart: Cost burden grouped bar (renter + owner, side-by-side by geography)
   hcChart(body, {
@@ -1630,6 +2261,33 @@ function renderHousing(parent, geos, D) {
       label: `FMR ${lbl} (MSA)`, format: 'dollar', values: { target: val(fmr, `${fmrP}_${String(i+1).padStart(3, '0')}`), msa: val(fmr, `${fmrP}_${String(i+1).padStart(3, '0')}`), county: null, state: null },
     }));
     body.innerHTML += compareTable(fmrRows, geos, { title: 'Fair Market Rent by Bedroom (HUD FY2025, MSA)' });
+
+    // Redfin real-time market snapshot — user-triggered action (GitHub Actions refreshes the JSON weekly)
+    const redfinId = 'redfin-' + Math.random().toString(36).slice(2, 10);
+    window._redfinGeos = geos; // stash for the button handler
+    body.innerHTML += `
+      <div id="${redfinId}" class="redfin-section mt-5">
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
+          <div class="flex items-start justify-between gap-4 flex-wrap">
+            <div class="flex-1 min-w-0">
+              <h4 class="text-sm font-semibold text-gray-800 flex items-center gap-2">
+                <span class="inline-block w-2 h-2 rounded-full bg-blue-500"></span>
+                Real-Time Housing Market (Redfin)
+              </h4>
+              <p class="text-xs text-gray-600 mt-1 leading-relaxed">
+                Median sale price, list price, inventory, months of supply, and days on market —
+                updated weekly, no ACS lag. Pull the latest snapshot for <strong>${geos.state.label || geos.state.name}</strong>.
+              </p>
+            </div>
+            <button onclick="pullRedfinData('${redfinId}')"
+              class="shrink-0 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-sm">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+              Pull Market Data
+            </button>
+          </div>
+        </div>
+      </div>`;
+
 
     // HUD Income Limits / AMI Dollar Thresholds (from same ILFMR2025 survey)
     const ilP = 'ILFMR2025';
@@ -1971,6 +2629,17 @@ function renderMobility(parent, geos, D) {
   ];
   body.innerHTML += compareTable(rows, geos, { title: 'Commute Mode Share (ACS)' });
 
+  // 10-year trends — key commute modes across 4 geos (A09005)
+  const commuteShare = (suffix) => (geo) => {
+    const total = val(geo, 'SE_A09005_001');
+    if (!total) return null;
+    return (val(geo, 'SE_A09005' + suffix) || 0) / total * 100;
+  };
+  appendTrendBlock(body, geos, '% Drive alone', commuteShare('_002'), D, 'Drive-Alone Commute Share — 10-Year Trend');
+  appendTrendBlock(body, geos, '% Transit', commuteShare('_004'), D, 'Transit Commute Share — 10-Year Trend');
+  appendTrendBlock(body, geos, '% Walk', commuteShare('_007'), D, 'Walk Commute Share — 10-Year Trend');
+  appendTrendBlock(body, geos, '% Work from home', commuteShare('_010'), D, 'Work-from-Home Share — 10-Year Trend');
+
   // Chart: Commute mode share — stacked bar, all 4 geos
   const modeLabels = ['Drive Alone', 'Carpool', 'Transit', 'Walk', 'WFH'];
   const modeColors = ['#818CF8', '#A5B4FC', '#06b6d4', '#f59e0b', '#94a3b8'];
@@ -2254,9 +2923,8 @@ async function renderTractSample(parent, geos, D) {
   }
 }
 
-// Auto-run on load for the Burlington prototype.
+// Wait for the user to click "Generate Existing Conditions Package" — no auto-run.
 window.addEventListener('DOMContentLoaded', () => {
-  setTimeout(generateBrief, 100);
   // Threshold editor — live re-rank without a re-fetch.
   document.querySelectorAll('#thresholdEditor input[data-th]').forEach(inp => {
     inp.addEventListener('input', () => { if (window._D) renderSignals(window._D, window._geos); });

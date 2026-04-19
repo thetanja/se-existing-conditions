@@ -1,0 +1,4490 @@
+{
+  "PA": {
+    "state_name": "Pennsylvania",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 309500,
+      "median_list_price": 326900,
+      "median_ppsf": 186,
+      "homes_sold": 8753,
+      "inventory": 24846,
+      "months_of_supply": 2.8,
+      "median_dom": 46,
+      "sale_price_yoy": 0.06105199274
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 305800,
+        "median_dom": 31,
+        "inventory": 27106
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 313500,
+        "median_dom": 30,
+        "inventory": 29571
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 332900,
+        "median_dom": 28,
+        "inventory": 30267
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 326300,
+        "median_dom": 30,
+        "inventory": 31305
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 323600,
+        "median_dom": 32,
+        "inventory": 31302
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 306500,
+        "median_dom": 35,
+        "inventory": 32183
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 306800,
+        "median_dom": 35,
+        "inventory": 32062
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 308200,
+        "median_dom": 37,
+        "inventory": 29865
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 305500,
+        "median_dom": 41,
+        "inventory": 25616
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 299000,
+        "median_dom": 51,
+        "inventory": 24537
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 293500,
+        "median_dom": 54,
+        "inventory": 23810
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 309500,
+        "median_dom": 46,
+        "inventory": 24846
+      }
+    ]
+  },
+  "MS": {
+    "state_name": "Mississippi",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 265400,
+      "median_list_price": 294200,
+      "median_ppsf": 148,
+      "homes_sold": 1605,
+      "inventory": 7246,
+      "months_of_supply": 4.5,
+      "median_dom": 59,
+      "sale_price_yoy": 0.03915079914
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 266700,
+        "median_dom": 49,
+        "inventory": 7077
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 268600,
+        "median_dom": 42,
+        "inventory": 7154
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 272800,
+        "median_dom": 45,
+        "inventory": 7201
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 265000,
+        "median_dom": 45,
+        "inventory": 7457
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 266500,
+        "median_dom": 46,
+        "inventory": 7251
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 263300,
+        "median_dom": 48,
+        "inventory": 7337
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 265300,
+        "median_dom": 50,
+        "inventory": 7378
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 268300,
+        "median_dom": 49,
+        "inventory": 7115
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 268300,
+        "median_dom": 56,
+        "inventory": 6814
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 250500,
+        "median_dom": 63,
+        "inventory": 6868
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 260300,
+        "median_dom": 73,
+        "inventory": 7004
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 265400,
+        "median_dom": 59,
+        "inventory": 7246
+      }
+    ]
+  },
+  "UT": {
+    "state_name": "Utah",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 576900,
+      "median_list_price": 590200,
+      "median_ppsf": 258,
+      "homes_sold": 3328,
+      "inventory": 12663,
+      "months_of_supply": 3.8,
+      "median_dom": 53,
+      "sale_price_yoy": -0.007677360492
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 561000,
+        "median_dom": 41,
+        "inventory": 13564
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 562600,
+        "median_dom": 39,
+        "inventory": 14623
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 555400,
+        "median_dom": 40,
+        "inventory": 15197
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 561300,
+        "median_dom": 45,
+        "inventory": 15315
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 572900,
+        "median_dom": 51,
+        "inventory": 15056
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 584400,
+        "median_dom": 55,
+        "inventory": 15067
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 576900,
+        "median_dom": 59,
+        "inventory": 14853
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 573600,
+        "median_dom": 60,
+        "inventory": 13823
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 576100,
+        "median_dom": 66,
+        "inventory": 12082
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 575900,
+        "median_dom": 76,
+        "inventory": 11903
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 557100,
+        "median_dom": 75,
+        "inventory": 12139
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 576900,
+        "median_dom": 53,
+        "inventory": 12663
+      }
+    ]
+  },
+  "AZ": {
+    "state_name": "Arizona",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 453000,
+      "median_list_price": 478400,
+      "median_ppsf": 255,
+      "homes_sold": 9885,
+      "inventory": 37636,
+      "months_of_supply": 3.8,
+      "median_dom": 64,
+      "sale_price_yoy": -0.01039769646
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 440200,
+        "median_dom": 59,
+        "inventory": 39841
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 451600,
+        "median_dom": 59,
+        "inventory": 39931
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 444100,
+        "median_dom": 62,
+        "inventory": 38436
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 437600,
+        "median_dom": 68,
+        "inventory": 36575
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 440900,
+        "median_dom": 72,
+        "inventory": 35725
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 446500,
+        "median_dom": 70,
+        "inventory": 36672
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 447000,
+        "median_dom": 69,
+        "inventory": 38104
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 448000,
+        "median_dom": 64,
+        "inventory": 36382
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 448000,
+        "median_dom": 70,
+        "inventory": 33367
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 440200,
+        "median_dom": 78,
+        "inventory": 36470
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 446100,
+        "median_dom": 75,
+        "inventory": 37882
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 453000,
+        "median_dom": 64,
+        "inventory": 37636
+      }
+    ]
+  },
+  "MD": {
+    "state_name": "Maryland",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 447900,
+      "median_list_price": 461400,
+      "median_ppsf": 230,
+      "homes_sold": 4864,
+      "inventory": 13694,
+      "months_of_supply": 2.8,
+      "median_dom": 47,
+      "sale_price_yoy": 0.04854155067
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 448900,
+        "median_dom": 29,
+        "inventory": 13916
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 452300,
+        "median_dom": 29,
+        "inventory": 15429
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 464200,
+        "median_dom": 32,
+        "inventory": 16053
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 460800,
+        "median_dom": 35,
+        "inventory": 16375
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 446900,
+        "median_dom": 40,
+        "inventory": 16389
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 439300,
+        "median_dom": 42,
+        "inventory": 17000
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 446700,
+        "median_dom": 44,
+        "inventory": 17116
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 436200,
+        "median_dom": 46,
+        "inventory": 15943
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 441700,
+        "median_dom": 51,
+        "inventory": 13282
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 417700,
+        "median_dom": 60,
+        "inventory": 13053
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 427600,
+        "median_dom": 56,
+        "inventory": 12873
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 447900,
+        "median_dom": 47,
+        "inventory": 13694
+      }
+    ]
+  },
+  "IN": {
+    "state_name": "Indiana",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 273400,
+      "median_list_price": 290400,
+      "median_ppsf": 149,
+      "homes_sold": 6506,
+      "inventory": 15382,
+      "months_of_supply": 2.4,
+      "median_dom": 49,
+      "sale_price_yoy": 0.04040285884
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 266400,
+        "median_dom": 29,
+        "inventory": 16368
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 275700,
+        "median_dom": 25,
+        "inventory": 18072
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 283100,
+        "median_dom": 25,
+        "inventory": 18855
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 281000,
+        "median_dom": 25,
+        "inventory": 19848
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 277700,
+        "median_dom": 29,
+        "inventory": 20218
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 275900,
+        "median_dom": 33,
+        "inventory": 20952
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 273100,
+        "median_dom": 33,
+        "inventory": 21306
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 268900,
+        "median_dom": 37,
+        "inventory": 19959
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 265600,
+        "median_dom": 42,
+        "inventory": 17474
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 255000,
+        "median_dom": 54,
+        "inventory": 16357
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 261600,
+        "median_dom": 58,
+        "inventory": 15785
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 273400,
+        "median_dom": 49,
+        "inventory": 15382
+      }
+    ]
+  },
+  "GA": {
+    "state_name": "Georgia",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 375700,
+      "median_list_price": 418600,
+      "median_ppsf": 187,
+      "homes_sold": 10870,
+      "inventory": 42798,
+      "months_of_supply": 3.9,
+      "median_dom": 67,
+      "sale_price_yoy": -0.002274131658
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 380000,
+        "median_dom": 50,
+        "inventory": 48094
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 382900,
+        "median_dom": 48,
+        "inventory": 50355
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 390400,
+        "median_dom": 50,
+        "inventory": 51794
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 381600,
+        "median_dom": 55,
+        "inventory": 53076
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 380400,
+        "median_dom": 60,
+        "inventory": 53638
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 373400,
+        "median_dom": 64,
+        "inventory": 54427
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 369800,
+        "median_dom": 66,
+        "inventory": 55918
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 373800,
+        "median_dom": 68,
+        "inventory": 53539
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 367400,
+        "median_dom": 74,
+        "inventory": 45567
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 358300,
+        "median_dom": 80,
+        "inventory": 45175
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 368900,
+        "median_dom": 82,
+        "inventory": 44609
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 375700,
+        "median_dom": 67,
+        "inventory": 42798
+      }
+    ]
+  },
+  "NJ": {
+    "state_name": "New Jersey",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 546700,
+      "median_list_price": 588200,
+      "median_ppsf": 345,
+      "homes_sold": 5929,
+      "inventory": 18878,
+      "months_of_supply": 3.2,
+      "median_dom": 49,
+      "sale_price_yoy": 0.03967842717
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 547700,
+        "median_dom": 39,
+        "inventory": 21050
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 559600,
+        "median_dom": 36,
+        "inventory": 22402
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 582100,
+        "median_dom": 37,
+        "inventory": 23215
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 578700,
+        "median_dom": 39,
+        "inventory": 23559
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 584700,
+        "median_dom": 43,
+        "inventory": 22795
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 563900,
+        "median_dom": 45,
+        "inventory": 23116
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 563100,
+        "median_dom": 46,
+        "inventory": 22749
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 559800,
+        "median_dom": 48,
+        "inventory": 20850
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 550900,
+        "median_dom": 50,
+        "inventory": 17389
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 549500,
+        "median_dom": 58,
+        "inventory": 17443
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 539400,
+        "median_dom": 60,
+        "inventory": 17154
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 546700,
+        "median_dom": 49,
+        "inventory": 18878
+      }
+    ]
+  },
+  "NC": {
+    "state_name": "North Carolina",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 381900,
+      "median_list_price": 420000,
+      "median_ppsf": 206,
+      "homes_sold": 12096,
+      "inventory": 47960,
+      "months_of_supply": 4.0,
+      "median_dom": 77,
+      "sale_price_yoy": 0.003120963187
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 384200,
+        "median_dom": 45,
+        "inventory": 46531
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 389300,
+        "median_dom": 43,
+        "inventory": 50377
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 397300,
+        "median_dom": 44,
+        "inventory": 51647
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 389800,
+        "median_dom": 47,
+        "inventory": 52366
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 391900,
+        "median_dom": 54,
+        "inventory": 52434
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 381600,
+        "median_dom": 59,
+        "inventory": 52342
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 389000,
+        "median_dom": 61,
+        "inventory": 52370
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 389000,
+        "median_dom": 60,
+        "inventory": 50207
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 382300,
+        "median_dom": 72,
+        "inventory": 44388
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 373800,
+        "median_dom": 85,
+        "inventory": 44267
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 377400,
+        "median_dom": 90,
+        "inventory": 45477
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 381900,
+        "median_dom": 77,
+        "inventory": 47960
+      }
+    ]
+  },
+  "OR": {
+    "state_name": "Oregon",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 507600,
+      "median_list_price": 545900,
+      "median_ppsf": 297,
+      "homes_sold": 3839,
+      "inventory": 12471,
+      "months_of_supply": 3.2,
+      "median_dom": 46,
+      "sale_price_yoy": -0.002487265931
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 515900,
+        "median_dom": 32,
+        "inventory": 14425
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 525800,
+        "median_dom": 27,
+        "inventory": 16386
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 529700,
+        "median_dom": 28,
+        "inventory": 17309
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 517500,
+        "median_dom": 34,
+        "inventory": 17839
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 519200,
+        "median_dom": 43,
+        "inventory": 17254
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 508800,
+        "median_dom": 45,
+        "inventory": 16638
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 512600,
+        "median_dom": 51,
+        "inventory": 15635
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 507200,
+        "median_dom": 55,
+        "inventory": 13967
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 496800,
+        "median_dom": 60,
+        "inventory": 12121
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 489100,
+        "median_dom": 72,
+        "inventory": 11802
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 499600,
+        "median_dom": 73,
+        "inventory": 12116
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 507600,
+        "median_dom": 46,
+        "inventory": 12471
+      }
+    ]
+  },
+  "ID": {
+    "state_name": "Idaho",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 475800,
+      "median_list_price": 525700,
+      "median_ppsf": 264,
+      "homes_sold": 2456,
+      "inventory": 6589,
+      "months_of_supply": 2.7,
+      "median_dom": 68,
+      "sale_price_yoy": -0.01779514085
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 474100,
+        "median_dom": 44,
+        "inventory": 8850
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 496600,
+        "median_dom": 35,
+        "inventory": 9912
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 495400,
+        "median_dom": 36,
+        "inventory": 10413
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 493100,
+        "median_dom": 39,
+        "inventory": 10620
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 500800,
+        "median_dom": 49,
+        "inventory": 10418
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 494000,
+        "median_dom": 60,
+        "inventory": 10007
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 509600,
+        "median_dom": 61,
+        "inventory": 9350
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 510200,
+        "median_dom": 66,
+        "inventory": 8596
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 477700,
+        "median_dom": 68,
+        "inventory": 7572
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 507100,
+        "median_dom": 79,
+        "inventory": 7057
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 477800,
+        "median_dom": 78,
+        "inventory": 6656
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 475800,
+        "median_dom": 68,
+        "inventory": 6589
+      }
+    ]
+  },
+  "AL": {
+    "state_name": "Alabama",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 300300,
+      "median_list_price": 323400,
+      "median_ppsf": 161,
+      "homes_sold": 5295,
+      "inventory": 22194,
+      "months_of_supply": 4.2,
+      "median_dom": 69,
+      "sale_price_yoy": 0.04159985365
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 289600,
+        "median_dom": 60,
+        "inventory": 22310
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 291900,
+        "median_dom": 56,
+        "inventory": 22922
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 298000,
+        "median_dom": 54,
+        "inventory": 23112
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 300400,
+        "median_dom": 58,
+        "inventory": 23413
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 297100,
+        "median_dom": 62,
+        "inventory": 23266
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 292800,
+        "median_dom": 65,
+        "inventory": 23130
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 289100,
+        "median_dom": 66,
+        "inventory": 23084
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 291200,
+        "median_dom": 69,
+        "inventory": 22434
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 282700,
+        "median_dom": 74,
+        "inventory": 20733
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 282300,
+        "median_dom": 84,
+        "inventory": 20939
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 288900,
+        "median_dom": 82,
+        "inventory": 21423
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 300300,
+        "median_dom": 69,
+        "inventory": 22194
+      }
+    ]
+  },
+  "OK": {
+    "state_name": "Oklahoma",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 257000,
+      "median_list_price": 277100,
+      "median_ppsf": 151,
+      "homes_sold": 4211,
+      "inventory": 14528,
+      "months_of_supply": 3.5,
+      "median_dom": 62,
+      "sale_price_yoy": 0.03691588728
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 250400,
+        "median_dom": 46,
+        "inventory": 14936
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 259400,
+        "median_dom": 38,
+        "inventory": 15673
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 260300,
+        "median_dom": 36,
+        "inventory": 16157
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 258900,
+        "median_dom": 38,
+        "inventory": 16628
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 253600,
+        "median_dom": 42,
+        "inventory": 16746
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 252500,
+        "median_dom": 44,
+        "inventory": 16830
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 256800,
+        "median_dom": 47,
+        "inventory": 17107
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 252800,
+        "median_dom": 50,
+        "inventory": 16604
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 253300,
+        "median_dom": 55,
+        "inventory": 15585
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 244700,
+        "median_dom": 63,
+        "inventory": 15113
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 249200,
+        "median_dom": 68,
+        "inventory": 14792
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 257000,
+        "median_dom": 62,
+        "inventory": 14528
+      }
+    ]
+  },
+  "VA": {
+    "state_name": "Virginia",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 464200,
+      "median_list_price": 492900,
+      "median_ppsf": 243,
+      "homes_sold": 8865,
+      "inventory": 20711,
+      "months_of_supply": 2.3,
+      "median_dom": 41,
+      "sale_price_yoy": -0.002529063049
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 472100,
+        "median_dom": 29,
+        "inventory": 23023
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 480500,
+        "median_dom": 27,
+        "inventory": 25412
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 485000,
+        "median_dom": 28,
+        "inventory": 26015
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 472200,
+        "median_dom": 32,
+        "inventory": 26441
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 462900,
+        "median_dom": 35,
+        "inventory": 26436
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 456400,
+        "median_dom": 39,
+        "inventory": 26441
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 466800,
+        "median_dom": 40,
+        "inventory": 26502
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 455300,
+        "median_dom": 41,
+        "inventory": 24164
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 448500,
+        "median_dom": 46,
+        "inventory": 20247
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 425700,
+        "median_dom": 55,
+        "inventory": 19767
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 447800,
+        "median_dom": 49,
+        "inventory": 19939
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 464200,
+        "median_dom": 41,
+        "inventory": 20711
+      }
+    ]
+  },
+  "ME": {
+    "state_name": "Maine",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 390300,
+      "median_list_price": 424500,
+      "median_ppsf": 251,
+      "homes_sold": 1154,
+      "inventory": 4091,
+      "months_of_supply": 3.5,
+      "median_dom": 67,
+      "sale_price_yoy": 0.07237561056
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 402100,
+        "median_dom": 46,
+        "inventory": 4043
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 402900,
+        "median_dom": 31,
+        "inventory": 4979
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 416500,
+        "median_dom": 31,
+        "inventory": 5688
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 416700,
+        "median_dom": 36,
+        "inventory": 6017
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 418300,
+        "median_dom": 40,
+        "inventory": 6202
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 395500,
+        "median_dom": 42,
+        "inventory": 6227
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 426800,
+        "median_dom": 47,
+        "inventory": 6026
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 397100,
+        "median_dom": 50,
+        "inventory": 5363
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 387900,
+        "median_dom": 53,
+        "inventory": 4583
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 382600,
+        "median_dom": 60,
+        "inventory": 4322
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 372400,
+        "median_dom": 65,
+        "inventory": 4044
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 390300,
+        "median_dom": 67,
+        "inventory": 4091
+      }
+    ]
+  },
+  "AK": {
+    "state_name": "Alaska",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 399800,
+      "median_list_price": 448100,
+      "median_ppsf": 245,
+      "homes_sold": 461,
+      "inventory": 1104,
+      "months_of_supply": 2.4,
+      "median_dom": 33,
+      "sale_price_yoy": 0.02374592895
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 383500,
+        "median_dom": 31,
+        "inventory": 1578
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 407400,
+        "median_dom": 19,
+        "inventory": 1836
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 407900,
+        "median_dom": 22,
+        "inventory": 1969
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 421300,
+        "median_dom": 23,
+        "inventory": 2095
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 402100,
+        "median_dom": 29,
+        "inventory": 2104
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 401300,
+        "median_dom": 34,
+        "inventory": 2022
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 385800,
+        "median_dom": 35,
+        "inventory": 1810
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 400700,
+        "median_dom": 39,
+        "inventory": 1567
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 406200,
+        "median_dom": 43,
+        "inventory": 1228
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 407700,
+        "median_dom": 56,
+        "inventory": 1112
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 397000,
+        "median_dom": 63,
+        "inventory": 1103
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 399800,
+        "median_dom": 33,
+        "inventory": 1104
+      }
+    ]
+  },
+  "MN": {
+    "state_name": "Minnesota",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 355900,
+      "median_list_price": 392000,
+      "median_ppsf": 188,
+      "homes_sold": 4460,
+      "inventory": 12022,
+      "months_of_supply": 2.7,
+      "median_dom": 44,
+      "sale_price_yoy": 0.01321215287
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 369600,
+        "median_dom": 27,
+        "inventory": 13010
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 367600,
+        "median_dom": 23,
+        "inventory": 14760
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 378700,
+        "median_dom": 23,
+        "inventory": 15375
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 371800,
+        "median_dom": 27,
+        "inventory": 15998
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 369700,
+        "median_dom": 30,
+        "inventory": 15954
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 364500,
+        "median_dom": 32,
+        "inventory": 16059
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 362000,
+        "median_dom": 35,
+        "inventory": 15498
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 359000,
+        "median_dom": 38,
+        "inventory": 13934
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 356100,
+        "median_dom": 44,
+        "inventory": 11593
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 343500,
+        "median_dom": 58,
+        "inventory": 10863
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 347800,
+        "median_dom": 65,
+        "inventory": 11398
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 355900,
+        "median_dom": 44,
+        "inventory": 12022
+      }
+    ]
+  },
+  "MO": {
+    "state_name": "Missouri",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 282300,
+      "median_list_price": 291600,
+      "median_ppsf": 166,
+      "homes_sold": 6256,
+      "inventory": 14001,
+      "months_of_supply": 2.2,
+      "median_dom": 44,
+      "sale_price_yoy": 0.06649448337
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 270300,
+        "median_dom": 30,
+        "inventory": 14500
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 284700,
+        "median_dom": 26,
+        "inventory": 15436
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 290400,
+        "median_dom": 25,
+        "inventory": 16007
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 289000,
+        "median_dom": 27,
+        "inventory": 16576
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 283300,
+        "median_dom": 33,
+        "inventory": 16499
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 280200,
+        "median_dom": 34,
+        "inventory": 16904
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 283900,
+        "median_dom": 38,
+        "inventory": 17111
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 280200,
+        "median_dom": 39,
+        "inventory": 16253
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 276100,
+        "median_dom": 45,
+        "inventory": 14152
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 266600,
+        "median_dom": 53,
+        "inventory": 13557
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 270900,
+        "median_dom": 54,
+        "inventory": 13714
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 282300,
+        "median_dom": 44,
+        "inventory": 14001
+      }
+    ]
+  },
+  "DC": {
+    "state_name": "Columbia",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 678000,
+      "median_list_price": 649900,
+      "median_ppsf": 495,
+      "homes_sold": 529,
+      "inventory": 2755,
+      "months_of_supply": 5.2,
+      "median_dom": 68,
+      "sale_price_yoy": 0.03511450382
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 740000,
+        "median_dom": 45,
+        "inventory": 3213
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 701500,
+        "median_dom": 46,
+        "inventory": 3383
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 707000,
+        "median_dom": 55,
+        "inventory": 3244
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 677000,
+        "median_dom": 57,
+        "inventory": 3071
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 662500,
+        "median_dom": 66,
+        "inventory": 2830
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 672000,
+        "median_dom": 69,
+        "inventory": 3220
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 680000,
+        "median_dom": 55,
+        "inventory": 3185
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 700000,
+        "median_dom": 54,
+        "inventory": 2859
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 715000,
+        "median_dom": 70,
+        "inventory": 2353
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 652500,
+        "median_dom": 93,
+        "inventory": 2329
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 590000,
+        "median_dom": 109,
+        "inventory": 2490
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 678000,
+        "median_dom": 68,
+        "inventory": 2755
+      }
+    ]
+  },
+  "MA": {
+    "state_name": "Massachusetts",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 645500,
+      "median_list_price": 731800,
+      "median_ppsf": 409,
+      "homes_sold": 3727,
+      "inventory": 9948,
+      "months_of_supply": 2.7,
+      "median_dom": 31,
+      "sale_price_yoy": 0.0268550988
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 659300,
+        "median_dom": 21,
+        "inventory": 11814
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 682300,
+        "median_dom": 20,
+        "inventory": 13455
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 695700,
+        "median_dom": 20,
+        "inventory": 14061
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 686500,
+        "median_dom": 22,
+        "inventory": 13642
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 666500,
+        "median_dom": 25,
+        "inventory": 12626
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 639400,
+        "median_dom": 28,
+        "inventory": 14459
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 655600,
+        "median_dom": 25,
+        "inventory": 14085
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 655300,
+        "median_dom": 27,
+        "inventory": 11543
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 638200,
+        "median_dom": 32,
+        "inventory": 8310
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 636100,
+        "median_dom": 40,
+        "inventory": 8511
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 597600,
+        "median_dom": 39,
+        "inventory": 8214
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 645500,
+        "median_dom": 31,
+        "inventory": 9948
+      }
+    ]
+  },
+  "TX": {
+    "state_name": "Texas",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 342400,
+      "median_list_price": 379300,
+      "median_ppsf": 175,
+      "homes_sold": 27571,
+      "inventory": 126046,
+      "months_of_supply": 4.6,
+      "median_dom": 82,
+      "sale_price_yoy": -0.01579651407
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 347000,
+        "median_dom": 56,
+        "inventory": 142593
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 349000,
+        "median_dom": 52,
+        "inventory": 150969
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 355100,
+        "median_dom": 55,
+        "inventory": 154601
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 350100,
+        "median_dom": 59,
+        "inventory": 155512
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 346000,
+        "median_dom": 64,
+        "inventory": 151663
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 339200,
+        "median_dom": 70,
+        "inventory": 147708
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 341500,
+        "median_dom": 74,
+        "inventory": 146335
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 336700,
+        "median_dom": 77,
+        "inventory": 137485
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 340000,
+        "median_dom": 85,
+        "inventory": 124334
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 329600,
+        "median_dom": 88,
+        "inventory": 124800
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 333600,
+        "median_dom": 91,
+        "inventory": 127214
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 342400,
+        "median_dom": 82,
+        "inventory": 126046
+      }
+    ]
+  },
+  "KS": {
+    "state_name": "Kansas",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 302100,
+      "median_list_price": 316400,
+      "median_ppsf": 156,
+      "homes_sold": 2594,
+      "inventory": 3807,
+      "months_of_supply": 1.5,
+      "median_dom": 35,
+      "sale_price_yoy": 0.07067957387
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 288500,
+        "median_dom": 26,
+        "inventory": 4292
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 306900,
+        "median_dom": 20,
+        "inventory": 4594
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 312400,
+        "median_dom": 19,
+        "inventory": 4729
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 314100,
+        "median_dom": 22,
+        "inventory": 5033
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 306600,
+        "median_dom": 25,
+        "inventory": 5081
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 291700,
+        "median_dom": 30,
+        "inventory": 5054
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 303400,
+        "median_dom": 30,
+        "inventory": 5123
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 299300,
+        "median_dom": 33,
+        "inventory": 4866
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 289000,
+        "median_dom": 39,
+        "inventory": 4205
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 280700,
+        "median_dom": 47,
+        "inventory": 4026
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 285900,
+        "median_dom": 46,
+        "inventory": 3886
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 302100,
+        "median_dom": 35,
+        "inventory": 3807
+      }
+    ]
+  },
+  "KY": {
+    "state_name": "Kentucky",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 277100,
+      "median_list_price": 292900,
+      "median_ppsf": 160,
+      "homes_sold": 3476,
+      "inventory": 11926,
+      "months_of_supply": 3.4,
+      "median_dom": 63,
+      "sale_price_yoy": 0.04148086044
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 264800,
+        "median_dom": 45,
+        "inventory": 11759
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 277700,
+        "median_dom": 41,
+        "inventory": 12366
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 281100,
+        "median_dom": 42,
+        "inventory": 12770
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 280400,
+        "median_dom": 40,
+        "inventory": 13323
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 279600,
+        "median_dom": 44,
+        "inventory": 13322
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 270800,
+        "median_dom": 48,
+        "inventory": 13472
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 280700,
+        "median_dom": 48,
+        "inventory": 13862
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 278700,
+        "median_dom": 48,
+        "inventory": 13412
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 271300,
+        "median_dom": 53,
+        "inventory": 12010
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 264800,
+        "median_dom": 65,
+        "inventory": 11745
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 270300,
+        "median_dom": 71,
+        "inventory": 11500
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 277100,
+        "median_dom": 63,
+        "inventory": 11926
+      }
+    ]
+  },
+  "HI": {
+    "state_name": "Hawaii",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 772300,
+      "median_list_price": 772000,
+      "median_ppsf": 650,
+      "homes_sold": 1040,
+      "inventory": 6483,
+      "months_of_supply": 6.2,
+      "median_dom": 104,
+      "sale_price_yoy": 0.05220887169
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 766800,
+        "median_dom": 92,
+        "inventory": 7124
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 744400,
+        "median_dom": 87,
+        "inventory": 7201
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 757200,
+        "median_dom": 85,
+        "inventory": 7166
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 733900,
+        "median_dom": 95,
+        "inventory": 7043
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 737800,
+        "median_dom": 95,
+        "inventory": 6935
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 755100,
+        "median_dom": 100,
+        "inventory": 6805
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 783600,
+        "median_dom": 104,
+        "inventory": 6614
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 740200,
+        "median_dom": 104,
+        "inventory": 6613
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 751300,
+        "median_dom": 99,
+        "inventory": 6255
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 755700,
+        "median_dom": 106,
+        "inventory": 6472
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 753200,
+        "median_dom": 104,
+        "inventory": 6612
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 772300,
+        "median_dom": 104,
+        "inventory": 6483
+      }
+    ]
+  },
+  "DE": {
+    "state_name": "Delaware",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 365700,
+      "median_list_price": 388400,
+      "median_ppsf": 200,
+      "homes_sold": 566,
+      "inventory": 1517,
+      "months_of_supply": 2.7,
+      "median_dom": 48,
+      "sale_price_yoy": 0.06322352344
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 360000,
+        "median_dom": 32,
+        "inventory": 1462
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 363600,
+        "median_dom": 31,
+        "inventory": 1573
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 379800,
+        "median_dom": 29,
+        "inventory": 1639
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 385600,
+        "median_dom": 33,
+        "inventory": 1671
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 364300,
+        "median_dom": 33,
+        "inventory": 1691
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 359300,
+        "median_dom": 40,
+        "inventory": 1738
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 371100,
+        "median_dom": 41,
+        "inventory": 1720
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 368700,
+        "median_dom": 41,
+        "inventory": 1667
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 374100,
+        "median_dom": 40,
+        "inventory": 1358
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 363200,
+        "median_dom": 51,
+        "inventory": 1381
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 352400,
+        "median_dom": 43,
+        "inventory": 1408
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 365700,
+        "median_dom": 48,
+        "inventory": 1517
+      }
+    ]
+  },
+  "NV": {
+    "state_name": "Nevada",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 468600,
+      "median_list_price": 496600,
+      "median_ppsf": 264,
+      "homes_sold": 3812,
+      "inventory": 12861,
+      "months_of_supply": 3.4,
+      "median_dom": 62,
+      "sale_price_yoy": 0.007209927764
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 466900,
+        "median_dom": 48,
+        "inventory": 13756
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 466500,
+        "median_dom": 47,
+        "inventory": 14892
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 477200,
+        "median_dom": 50,
+        "inventory": 15428
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 465600,
+        "median_dom": 55,
+        "inventory": 15507
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 469700,
+        "median_dom": 57,
+        "inventory": 15495
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 460500,
+        "median_dom": 64,
+        "inventory": 15364
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 468200,
+        "median_dom": 65,
+        "inventory": 15244
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 473800,
+        "median_dom": 70,
+        "inventory": 14304
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 469800,
+        "median_dom": 72,
+        "inventory": 12728
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 451700,
+        "median_dom": 77,
+        "inventory": 12801
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 461400,
+        "median_dom": 81,
+        "inventory": 12912
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 468600,
+        "median_dom": 62,
+        "inventory": 12861
+      }
+    ]
+  },
+  "RI": {
+    "state_name": "Rhode Island",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 535700,
+      "median_list_price": 571300,
+      "median_ppsf": 295,
+      "homes_sold": 701,
+      "inventory": 1507,
+      "months_of_supply": 2.1,
+      "median_dom": 42,
+      "sale_price_yoy": 0.06502920824
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 493900,
+        "median_dom": 25,
+        "inventory": 1947
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 519800,
+        "median_dom": 26,
+        "inventory": 2152
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 533600,
+        "median_dom": 25,
+        "inventory": 2319
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 520800,
+        "median_dom": 26,
+        "inventory": 2370
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 515700,
+        "median_dom": 31,
+        "inventory": 2296
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 569200,
+        "median_dom": 34,
+        "inventory": 2304
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 504800,
+        "median_dom": 32,
+        "inventory": 2286
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 525600,
+        "median_dom": 35,
+        "inventory": 1964
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 514100,
+        "median_dom": 39,
+        "inventory": 1650
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 525500,
+        "median_dom": 41,
+        "inventory": 1567
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 500000,
+        "median_dom": 42,
+        "inventory": 1457
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 535700,
+        "median_dom": 42,
+        "inventory": 1507
+      }
+    ]
+  },
+  "FL": {
+    "state_name": "Florida",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 417100,
+      "median_list_price": 441800,
+      "median_ppsf": 252,
+      "homes_sold": 34168,
+      "inventory": 162555,
+      "months_of_supply": 4.8,
+      "median_dom": 77,
+      "sale_price_yoy": 0.01847536089
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 409100,
+        "median_dom": 65,
+        "inventory": 188036
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 410700,
+        "median_dom": 67,
+        "inventory": 185576
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 408900,
+        "median_dom": 70,
+        "inventory": 181265
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 402400,
+        "median_dom": 74,
+        "inventory": 174867
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 401400,
+        "median_dom": 78,
+        "inventory": 168369
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 402500,
+        "median_dom": 81,
+        "inventory": 165005
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 406900,
+        "median_dom": 82,
+        "inventory": 167423
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 403000,
+        "median_dom": 79,
+        "inventory": 166155
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 409900,
+        "median_dom": 80,
+        "inventory": 158456
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 410500,
+        "median_dom": 81,
+        "inventory": 166117
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 412600,
+        "median_dom": 83,
+        "inventory": 168404
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 417100,
+        "median_dom": 77,
+        "inventory": 162555
+      }
+    ]
+  },
+  "CO": {
+    "state_name": "Colorado",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 604300,
+      "median_list_price": 602000,
+      "median_ppsf": 275,
+      "homes_sold": 6559,
+      "inventory": 25180,
+      "months_of_supply": 3.8,
+      "median_dom": 45,
+      "sale_price_yoy": -0.02230395898
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 631200,
+        "median_dom": 32,
+        "inventory": 28617
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 609300,
+        "median_dom": 32,
+        "inventory": 32120
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 609100,
+        "median_dom": 34,
+        "inventory": 33948
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 598900,
+        "median_dom": 39,
+        "inventory": 34167
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 617200,
+        "median_dom": 47,
+        "inventory": 33204
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 617400,
+        "median_dom": 53,
+        "inventory": 32129
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 628100,
+        "median_dom": 56,
+        "inventory": 30514
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 603300,
+        "median_dom": 63,
+        "inventory": 26953
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 594500,
+        "median_dom": 70,
+        "inventory": 22080
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 592000,
+        "median_dom": 80,
+        "inventory": 22630
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 593300,
+        "median_dom": 70,
+        "inventory": 23914
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 604300,
+        "median_dom": 45,
+        "inventory": 25180
+      }
+    ]
+  },
+  "NY": {
+    "state_name": "New York",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 599200,
+      "median_list_price": 684000,
+      "median_ppsf": 488,
+      "homes_sold": 8271,
+      "inventory": 31210,
+      "months_of_supply": 3.8,
+      "median_dom": 57,
+      "sale_price_yoy": 0.07344576958
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 577500,
+        "median_dom": 45,
+        "inventory": 36906
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 590800,
+        "median_dom": 37,
+        "inventory": 40008
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 595200,
+        "median_dom": 31,
+        "inventory": 41336
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 599800,
+        "median_dom": 30,
+        "inventory": 41667
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 593500,
+        "median_dom": 32,
+        "inventory": 40380
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 569000,
+        "median_dom": 36,
+        "inventory": 41949
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 553400,
+        "median_dom": 39,
+        "inventory": 40427
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 550900,
+        "median_dom": 40,
+        "inventory": 36999
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 564000,
+        "median_dom": 42,
+        "inventory": 31351
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 606100,
+        "median_dom": 47,
+        "inventory": 30337
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 596600,
+        "median_dom": 54,
+        "inventory": 29408
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 599200,
+        "median_dom": 57,
+        "inventory": 31210
+      }
+    ]
+  },
+  "WI": {
+    "state_name": "Wisconsin",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 338200,
+      "median_list_price": 361800,
+      "median_ppsf": 195,
+      "homes_sold": 4612,
+      "inventory": 13099,
+      "months_of_supply": 2.8,
+      "median_dom": 54,
+      "sale_price_yoy": 0.0853361943
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 328600,
+        "median_dom": 46,
+        "inventory": 14855
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 339400,
+        "median_dom": 45,
+        "inventory": 16449
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 346900,
+        "median_dom": 45,
+        "inventory": 16880
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 342800,
+        "median_dom": 45,
+        "inventory": 17423
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 343100,
+        "median_dom": 48,
+        "inventory": 17391
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 338300,
+        "median_dom": 49,
+        "inventory": 17586
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 338000,
+        "median_dom": 51,
+        "inventory": 17156
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 332000,
+        "median_dom": 52,
+        "inventory": 15443
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 320100,
+        "median_dom": 57,
+        "inventory": 12419
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 320100,
+        "median_dom": 69,
+        "inventory": 11952
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 322400,
+        "median_dom": 68,
+        "inventory": 12371
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 338200,
+        "median_dom": 54,
+        "inventory": 13099
+      }
+    ]
+  },
+  "VT": {
+    "state_name": "Vermont",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 437800,
+      "median_list_price": 461800,
+      "median_ppsf": 249,
+      "homes_sold": 447,
+      "inventory": 2221,
+      "months_of_supply": 5.0,
+      "median_dom": 95,
+      "sale_price_yoy": 0.08973353213
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 441600,
+        "median_dom": 71,
+        "inventory": 2080
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 441200,
+        "median_dom": 58,
+        "inventory": 2466
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 427900,
+        "median_dom": 43,
+        "inventory": 2848
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 435000,
+        "median_dom": 41,
+        "inventory": 3162
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 433400,
+        "median_dom": 49,
+        "inventory": 3200
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 425300,
+        "median_dom": 56,
+        "inventory": 3293
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 434200,
+        "median_dom": 64,
+        "inventory": 3092
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 434100,
+        "median_dom": 66,
+        "inventory": 2762
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 426100,
+        "median_dom": 83,
+        "inventory": 2310
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 395500,
+        "median_dom": 91,
+        "inventory": 2189
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 411500,
+        "median_dom": 107,
+        "inventory": 2156
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 437800,
+        "median_dom": 95,
+        "inventory": 2221
+      }
+    ]
+  },
+  "CT": {
+    "state_name": "Connecticut",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 444100,
+      "median_list_price": 481800,
+      "median_ppsf": 268,
+      "homes_sold": 2331,
+      "inventory": 5087,
+      "months_of_supply": 2.2,
+      "median_dom": 45,
+      "sale_price_yoy": 0.05370841933
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 451600,
+        "median_dom": 33,
+        "inventory": 6861
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 464800,
+        "median_dom": 31,
+        "inventory": 7706
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 498700,
+        "median_dom": 31,
+        "inventory": 7939
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 492200,
+        "median_dom": 35,
+        "inventory": 7968
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 479400,
+        "median_dom": 35,
+        "inventory": 7789
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 461600,
+        "median_dom": 40,
+        "inventory": 7978
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 449400,
+        "median_dom": 41,
+        "inventory": 7759
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 459300,
+        "median_dom": 41,
+        "inventory": 6936
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 442300,
+        "median_dom": 44,
+        "inventory": 5569
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 445900,
+        "median_dom": 50,
+        "inventory": 5223
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 421800,
+        "median_dom": 51,
+        "inventory": 4964
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 444100,
+        "median_dom": 45,
+        "inventory": 5087
+      }
+    ]
+  },
+  "MT": {
+    "state_name": "Montana",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 505100,
+      "median_list_price": 578000,
+      "median_ppsf": 283,
+      "homes_sold": 921,
+      "inventory": 4939,
+      "months_of_supply": 5.4,
+      "median_dom": 115,
+      "sale_price_yoy": -0.07110018705
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 531200,
+        "median_dom": 94,
+        "inventory": 5420
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 520900,
+        "median_dom": 64,
+        "inventory": 6142
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 509200,
+        "median_dom": 64,
+        "inventory": 6642
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 541400,
+        "median_dom": 68,
+        "inventory": 6787
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 536200,
+        "median_dom": 77,
+        "inventory": 6641
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 546900,
+        "median_dom": 78,
+        "inventory": 6339
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 546000,
+        "median_dom": 86,
+        "inventory": 5960
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 530700,
+        "median_dom": 93,
+        "inventory": 5283
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 501200,
+        "median_dom": 101,
+        "inventory": 4563
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 522400,
+        "median_dom": 111,
+        "inventory": 4443
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 538200,
+        "median_dom": 121,
+        "inventory": 4567
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 505100,
+        "median_dom": 115,
+        "inventory": 4939
+      }
+    ]
+  },
+  "OH": {
+    "state_name": "Ohio",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 263500,
+      "median_list_price": 276700,
+      "median_ppsf": 163,
+      "homes_sold": 9662,
+      "inventory": 25044,
+      "months_of_supply": 2.6,
+      "median_dom": 47,
+      "sale_price_yoy": 0.0529428122
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 253500,
+        "median_dom": 38,
+        "inventory": 26585
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 268100,
+        "median_dom": 35,
+        "inventory": 28575
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 280100,
+        "median_dom": 35,
+        "inventory": 30026
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 275600,
+        "median_dom": 36,
+        "inventory": 31225
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 271300,
+        "median_dom": 38,
+        "inventory": 31678
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 261300,
+        "median_dom": 41,
+        "inventory": 31930
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 265300,
+        "median_dom": 43,
+        "inventory": 31938
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 261100,
+        "median_dom": 44,
+        "inventory": 29941
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 253400,
+        "median_dom": 49,
+        "inventory": 24876
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 244700,
+        "median_dom": 58,
+        "inventory": 24590
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 252500,
+        "median_dom": 58,
+        "inventory": 24117
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 263500,
+        "median_dom": 47,
+        "inventory": 25044
+      }
+    ]
+  },
+  "ND": {
+    "state_name": "North Dakota",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 312200,
+      "median_list_price": 345400,
+      "median_ppsf": 151,
+      "homes_sold": 319,
+      "inventory": 974,
+      "months_of_supply": 3.1,
+      "median_dom": 73,
+      "sale_price_yoy": 0.1251187957
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 298700,
+        "median_dom": 57,
+        "inventory": 1075
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 296700,
+        "median_dom": 44,
+        "inventory": 1136
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 306000,
+        "median_dom": 37,
+        "inventory": 1293
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 302300,
+        "median_dom": 38,
+        "inventory": 1299
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 329300,
+        "median_dom": 41,
+        "inventory": 1321
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 297800,
+        "median_dom": 45,
+        "inventory": 1363
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 305800,
+        "median_dom": 45,
+        "inventory": 1280
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 303900,
+        "median_dom": 61,
+        "inventory": 1169
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 287800,
+        "median_dom": 64,
+        "inventory": 1036
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 299700,
+        "median_dom": 69,
+        "inventory": 960
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 319000,
+        "median_dom": 85,
+        "inventory": 955
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 312200,
+        "median_dom": 73,
+        "inventory": 974
+      }
+    ]
+  },
+  "SC": {
+    "state_name": "South Carolina",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 398000,
+      "median_list_price": 407700,
+      "median_ppsf": 210,
+      "homes_sold": 6617,
+      "inventory": 30222,
+      "months_of_supply": 4.6,
+      "median_dom": 92,
+      "sale_price_yoy": 0.041906668
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 379300,
+        "median_dom": 71,
+        "inventory": 30633
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 389200,
+        "median_dom": 68,
+        "inventory": 31228
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 386800,
+        "median_dom": 71,
+        "inventory": 31366
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 387700,
+        "median_dom": 74,
+        "inventory": 31389
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 390300,
+        "median_dom": 77,
+        "inventory": 31233
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 381300,
+        "median_dom": 83,
+        "inventory": 31124
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 383300,
+        "median_dom": 82,
+        "inventory": 31221
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 379700,
+        "median_dom": 80,
+        "inventory": 30222
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 376800,
+        "median_dom": 89,
+        "inventory": 27138
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 386700,
+        "median_dom": 93,
+        "inventory": 28156
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 376300,
+        "median_dom": 101,
+        "inventory": 29244
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 398000,
+        "median_dom": 92,
+        "inventory": 30222
+      }
+    ]
+  },
+  "NM": {
+    "state_name": "New Mexico",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 379100,
+      "median_list_price": 413400,
+      "median_ppsf": 223,
+      "homes_sold": 898,
+      "inventory": 4007,
+      "months_of_supply": 4.5,
+      "median_dom": 77,
+      "sale_price_yoy": 0.06681478613
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 370000,
+        "median_dom": 63,
+        "inventory": 4081
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 358200,
+        "median_dom": 47,
+        "inventory": 4380
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 370900,
+        "median_dom": 46,
+        "inventory": 4656
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 365700,
+        "median_dom": 53,
+        "inventory": 4678
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 374600,
+        "median_dom": 53,
+        "inventory": 4643
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 411900,
+        "median_dom": 62,
+        "inventory": 4581
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 404400,
+        "median_dom": 64,
+        "inventory": 4426
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 402100,
+        "median_dom": 69,
+        "inventory": 4245
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 357400,
+        "median_dom": 77,
+        "inventory": 4003
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 345200,
+        "median_dom": 82,
+        "inventory": 3852
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 373200,
+        "median_dom": 87,
+        "inventory": 3843
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 379100,
+        "median_dom": 77,
+        "inventory": 4007
+      }
+    ]
+  },
+  "TN": {
+    "state_name": "Tennessee",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 393400,
+      "median_list_price": 425400,
+      "median_ppsf": 210,
+      "homes_sold": 7173,
+      "inventory": 34150,
+      "months_of_supply": 4.8,
+      "median_dom": 86,
+      "sale_price_yoy": 0.01707488911
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 389300,
+        "median_dom": 59,
+        "inventory": 33833
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 401300,
+        "median_dom": 56,
+        "inventory": 35861
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 405200,
+        "median_dom": 54,
+        "inventory": 36886
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 393000,
+        "median_dom": 59,
+        "inventory": 37327
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 392500,
+        "median_dom": 61,
+        "inventory": 36908
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 390900,
+        "median_dom": 65,
+        "inventory": 37046
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 404200,
+        "median_dom": 68,
+        "inventory": 36913
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 391600,
+        "median_dom": 73,
+        "inventory": 35420
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 394800,
+        "median_dom": 77,
+        "inventory": 31805
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 384500,
+        "median_dom": 89,
+        "inventory": 31522
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 386200,
+        "median_dom": 90,
+        "inventory": 31996
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 393400,
+        "median_dom": 86,
+        "inventory": 34150
+      }
+    ]
+  },
+  "CA": {
+    "state_name": "California",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 855300,
+      "median_list_price": 877100,
+      "median_ppsf": 519,
+      "homes_sold": 23474,
+      "inventory": 69875,
+      "months_of_supply": 3.0,
+      "median_dom": 37,
+      "sale_price_yoy": 0.007391098171
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 854400,
+        "median_dom": 33,
+        "inventory": 84545
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 858100,
+        "median_dom": 33,
+        "inventory": 91138
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 862400,
+        "median_dom": 36,
+        "inventory": 91337
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 830900,
+        "median_dom": 44,
+        "inventory": 90906
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 822200,
+        "median_dom": 47,
+        "inventory": 87388
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 831300,
+        "median_dom": 46,
+        "inventory": 85334
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 838500,
+        "median_dom": 47,
+        "inventory": 81289
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 828000,
+        "median_dom": 49,
+        "inventory": 73125
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 792000,
+        "median_dom": 53,
+        "inventory": 59969
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 778700,
+        "median_dom": 60,
+        "inventory": 64110
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 818400,
+        "median_dom": 50,
+        "inventory": 66960
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 855300,
+        "median_dom": 37,
+        "inventory": 69875
+      }
+    ]
+  },
+  "WY": {
+    "state_name": "Wyoming",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 440800,
+      "median_list_price": 492000,
+      "median_ppsf": 225,
+      "homes_sold": 511,
+      "inventory": 1812,
+      "months_of_supply": 3.5,
+      "median_dom": 69,
+      "sale_price_yoy": -0.02481561796
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 400300,
+        "median_dom": 52,
+        "inventory": 1952
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 393400,
+        "median_dom": 42,
+        "inventory": 2252
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 413000,
+        "median_dom": 41,
+        "inventory": 2511
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 488400,
+        "median_dom": 42,
+        "inventory": 2623
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 554500,
+        "median_dom": 45,
+        "inventory": 2671
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 446900,
+        "median_dom": 52,
+        "inventory": 2560
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 523200,
+        "median_dom": 63,
+        "inventory": 2402
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 494800,
+        "median_dom": 63,
+        "inventory": 2222
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 449700,
+        "median_dom": 62,
+        "inventory": 1896
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 563100,
+        "median_dom": 81,
+        "inventory": 1804
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 418000,
+        "median_dom": 75,
+        "inventory": 1784
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 440800,
+        "median_dom": 69,
+        "inventory": 1812
+      }
+    ]
+  },
+  "MI": {
+    "state_name": "Michigan",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 270200,
+      "median_list_price": 288700,
+      "median_ppsf": 173,
+      "homes_sold": 7753,
+      "inventory": 20512,
+      "months_of_supply": 2.6,
+      "median_dom": 40,
+      "sale_price_yoy": 0.04201035564
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 268700,
+        "median_dom": 28,
+        "inventory": 22403
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 284700,
+        "median_dom": 23,
+        "inventory": 25234
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 290700,
+        "median_dom": 23,
+        "inventory": 26910
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 291300,
+        "median_dom": 24,
+        "inventory": 28841
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 285900,
+        "median_dom": 29,
+        "inventory": 29376
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 282900,
+        "median_dom": 31,
+        "inventory": 29646
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 273500,
+        "median_dom": 34,
+        "inventory": 29414
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 270200,
+        "median_dom": 37,
+        "inventory": 26961
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 266100,
+        "median_dom": 41,
+        "inventory": 22902
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 252700,
+        "median_dom": 52,
+        "inventory": 21130
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 259500,
+        "median_dom": 51,
+        "inventory": 20545
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 270200,
+        "median_dom": 40,
+        "inventory": 20512
+      }
+    ]
+  },
+  "SD": {
+    "state_name": "South Dakota",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 318400,
+      "median_list_price": 371300,
+      "median_ppsf": 185,
+      "homes_sold": 669,
+      "inventory": 2569,
+      "months_of_supply": 3.8,
+      "median_dom": 85,
+      "sale_price_yoy": -0.02527752512
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 317200,
+        "median_dom": 68,
+        "inventory": 3249
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 333200,
+        "median_dom": 57,
+        "inventory": 3032
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 336500,
+        "median_dom": 48,
+        "inventory": 3240
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 331500,
+        "median_dom": 41,
+        "inventory": 3396
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 344800,
+        "median_dom": 53,
+        "inventory": 3435
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 325700,
+        "median_dom": 53,
+        "inventory": 3405
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 321300,
+        "median_dom": 56,
+        "inventory": 3234
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 329200,
+        "median_dom": 64,
+        "inventory": 2960
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 316500,
+        "median_dom": 68,
+        "inventory": 2615
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 318100,
+        "median_dom": 75,
+        "inventory": 2485
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 326900,
+        "median_dom": 89,
+        "inventory": 2406
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 318400,
+        "median_dom": 85,
+        "inventory": 2569
+      }
+    ]
+  },
+  "NE": {
+    "state_name": "Nebraska",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 304300,
+      "median_list_price": 318700,
+      "median_ppsf": 156,
+      "homes_sold": 1667,
+      "inventory": 3266,
+      "months_of_supply": 2.0,
+      "median_dom": 40,
+      "sale_price_yoy": 0.04428058056
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 299700,
+        "median_dom": 27,
+        "inventory": 4060
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 312100,
+        "median_dom": 22,
+        "inventory": 4348
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 307300,
+        "median_dom": 21,
+        "inventory": 4530
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 306600,
+        "median_dom": 24,
+        "inventory": 4760
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 305300,
+        "median_dom": 28,
+        "inventory": 4809
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 309100,
+        "median_dom": 29,
+        "inventory": 4982
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 309700,
+        "median_dom": 31,
+        "inventory": 4968
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 309700,
+        "median_dom": 34,
+        "inventory": 4614
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 294200,
+        "median_dom": 35,
+        "inventory": 4130
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 300000,
+        "median_dom": 44,
+        "inventory": 3732
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 302600,
+        "median_dom": 57,
+        "inventory": 3485
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 304300,
+        "median_dom": 40,
+        "inventory": 3266
+      }
+    ]
+  },
+  "IL": {
+    "state_name": "Illinois",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 314900,
+      "median_list_price": 337400,
+      "median_ppsf": 199,
+      "homes_sold": 10460,
+      "inventory": 28976,
+      "months_of_supply": 2.8,
+      "median_dom": 51,
+      "sale_price_yoy": 0.04850909859
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 312800,
+        "median_dom": 45,
+        "inventory": 31888
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 319100,
+        "median_dom": 43,
+        "inventory": 33938
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 325700,
+        "median_dom": 46,
+        "inventory": 34247
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 320600,
+        "median_dom": 45,
+        "inventory": 34459
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 317700,
+        "median_dom": 45,
+        "inventory": 34031
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 303300,
+        "median_dom": 47,
+        "inventory": 34352
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 308200,
+        "median_dom": 49,
+        "inventory": 33801
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 302500,
+        "median_dom": 50,
+        "inventory": 31463
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 298200,
+        "median_dom": 55,
+        "inventory": 25920
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 290300,
+        "median_dom": 63,
+        "inventory": 26000
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 298600,
+        "median_dom": 65,
+        "inventory": 27425
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 314900,
+        "median_dom": 51,
+        "inventory": 28976
+      }
+    ]
+  },
+  "AR": {
+    "state_name": "Arkansas",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 270400,
+      "median_list_price": 303200,
+      "median_ppsf": 157,
+      "homes_sold": 3153,
+      "inventory": 13182,
+      "months_of_supply": 4.2,
+      "median_dom": 75,
+      "sale_price_yoy": 0.02876124504
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 266900,
+        "median_dom": 53,
+        "inventory": 13366
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 267700,
+        "median_dom": 47,
+        "inventory": 13835
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 282800,
+        "median_dom": 49,
+        "inventory": 14233
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 272900,
+        "median_dom": 51,
+        "inventory": 14388
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 273100,
+        "median_dom": 53,
+        "inventory": 14503
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 267500,
+        "median_dom": 55,
+        "inventory": 14730
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 270300,
+        "median_dom": 57,
+        "inventory": 14848
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 268400,
+        "median_dom": 61,
+        "inventory": 14551
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 268600,
+        "median_dom": 62,
+        "inventory": 13334
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 262200,
+        "median_dom": 74,
+        "inventory": 12931
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 263100,
+        "median_dom": 81,
+        "inventory": 13193
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 270400,
+        "median_dom": 75,
+        "inventory": 13182
+      }
+    ]
+  },
+  "WA": {
+    "state_name": "Washington",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 644400,
+      "median_list_price": 674000,
+      "median_ppsf": 362,
+      "homes_sold": 7114,
+      "inventory": 18253,
+      "months_of_supply": 2.6,
+      "median_dom": 31,
+      "sale_price_yoy": -0.0009221908857
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 663400,
+        "median_dom": 16,
+        "inventory": 18844
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 653300,
+        "median_dom": 15,
+        "inventory": 23157
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 665700,
+        "median_dom": 18,
+        "inventory": 24876
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 649100,
+        "median_dom": 24,
+        "inventory": 25793
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 646600,
+        "median_dom": 30,
+        "inventory": 25371
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 631800,
+        "median_dom": 35,
+        "inventory": 25021
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 644400,
+        "median_dom": 36,
+        "inventory": 23335
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 626600,
+        "median_dom": 42,
+        "inventory": 19762
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 610300,
+        "median_dom": 50,
+        "inventory": 16090
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 594700,
+        "median_dom": 63,
+        "inventory": 16109
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 624400,
+        "median_dom": 51,
+        "inventory": 17006
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 644400,
+        "median_dom": 31,
+        "inventory": 18253
+      }
+    ]
+  },
+  "IA": {
+    "state_name": "Iowa",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 251300,
+      "median_list_price": 270100,
+      "median_ppsf": 161,
+      "homes_sold": 2932,
+      "inventory": 8819,
+      "months_of_supply": 3.0,
+      "median_dom": 72,
+      "sale_price_yoy": 0.05256927742
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 240000,
+        "median_dom": 49,
+        "inventory": 9690
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 252800,
+        "median_dom": 41,
+        "inventory": 10013
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 258100,
+        "median_dom": 33,
+        "inventory": 10154
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 252600,
+        "median_dom": 34,
+        "inventory": 10419
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 251400,
+        "median_dom": 37,
+        "inventory": 10537
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 247000,
+        "median_dom": 40,
+        "inventory": 10875
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 252000,
+        "median_dom": 42,
+        "inventory": 11278
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 244100,
+        "median_dom": 46,
+        "inventory": 10738
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 237000,
+        "median_dom": 49,
+        "inventory": 9552
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 235000,
+        "median_dom": 62,
+        "inventory": 9109
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 239600,
+        "median_dom": 69,
+        "inventory": 8925
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 251300,
+        "median_dom": 72,
+        "inventory": 8819
+      }
+    ]
+  },
+  "LA": {
+    "state_name": "Louisiana",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 259700,
+      "median_list_price": 276800,
+      "median_ppsf": 148,
+      "homes_sold": 3535,
+      "inventory": 12636,
+      "months_of_supply": 3.6,
+      "median_dom": 81,
+      "sale_price_yoy": 0.04257021925
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 252500,
+        "median_dom": 71,
+        "inventory": 14109
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 261300,
+        "median_dom": 57,
+        "inventory": 14461
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 270600,
+        "median_dom": 57,
+        "inventory": 14599
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 254600,
+        "median_dom": 57,
+        "inventory": 14507
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 258600,
+        "median_dom": 62,
+        "inventory": 14144
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 254400,
+        "median_dom": 61,
+        "inventory": 14182
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 258500,
+        "median_dom": 63,
+        "inventory": 14234
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 251900,
+        "median_dom": 61,
+        "inventory": 14112
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 253200,
+        "median_dom": 71,
+        "inventory": 13291
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 254700,
+        "median_dom": 81,
+        "inventory": 12967
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 260100,
+        "median_dom": 86,
+        "inventory": 12926
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 259700,
+        "median_dom": 81,
+        "inventory": 12636
+      }
+    ]
+  },
+  "WV": {
+    "state_name": "West Virginia",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 252700,
+      "median_list_price": 265500,
+      "median_ppsf": 144,
+      "homes_sold": 1081,
+      "inventory": 3620,
+      "months_of_supply": 3.3,
+      "median_dom": 80,
+      "sale_price_yoy": 0.05521882597
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 240800,
+        "median_dom": 62,
+        "inventory": 4101
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 245800,
+        "median_dom": 48,
+        "inventory": 4476
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 250700,
+        "median_dom": 47,
+        "inventory": 4670
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 249500,
+        "median_dom": 48,
+        "inventory": 4832
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 248400,
+        "median_dom": 50,
+        "inventory": 4978
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 240000,
+        "median_dom": 55,
+        "inventory": 4988
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 247200,
+        "median_dom": 56,
+        "inventory": 4975
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 252900,
+        "median_dom": 60,
+        "inventory": 4728
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 244100,
+        "median_dom": 62,
+        "inventory": 4065
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 236900,
+        "median_dom": 72,
+        "inventory": 3797
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 240800,
+        "median_dom": 79,
+        "inventory": 3569
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 252700,
+        "median_dom": 80,
+        "inventory": 3620
+      }
+    ]
+  },
+  "NH": {
+    "state_name": "New Hampshire",
+    "latest_period": "2026-03-01",
+    "latest": {
+      "median_sale_price": 500100,
+      "median_list_price": 529400,
+      "median_ppsf": 290,
+      "homes_sold": 1110,
+      "inventory": 2888,
+      "months_of_supply": 2.6,
+      "median_dom": 53,
+      "sale_price_yoy": 0.001333015886
+    },
+    "trend_12mo": [
+      {
+        "period": "2025-04-01",
+        "median_sale_price": 494900,
+        "median_dom": 35,
+        "inventory": 3346
+      },
+      {
+        "period": "2025-05-01",
+        "median_sale_price": 513800,
+        "median_dom": 31,
+        "inventory": 3994
+      },
+      {
+        "period": "2025-06-01",
+        "median_sale_price": 536100,
+        "median_dom": 29,
+        "inventory": 4505
+      },
+      {
+        "period": "2025-07-01",
+        "median_sale_price": 514100,
+        "median_dom": 34,
+        "inventory": 4669
+      },
+      {
+        "period": "2025-08-01",
+        "median_sale_price": 530600,
+        "median_dom": 41,
+        "inventory": 4655
+      },
+      {
+        "period": "2025-09-01",
+        "median_sale_price": 511900,
+        "median_dom": 46,
+        "inventory": 4678
+      },
+      {
+        "period": "2025-10-01",
+        "median_sale_price": 502400,
+        "median_dom": 47,
+        "inventory": 4559
+      },
+      {
+        "period": "2025-11-01",
+        "median_sale_price": 497500,
+        "median_dom": 49,
+        "inventory": 3896
+      },
+      {
+        "period": "2025-12-01",
+        "median_sale_price": 498500,
+        "median_dom": 54,
+        "inventory": 2982
+      },
+      {
+        "period": "2026-01-01",
+        "median_sale_price": 507100,
+        "median_dom": 64,
+        "inventory": 2717
+      },
+      {
+        "period": "2026-02-01",
+        "median_sale_price": 484100,
+        "median_dom": 58,
+        "inventory": 2670
+      },
+      {
+        "period": "2026-03-01",
+        "median_sale_price": 500100,
+        "median_dom": 53,
+        "inventory": 2888
+      }
+    ]
+  }
+}
