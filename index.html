@@ -680,9 +680,18 @@ async function resolveComparisonGeosAuto(placeFips, stateFips, stateAbbr) {
     }
 
     const targetLabel = selectedGeo.name.split(',')[0].replace(/ city$/i, '').replace(/ town$/i, '').trim();
+    // TODO(backlog): coterminous-MSA detection. When an MSA consists of a single county
+    // (e.g., Ann Arbor, Bloomington, Champaign, Ames), the MSA and County columns show
+    // identical values — by geographic reality, not by bug. Annotate the MSA column with
+    // "= County" in that case to avoid confusing planners. The 100%-accurate check is
+    // structural (query Census/OMB delineation: how many counties are in this CBSA),
+    // NOT value-comparison. SE's /v1/GetGeoItemsByGeoType endpoint was tried with
+    // geoTypeSelectionName=SL050 + CBSA fips and returned 200 but empty — needs a DE
+    // ask for the correct CBSA→county lookup or a local OMB delineation table.
+    const msaLabelBase = msaName.split(',')[0].trim();
     const resolved = {
       target: { fips: placeFips, name: selectedGeo.name, sl: 'SL160', label: targetLabel },
-      msa:    { fips: msaFips || stateFips, name: msaName, sl: msaFips ? 'SL310' : 'SL040', label: msaName.split(',')[0].trim() },
+      msa:    { fips: msaFips || stateFips, name: msaName, sl: msaFips ? 'SL310' : 'SL040', label: msaFips ? `${msaLabelBase} Metro` : msaLabelBase },
       county: { fips: countyFips, name: countyName, sl: 'SL050', label: countyName.replace(/, .*/, '').trim() },
       state:  { fips: stateFips, name: stateAbbr, sl: 'SL040', label: stateAbbr },
       fmrGeo: msaFips ? `METRO${msaFips}M${msaFips}` : null,
