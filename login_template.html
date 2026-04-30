@@ -17,9 +17,13 @@
 
         <style>
             :root {
-                --se-indigo: /*[|template_color_primary|]*/ 0;
+                /* SE brand palette (from the official dot logo) */
+                --se-indigo-600: /*[|template_color_primary|]*/ 0; /* #4F46E5 */
+                --se-indigo-500: #6366F1;
+                --se-indigo-200: #C7D2FE;
+                --se-indigo-50: #EEF2FF;
                 --se-indigo-hover: #4338CA;
-                --se-indigo-soft: #EEF2FF;
+                --se-gray-700: #374151;
                 --se-slate-50: #F8FAFC;
                 --se-slate-100: #F1F5F9;
                 --se-slate-200: #E2E8F0;
@@ -27,6 +31,7 @@
                 --se-slate-500: #64748B;
                 --se-slate-700: #334155;
                 --se-slate-900: #0F172A;
+                --se-indigo: var(--se-indigo-600);
             }
 
             *, *::before, *::after { box-sizing: border-box; }
@@ -71,23 +76,15 @@
             .se-brand {
                 display: flex;
                 align-items: center;
-                gap: 12px;
+                gap: 14px;
                 margin-bottom: 28px;
             }
 
             .se-logo-mark {
-                width: 40px;
-                height: 40px;
-                border-radius: 10px;
-                background: var(--se-indigo);
-                color: #fff;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-weight: 700;
-                font-size: 16px;
-                letter-spacing: -0.02em;
-                box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+                width: 36px;
+                height: 36px;
+                flex-shrink: 0;
+                display: block;
             }
 
             .se-brand-text {
@@ -96,15 +93,16 @@
                 line-height: 1.2;
             }
             .se-brand-name {
-                font-size: 14px;
+                font-size: 15px;
                 font-weight: 600;
-                color: var(--se-slate-700);
+                color: var(--se-slate-900);
                 letter-spacing: -0.01em;
             }
             .se-brand-product {
                 font-size: 12px;
                 color: var(--se-slate-500);
                 font-weight: 500;
+                margin-top: 2px;
             }
 
             .se-title {
@@ -262,7 +260,15 @@
         <div id="staticrypt_content" class="staticrypt-content hidden">
             <div class="se-card">
                 <div class="se-brand">
-                    <div class="se-logo-mark" aria-hidden="true">SE</div>
+                    <svg class="se-logo-mark" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                        <path d="M3 6.00046C4.65685 6.00046 6 4.65721 6 3.00023C6 1.34325 4.65685 0 3 0C1.34315 0 0 1.34325 0 3.00023C0 4.65721 1.34315 6.00046 3 6.00046Z" fill="#4F46E5"/>
+                        <path d="M12 6.00046C13.6568 6.00046 15 4.65721 15 3.00023C15 1.34325 13.6568 0 12 0C10.3431 0 8.99998 1.34325 8.99998 3.00023C8.99998 4.65721 10.3431 6.00046 12 6.00046Z" fill="#C7D2FE"/>
+                        <path d="M2.99998 14.9992C4.65683 14.9992 5.99998 13.656 5.99998 11.999C5.99998 10.342 4.65683 8.99878 2.99998 8.99878C1.34312 8.99878 -2.28882e-05 10.342 -2.28882e-05 11.999C-2.28882e-05 13.656 1.34312 14.9992 2.99998 14.9992Z" fill="#4F46E5"/>
+                        <path d="M12 14.9992C13.6568 14.9992 15 13.656 15 11.999C15 10.342 13.6568 8.99878 12 8.99878C10.3431 8.99878 8.99998 10.342 8.99998 11.999C8.99998 13.656 10.3431 14.9992 12 14.9992Z" fill="#374151"/>
+                        <path d="M21 14.9992C22.6568 14.9992 24 13.656 24 11.999C24 10.342 22.6568 8.99878 21 8.99878C19.3431 8.99878 18 10.342 18 11.999C18 13.656 19.3431 14.9992 21 14.9992Z" fill="#C7D2FE"/>
+                        <path d="M15 20.9997C15 22.6152 13.6154 24 12 24C10.3846 24 8.99998 22.6152 8.99998 20.9997C8.99998 19.3842 10.3846 17.9995 12 17.9995C13.6154 17.9995 15 19.3842 15 20.9997Z" fill="#374151"/>
+                        <path d="M24 20.9997C24 22.6152 22.6154 24 21 24C19.3846 24 18 22.6152 18 20.9997C18 19.3842 19.3846 17.9995 21 17.9995C22.6154 17.9995 24 19.3842 24 20.9997Z" fill="#6366F1"/>
+                    </svg>
                     <div class="se-brand-text">
                         <span class="se-brand-name">Social Explorer</span>
                         <span class="se-brand-product">Community Intelligence</span>
