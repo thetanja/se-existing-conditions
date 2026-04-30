@@ -41,6 +41,8 @@ jobs:
           npx --yes staticrypt index.src.html \
             -p "$STATICRYPT_PASSWORD" \
             --template login_template.html \
+            --template-color-primary '#4F46E5' \
+            --template-color-secondary '#F8FAFC' \
             --template-title 'Existing Conditions' \
             --template-instructions 'Enter your access password to view the prototype dashboard.' \
             --template-button 'Unlock dashboard' \
