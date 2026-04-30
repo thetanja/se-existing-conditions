@@ -33,12 +33,20 @@ jobs:
             exit 1
           fi
 
-      - name: Encrypt index.src.html with StatiCrypt
+      - name: Encrypt index.src.html with StatiCrypt (SE-branded login)
         env:
           STATICRYPT_PASSWORD: ${{ secrets.STATICRYPT_PASSWORD }}
         run: |
           mkdir -p _site
-          npx --yes staticrypt index.src.html -p "$STATICRYPT_PASSWORD" -d _staticrypt_out
+          npx --yes staticrypt index.src.html \
+            -p "$STATICRYPT_PASSWORD" \
+            --template login_template.html \
+            --template-title 'Existing Conditions' \
+            --template-instructions 'Enter your access password to view the prototype dashboard.' \
+            --template-button 'Unlock dashboard' \
+            --template-placeholder 'Access password' \
+            --template-error 'Incorrect password — please try again.' \
+            -d _staticrypt_out
           cp _staticrypt_out/index.src.html _site/index.html
 
       - name: Stage static assets
