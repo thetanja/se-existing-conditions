@@ -492,6 +492,19 @@
         <div class="text-sm text-gray-400 italic p-4 text-center">No saved templates yet. From any open analysis, click "📋 Save as Template" to capture your current customizations.</div>
       </div>
     </div>
+
+    <!-- Demo controls — visible when ≥1 analysis is saved. POC-only; production won't include these. -->
+    <div id="demoControls" class="hidden mt-4 pt-3 border-t border-gray-100 flex items-center justify-between gap-2 flex-wrap text-xs">
+      <span class="text-gray-500">🧪 <strong>Demo controls</strong> — POC-only</span>
+      <div class="flex gap-2">
+        <button onclick="simulateVintageDrift()" class="px-2 py-1 border border-amber-300 bg-amber-50 text-amber-800 rounded hover:bg-amber-100">
+          Simulate vintage drift
+        </button>
+        <button onclick="resetVintages()" class="px-2 py-1 border border-gray-300 bg-white text-gray-700 rounded hover:bg-gray-50">
+          ↩ Reset vintages
+        </button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1530,6 +1543,41 @@ function hideSavedAnalysisLabel() {
 function openMyAnalysesModal() {
   document.getElementById('myAnalysesModal').classList.add('open');
   switchPanelTab('analyses');
+  refreshDemoControls();
+}
+
+// Show/hide the demo-controls footer based on whether ≥1 analysis exists
+function refreshDemoControls() {
+  const el = document.getElementById('demoControls');
+  if (!el) return;
+  el.classList.toggle('hidden', loadAnalyses().length === 0);
+}
+
+// Demo: mutate every saved analysis's lastRunVintages to older strings so the
+// staleness detection fires. POC-only — gone in production.
+function simulateVintageDrift() {
+  const arr = loadAnalyses();
+  if (arr.length === 0) { alert('Save an analysis first.'); return; }
+  for (const a of arr) {
+    a.lastRunVintages = a.lastRunVintages || {};
+    a.lastRunVintages.acs_current = 'ACS2023_5yr';
+    a.lastRunVintages.chas        = 'CHAS2020_5yr';
+    a.lastRunVintages.fmr         = 'ILFMR2024';
+  }
+  persistAnalyses(arr);
+  renderMyAnalysesList();  // re-render so chips update immediately
+  alert(`Simulated vintage drift on ${arr.length} saved analysis${arr.length === 1 ? '' : 'es'}.\n\nClick "↻ Updated copy" on any entry to test the refresh-as-new flow.`);
+}
+
+// Demo: reset all saved analyses' vintages to current. POC-only.
+function resetVintages() {
+  const arr = loadAnalyses();
+  if (arr.length === 0) { alert('No saved analyses to reset.'); return; }
+  const current = captureCurrentVintages();
+  for (const a of arr) a.lastRunVintages = { ...current };
+  persistAnalyses(arr);
+  renderMyAnalysesList();
+  alert(`Reset vintages on ${arr.length} saved analysis${arr.length === 1 ? '' : 'es'} to current.`);
 }
 
 function renderMyAnalysesList() {
