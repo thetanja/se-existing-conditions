@@ -91,6 +91,7 @@
   .section-gear:hover { opacity: 1; background: #f1f5f9; color: #4f46e5; }
   .section-gear-count { font-size: 10px; color: #94a3b8; margin-left: 4px; }
   .table-hidden { display: none !important; }
+  .section-removed { display: none !important; }
   .table-grayout { opacity: 0.5; }
 
   .chart-edit-btn { font-size: 11px; color: #4f46e5; background: #eef2ff;
@@ -563,9 +564,14 @@
       <p class="text-xs text-gray-400 mt-1.5 text-center">Browse SE's curated planner-survey list to add a table to your library</p>
     </div>
     <div class="flex items-center justify-between pt-4 mt-4 border-t border-gray-100">
-      <button onclick="resetSectionTables()" class="text-xs text-indigo-600 hover:underline">
-        ↺ Reset to template defaults
-      </button>
+      <div class="flex flex-col gap-1.5">
+        <button onclick="resetSectionTables()" class="text-xs text-indigo-600 hover:underline text-left">
+          ↺ Reset to template defaults
+        </button>
+        <button onclick="removeCurrentSection()" class="text-xs text-red-600 hover:underline text-left">
+          🗑 Remove this whole section from the report
+        </button>
+      </div>
       <div class="flex gap-2">
         <button onclick="closeModal('sectionTablesModal')" class="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
         <button onclick="applySectionTablesChanges()" class="px-4 py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Apply</button>
@@ -1343,12 +1349,35 @@ function applySectionTablesChanges() {
 }
 
 function resetSectionTables() {
-  // Show all tables in the current section
+  // Show all tables in the current section AND restore the section if it was removed.
   if (!_sectionTablesContext) return;
   const body = document.querySelector(`[data-section-body="${_sectionTablesContext.sectionId}"]`);
   if (body) body.querySelectorAll('.table-hidden').forEach(el => el.classList.remove('table-hidden'));
+  const sectionEl = document.querySelector(`[data-section-id="${_sectionTablesContext.sectionId}"]`);
+  if (sectionEl) sectionEl.classList.remove('section-removed');
   // Re-open modal to refresh
   openSectionTablesModal(_sectionTablesContext.sectionId, _sectionTablesContext.sectionTitle);
+}
+
+// v5: remove an entire section from the rendered report. Persisted via Save as Template.
+function removeCurrentSection() {
+  if (!_sectionTablesContext) return;
+  const sectionEl = document.querySelector(`[data-section-id="${_sectionTablesContext.sectionId}"]`);
+  if (!sectionEl) return;
+  const title = _sectionTablesContext.sectionTitle || 'this section';
+  if (!confirm(
+    `Remove the "${title}" section from the report?\n\n` +
+    `It'll be hidden from this analysis. Save as Template to make it stick across future analyses, ` +
+    `or use "Reset to template defaults" later to bring it back.`
+  )) return;
+  sectionEl.classList.add('section-removed');
+  closeModal('sectionTablesModal');
+}
+
+// Restore every section that was removed in the current session.
+function restoreAllSections() {
+  document.querySelectorAll('[data-section-id].section-removed').forEach(el => el.classList.remove('section-removed'));
+  alert('Restored all sections to template defaults.');
 }
 
 // ============================================================
@@ -1369,6 +1398,7 @@ const CURATED_SURVEYS = [
     description: 'Demographics, economics, housing, social characteristics. SE current vintage.',
     seTables: [
       { id: 'A14006', title: 'Median Household Income (In 2024 Inflation Adjusted Dollars)' },
+      { id: 'A14007', title: 'Median Household Income by Race (In 2024 Inflation Adjusted Dollars)' },
       { id: 'A14001', title: 'Household Income (In 2024 Inflation Adjusted Dollars)' },
       { id: 'A14024', title: 'Per Capita Income (In 2024 Inflation Adjusted Dollars)' },
       { id: 'A18002', title: 'Gross Rent as a Percentage of Household Income' },
@@ -2388,7 +2418,8 @@ function updateDocTypeLineage() {
   if (userT) {
     const parent = SYSTEM_TEMPLATES[userT.parentTemplateId] || loadUserTemplates().find(x => x.id === userT.parentTemplateId);
     const overrideCount =
-      (userT.overrides?.hiddenTables?.length || 0) +
+      (userT.overrides?.hiddenTables?.length   || 0) +
+      (userT.overrides?.hiddenSections?.length || 0) +
       Object.keys(userT.overrides?.thresholds || {}).length;
     hint.textContent = `↪ Your template — extends "${parent?.name || 'unknown'}". ${overrideCount} customization${overrideCount === 1 ? '' : 's'} will apply.`;
     hint.classList.remove('hidden');
@@ -2398,12 +2429,13 @@ function updateDocTypeLineage() {
 }
 
 // Capture the current report's customizations (overrides) as the template's payload.
-// MVP: read hidden tables from the rendered DOM and threshold values from the threshold editor.
+// MVP: read hidden tables, removed sections, and threshold values from the rendered DOM.
 function captureCurrentOverrides() {
   const overrides = {
-    hiddenTables: [],   // [{ sectionId, tableId, tableTitle }]
-    thresholds:   {},
-    // Future: chart edits, narrative templates, hidden sections
+    hiddenTables:   [],   // [{ sectionId, tableId, tableTitle }]
+    hiddenSections: [],   // [{ sectionId, sectionTitle }] — entire-section removals (v5)
+    thresholds:     {},
+    // Future: chart edits, narrative templates
   };
   document.querySelectorAll('[data-table-id].table-hidden').forEach(el => {
     const sectionEl = el.closest('[data-section-id]');
@@ -2411,6 +2443,12 @@ function captureCurrentOverrides() {
       sectionId:  sectionEl?.dataset.sectionId,
       tableId:    el.dataset.tableId,
       tableTitle: el.dataset.tableTitle,
+    });
+  });
+  document.querySelectorAll('[data-section-id].section-removed').forEach(el => {
+    overrides.hiddenSections.push({
+      sectionId:    el.dataset.sectionId,
+      sectionTitle: el.dataset.sectionTitle,
     });
   });
   document.querySelectorAll('#thresholdEditor input[data-th]').forEach(input => {
@@ -2485,7 +2523,8 @@ function renderMyTemplatesList() {
       : '';
     const overridesSummary = t.overrides
       ? `<div class="text-xs text-gray-500 mt-0.5">Customizes: ${[
-          (t.overrides.hiddenTables || []).length ? `${t.overrides.hiddenTables.length} hidden table${t.overrides.hiddenTables.length === 1 ? '' : 's'}` : '',
+          (t.overrides.hiddenSections || []).length ? `${t.overrides.hiddenSections.length} removed section${t.overrides.hiddenSections.length === 1 ? '' : 's'}` : '',
+          (t.overrides.hiddenTables   || []).length ? `${t.overrides.hiddenTables.length} hidden table${t.overrides.hiddenTables.length === 1 ? '' : 's'}` : '',
           (t.overrides.thresholds && Object.keys(t.overrides.thresholds).length) ? `${Object.keys(t.overrides.thresholds).length} threshold override${Object.keys(t.overrides.thresholds).length === 1 ? '' : 's'}` : '',
         ].filter(Boolean).join(' · ') || 'no customizations yet'}</div>`
       : '';
@@ -2524,6 +2563,14 @@ function applyTemplateOverrides(tmpl, opts = {}) {
       if (el) el.classList.add('table-hidden');
     }
     document.querySelectorAll('[data-section-id]').forEach(s => updateSectionGearCount(s.dataset.sectionId));
+  }
+  // v5: apply removed sections (entire-section hides)
+  if (tmpl.overrides.hiddenSections) {
+    document.querySelectorAll('[data-section-id]').forEach(el => el.classList.remove('section-removed'));
+    for (const h of tmpl.overrides.hiddenSections) {
+      const el = document.querySelector(`[data-section-id="${h.sectionId}"]`);
+      if (el) el.classList.add('section-removed');
+    }
   }
   if (tmpl.overrides.thresholds) {
     for (const [k, v] of Object.entries(tmpl.overrides.thresholds)) {
@@ -4918,13 +4965,13 @@ function renderPopulation(parent, geos, D) {
   const eduHigh = overview[3].values.target > overview[3].values.state;
 
   body.innerHTML += narrativeBlock(
-    `${geos.target.name} has a population of <strong>${fmt(popNew)}</strong> <span class="cite">(ACS 2020-2024, Table A00001)</span>, representing ${popPct > 0 ? 'growth' : popPct < 0 ? 'decline' : 'stability'} of ${popPct == null ? '—' : Math.abs(popPct).toFixed(1) + '%'} over the past decade <span class="cite">(ACS 2010-2014 vs. 2020-2024)</span>. ` +
-    `The age structure is notable: <strong>${fmt(ageCohortRows[1].values.target, 'pct')}</strong> of residents are 18–24 <span class="cite">(ACS Table A01001)</span>${ageCohortRows[1].values.target > 20 ? ', reflecting a significant college-age population that shapes both housing demand (rental-heavy, smaller units) and seasonal economic patterns' : ''}. ` +
-    `${seniorGrowing ? `The 65+ share has grown from ${fmt(seniorOld, 'pct')} to <strong>${fmt(seniorNew, 'pct')}</strong> over the decade <span class="cite">(ACS Table A01001, 2010-2014 vs. 2020-2024)</span>, signaling increasing demand for aging-in-place accommodations, accessible housing, and senior services. ` : ''}` +
-    `${youthAboveState ? `The under-18 share (${fmt(ageCohortRows[0].values.target, 'pct')}) exceeds the state average, indicating continued demand for family-sized housing and school capacity planning. ` : ''}` +
-    `${eduHigh ? `Educational attainment is high — ${fmt(overview[3].values.target, 'pct')} hold a bachelor's degree or higher vs. ${fmt(overview[3].values.state, 'pct')} statewide <span class="cite">(ACS Table A12002)</span> — characterizing a knowledge-economy workforce that shapes both housing preferences and economic development strategy. ` : `Educational attainment (${fmt(overview[3].values.target, 'pct')} bachelor's+) <span class="cite">(ACS Table A12002)</span> ${overview[3].values.target < overview[3].values.state ? 'trails the state average, suggesting workforce development needs' : 'is comparable to the state average'}. `}` +
-    `Racial and ethnic composition <span class="cite">(ACS Table A04001)</span> sets the scope for Title VI compliance, AFFH fair housing obligations, and Justice40 investment screening across all planning documents.`,
-    'ACS 2020-2024 5-Year Estimates (A00001, A01001, A01004, A04001, A11001, A12002); ACS 2010-2014 5-Year Estimates.'
+    `ACS reports a population of <strong>${fmt(popNew)}</strong> for ${geos.target.name} <span class="cite">(ACS 2020-2024, Table A00001)</span>, ${popPct > 0 ? 'a' : popPct < 0 ? 'a decline of' : 'stability of'} ${popPct == null ? '—' : Math.abs(popPct).toFixed(1) + '%'} change over the past decade <span class="cite">(ACS 2010-2014 vs. 2020-2024)</span>. These are 5-year averaged estimates with sampling error; treat as descriptive rather than precise point-in-time counts. ` +
+    `The age structure shows <strong>${fmt(ageCohortRows[1].values.target, 'pct')}</strong> of residents in the 18–24 cohort <span class="cite">(ACS Table A01001)</span>${ageCohortRows[1].values.target > 20 ? '. A college-age share at this level is commonly associated with rental-heavy demand and smaller-unit composition, though local college enrollment, group quarters and seasonal residency patterns will drive how this translates into housing pressure' : ''}. ` +
+    `${seniorGrowing ? `The 65+ share moved from ${fmt(seniorOld, 'pct')} to <strong>${fmt(seniorNew, 'pct')}</strong> across the two ACS periods <span class="cite">(ACS Table A01001, 2010-2014 vs. 2020-2024)</span>. Growth in the 65+ share is correlated with rising demand for aging-in-place accommodations, accessible units, and senior services in peer geographies; the magnitude of that demand here will depend on tenure mix, mobility, and existing service capacity that this section does not measure. ` : ''}` +
+    `${youthAboveState ? `The under-18 share (${fmt(ageCohortRows[0].values.target, 'pct')}) is above the state value. Family-share patterns at this level tend to track with family-sized-housing and school-capacity needs, though enrollment data and household-composition tables (A11001, B11003) are the more direct inputs. ` : ''}` +
+    `${eduHigh ? `Bachelor's-or-higher attainment is ${fmt(overview[3].values.target, 'pct')} vs. ${fmt(overview[3].values.state, 'pct')} statewide <span class="cite">(ACS Table A12002)</span>. Higher educational attainment is associated with knowledge-economy workforce composition in cross-sectional comparisons; it is descriptive, not predictive of any specific industry mix. ` : `Educational attainment (${fmt(overview[3].values.target, 'pct')} bachelor's+) <span class="cite">(ACS Table A12002)</span> ${overview[3].values.target < overview[3].values.state ? 'is below the state value, a pattern often noted in workforce-development needs assessments' : 'is comparable to the state value'}. `}` +
+    `Racial and ethnic composition <span class="cite">(ACS Table A04001)</span> is the descriptive baseline planners cite for Title VI, AFFH fair-housing analysis, and Justice40 screening. Disparities shown here describe the population distribution; they do not by themselves establish disparate impact, which requires a separate causal/legal analysis.`,
+    'ACS 2020-2024 5-Year Estimates (A00001, A01001, A01004, A04001, A11001, A12002); ACS 2010-2014 5-Year Estimates. Claim-strength: descriptive (cross-sectional ACS averages with sampling MOE).'
   );
 }
 
@@ -5125,12 +5172,12 @@ function renderEconomic(parent, geos, D) {
                       acsRows[2].values.target >= 15 ? `The poverty rate of ${fmt(acsRows[2].values.target, 'pct')} is elevated and warrants monitoring for CDBG eligibility thresholds.` : '';
 
   body.innerHTML += narrativeBlock(
-    `${geos.target.name} has a median household income of <strong>${fmt(acsRows[0].values.target, 'dollar')}</strong> <span class="cite">(ACS 2020-2024, Table A14006)</span> compared to <strong>${fmt(acsRows[0].values.state, 'dollar')}</strong> statewide, with ${econChar} <span class="cite">(CBP 2023, Table T001)</span>. ` +
-    `${hasLaus ? `The BLS monthly unemployment rate is <strong>${fmt(lausRateTarget, 'pct')}</strong> locally, compared to ${fmt(val(lC, 'ORGU_unemployment_rate_M01'), 'pct')} countywide and ${fmt(lausRateState, 'pct')} statewide <span class="cite">(BLS LAUS Jan 2025, ORGU)</span>. ` : `ACS 5-year unemployment is ${fmt(acsRows[1].values.target, 'pct')} <span class="cite">(ACS Table A17005)</span>. `}` +
-    `${incomeGap ? incomeGap + ' ' : ''}` +
-    `${povertyFlag ? povertyFlag + ' <span class="cite">(ACS Table A13004)</span> ' : ''}` +
-    `The income distribution <span class="cite">(ACS Table A14001)</span> shows ${fmt(incDistRows[0].values.target, 'pct')} of households earning under $15,000 and ${fmt(incDistRows[incDistRows.length-1].values.target, 'pct')} earning $200,000+, which shapes the AMI tier mix driving housing program design.`,
-    'ACS 2020-2024 5-Year Estimates (A13004, A14001, A14006, A17005); BLS LAUS Jan 2025 (ORGU); CBP 2023 (TS:T001/T011).'
+    `ACS reports a median household income of <strong>${fmt(acsRows[0].values.target, 'dollar')}</strong> for ${geos.target.name} <span class="cite">(ACS 2020-2024, Table A14006)</span> vs. <strong>${fmt(acsRows[0].values.state, 'dollar')}</strong> statewide. CBP industry-mix data describes ${econChar} <span class="cite">(CBP 2023, Table T001)</span>; the link between observed industry concentration and household-income outcomes is associative — selection effects and commuting patterns are not controlled for in this data. ` +
+    `${hasLaus ? `BLS LAUS monthly unemployment is <strong>${fmt(lausRateTarget, 'pct')}</strong> locally vs. ${fmt(val(lC, 'ORGU_unemployment_rate_M01'), 'pct')} countywide and ${fmt(lausRateState, 'pct')} statewide <span class="cite">(BLS LAUS Jan 2025, ORGU)</span>. LAUS is a single-month estimate and may not reflect annual trend. ` : `ACS 5-year unemployment is ${fmt(acsRows[1].values.target, 'pct')} <span class="cite">(ACS Table A17005)</span>; this is an averaged ACS estimate and lags real-time labor-market change. `}` +
+    `${incomeGap ? `Median household income falls below the MSA value. In peer geographies this pattern is correlated with workforce-housing affordability gaps — residents earn less than regional norms while competing in the same housing market — though the magnitude of any gap depends on commuting-flow data not shown here. ` : ''}` +
+    `${povertyFlag ? `The poverty rate of ${fmt(acsRows[2].values.target, 'pct')} ${acsRows[2].values.target >= 20 ? 'is at or above the 20% federal benchmark commonly cited in CDBG low/moderate-income area benefit eligibility' : 'is elevated and is the descriptive threshold planners typically monitor when assessing CDBG eligibility'} <span class="cite">(ACS Table A13004)</span>. Eligibility decisions require HUD's published low/mod thresholds, not this number alone. ` : ''}` +
+    `The household income distribution <span class="cite">(ACS Table A14001)</span> shows ${fmt(incDistRows[0].values.target, 'pct')} of households earning under $15,000 and ${fmt(incDistRows[incDistRows.length-1].values.target, 'pct')} earning $200,000+. The shape of this distribution is the descriptive baseline for AMI-tier modeling; the number of households served at each tier depends on HUD's published Area Median Income limits and program-specific income definitions, not on this raw distribution.`,
+    'ACS 2020-2024 5-Year Estimates (A13004, A14001, A14006, A17005); BLS LAUS Jan 2025 (ORGU); CBP 2023 (TS:T001/T011). Claim-strength: descriptive cross-sectional snapshot; eligibility/program decisions require HUD/program-specific thresholds.'
   );
 }
 
@@ -5460,8 +5507,11 @@ function renderHousing(parent, geos, D) {
   );
 
   body.innerHTML += narrativeBlock(
-    `Housing cost burden in ${geos.target.name} is acute: <strong>${fmt(t.PctCostBurdened, 'pct')}</strong> of renter households pay 30%+ of income on housing, and <strong>${fmt(t.PctSevereBurden, 'pct')}</strong> pay 50%+ (severely burdened) <span class="cite">(ACS 2020-2024, Table A18002)</span>. Owner cost burden stands at <strong>${fmt(t.PctOwnerCostBurdened, 'pct')}</strong> at 30%+ <span class="cite">(ACS Table B25091)</span>. Median gross rent is <strong>${fmt(rentNew, 'dollar')}</strong> <span class="cite">(ACS Table A18009)</span>, up <strong>${arrow(rentPctReal)}</strong> in real (2022$) terms over the past decade <span class="cite">(CPI-U adjusted, BLS CUUR0000SA0)</span>, against real median household income growth of <strong>${arrow(incPctReal)}</strong> <span class="cite">(ACS Table A14006)</span>. Vacancy is ${fmt(D.target.VacancyRate, 'pct')} <span class="cite">(ACS Tables A10060/A10047)</span> and <strong>${fmt(D.target.PctPre1960, 'pct')}</strong> of housing stock predates 1960 (EPA lead-paint threshold) <span class="cite">(ACS Table A10055)</span>. These metrics anchor every federal housing program application (ConPlan NA-10, housing element, AFFH) and feed directly into federal eligibility thresholds.`,
-    `ACS 2020-2024 & 2010-2014 5-Year Estimates; HUD CHAS 2018-2022; HUD Fair Market Rent FY2025. Inflation: BLS CPI-U (CUUR0000SA0), 2012→2022 scale ≈ ${CPI_2012_TO_2022.toFixed(4)}.`
+    `ACS reports renter cost burden in ${geos.target.name} at <strong>${fmt(t.PctCostBurdened, 'pct')}</strong> of renter households paying 30%+ of income on housing, and <strong>${fmt(t.PctSevereBurden, 'pct')}</strong> at 50%+ <span class="cite">(ACS 2020-2024, Table A18002)</span>. Owner cost burden is <strong>${fmt(t.PctOwnerCostBurdened, 'pct')}</strong> at 30%+ <span class="cite">(ACS Table B25091)</span>. These descriptive shares are commonly associated with displacement risk and unmet-need pressure in tracts with limited new construction, though administrative data alone cannot establish causation — push factors (rent growth, eviction filings) and pull factors (in-migration) are not separated in this view. ` +
+    `Median gross rent is <strong>${fmt(rentNew, 'dollar')}</strong> <span class="cite">(ACS Table A18009)</span>, a <strong>${arrow(rentPctReal)}</strong> change in real (2022$) terms over the past decade <span class="cite">(CPI-U adjusted, BLS CUUR0000SA0)</span>, alongside real median household income change of <strong>${arrow(incPctReal)}</strong> <span class="cite">(ACS Table A14006)</span>. The gap between the two trend lines is the descriptive evidence cited in housing-cost narratives; whether it has compressed available units, shifted tenure, or driven out-migration is a separate empirical question that ACS averages do not resolve. ` +
+    `Vacancy is ${fmt(D.target.VacancyRate, 'pct')} <span class="cite">(ACS Tables A10060/A10047)</span>; ACS vacancy is averaged over five years and tends to lag real-time market tightness — HUD USPS quarterly vacancy is the more timely complement and is on the Phase 1 roadmap. <strong>${fmt(D.target.PctPre1960, 'pct')}</strong> of housing stock predates 1960, the EPA lead-paint cohort threshold <span class="cite">(ACS Table A10055)</span>; pre-1960 share is correlated with elevated lead-hazard prevalence in housing built before federal residential lead-paint bans, and is the screening figure HUD/EPA programs use as a starting point. ` +
+    `These descriptive metrics are the data layer planners cite in ConPlan NA-10, housing-element needs assessments, and AFFH submissions. Federal eligibility and unmet-need determinations require program-specific calculations against HUD-published thresholds (FMR, AMI, low/mod limits) — not these raw values alone.`,
+    `ACS 2020-2024 & 2010-2014 5-Year Estimates; HUD CHAS 2018-2022; HUD Fair Market Rent FY2025. Inflation: BLS CPI-U (CUUR0000SA0), 2012→2022 scale ≈ ${CPI_2012_TO_2022.toFixed(4)}. Claim-strength: descriptive cross-sectional ACS averages; trend comparisons are correlational, not causal.`
   );
 }
 
@@ -5548,14 +5598,29 @@ function renderEquity(parent, geos, D) {
   const vulnCount = [D.target.PctPoverty >= 15, D.target.PctSevereBurden >= 20, disAboveState, lepHigh, noVehHigh].filter(Boolean).length;
 
   body.innerHTML += narrativeBlock(
-    `${geos.target.name} presents ${vulnCount >= 3 ? 'a multi-layered vulnerability profile with' : vulnCount >= 1 ? 'notable vulnerability indicators including' : 'relatively moderate vulnerability indicators with'} ` +
-    `a poverty rate of <strong>${fmt(D.target.PctPoverty, 'pct')}</strong> <span class="cite">(ACS Table A13004)</span> and severe renter cost burden at <strong>${fmt(D.target.PctSevereBurden, 'pct')}</strong> <span class="cite">(ACS Table A18002)</span>. ` +
-    `${disAboveState ? `The disability rate (<strong>${fmt(D.target.PctDisabled, 'pct')}</strong>) exceeds the state average (${fmt(D.state.PctDisabled, 'pct')}) <span class="cite">(ACS Table B18101)</span>, triggering ADA compliance obligations for public facilities, housing accessibility requirements, and transit service equity considerations. ` : `Disability rate is ${fmt(D.target.PctDisabled, 'pct')} <span class="cite">(ACS Table B18101)</span>. `}` +
-    `${lepHigh ? `<strong>${fmt(D.target.PctLEP, 'pct')}</strong> of residents are Limited English Proficient <span class="cite">(ACS Table C16001)</span> — above the 5% threshold that typically triggers language access plan requirements under Executive Order 13166. ` : `LEP rate is ${fmt(D.target.PctLEP, 'pct')} <span class="cite">(ACS Table C16001)</span> (below typical language access plan thresholds). `}` +
-    `${noVehHigh ? `<strong>${fmt(D.target.PctNoVehicle, 'pct')}</strong> of households have no vehicle (rising to <strong>${fmt(D.target.PctRenterNoVehicle, 'pct')}</strong> among renters) <span class="cite">(ACS Table B25044)</span>, indicating significant transit dependency that shapes service equity requirements and should inform transit investment priorities. ` : `Vehicle access: ${fmt(D.target.PctNoVehicle, 'pct')} of households have no vehicle <span class="cite">(ACS Table B25044)</span>. `}` +
-    `These indicators collectively inform AFFH analysis, Justice40 screening, and the equity framework for federal grant applications. Composite SVI score and EJScreen environmental-justice overlays will strengthen this analysis in Phase 1.`,
-    'ACS 2020-2024 5-Year Estimates (B18101, C16001, B25044, A13004, A18002).'
+    `ACS reports ${vulnCount >= 3 ? 'a combination of vulnerability indicators commonly used in equity screens' : vulnCount >= 1 ? 'one or more elevated vulnerability indicators' : 'vulnerability indicators close to peer-geography norms'} for ${geos.target.name}: ` +
+    `a poverty rate of <strong>${fmt(D.target.PctPoverty, 'pct')}</strong> <span class="cite">(ACS Table A13004)</span> and severe renter cost burden of <strong>${fmt(D.target.PctSevereBurden, 'pct')}</strong> <span class="cite">(ACS Table A18002)</span>. These are descriptive 5-year averages with sampling MOE; they describe shares of households, not individuals, and should not be read as a precise count of who is at risk. ` +
+    `${disAboveState ? `Disability prevalence is <strong>${fmt(D.target.PctDisabled, 'pct')}</strong> vs. ${fmt(D.state.PctDisabled, 'pct')} statewide <span class="cite">(ACS Table B18101)</span>. ADA compliance obligations attach to specific facilities/services regardless of disability prevalence; this descriptive figure is the screening signal commonly cited when prioritizing accessibility investments — not itself a determination of need. ` : `Disability rate is ${fmt(D.target.PctDisabled, 'pct')} <span class="cite">(ACS Table B18101)</span>. `}` +
+    `${lepHigh ? `Limited English Proficient share is <strong>${fmt(D.target.PctLEP, 'pct')}</strong> <span class="cite">(ACS Table C16001)</span>, above the 5% descriptive threshold typically referenced in language-access-plan guidance under Executive Order 13166. The applicable obligation depends on each agency's safe-harbor analysis, not on this number alone. ` : `LEP rate is ${fmt(D.target.PctLEP, 'pct')} <span class="cite">(ACS Table C16001)</span> (below the 5% threshold commonly referenced in language-access-plan guidance). `}` +
+    `${noVehHigh ? `<strong>${fmt(D.target.PctNoVehicle, 'pct')}</strong> of households report no vehicle (rising to <strong>${fmt(D.target.PctRenterNoVehicle, 'pct')}</strong> among renters) <span class="cite">(ACS Table B25044)</span>. No-vehicle share is correlated with transit dependency and combined housing-plus-transportation cost burden in cross-sectional studies; whether transit investment closes that gap depends on service quality, frequency, and destination access this section does not measure. ` : `Vehicle access: ${fmt(D.target.PctNoVehicle, 'pct')} of households report no vehicle <span class="cite">(ACS Table B25044)</span>. `}` +
+    `Together these are the descriptive baseline planners cite in AFFH analysis, Justice40 screening, and the equity framework for federal grant applications. Composite SVI score and EJScreen environmental-justice overlays are planned for Phase 1 and will add the disparity-and-environmental-burden layer this section currently lacks. The caveats below apply to every cross-group comparison shown above.`,
+    'ACS 2020-2024 5-Year Estimates (B18101, C16001, B25044, A13004, A18002). Claim-strength: descriptive cross-sectional shares with sampling MOE; cross-group differences describe patterns, not causes.'
   );
+
+  // v5: Equity caveats footer — methodology hedging per J-PAL/Bloomberg civic-analytics guidance.
+  // Federal grant reviewers and AFFH submissions expect explicit acknowledgement of these
+  // limits; planners can keep, edit, or remove this block when authoring their own narrative.
+  body.innerHTML += `
+    <div class="mt-3 p-3 bg-amber-50 border-l-3 border-amber-300 rounded text-xs text-amber-900 leading-relaxed">
+      <div class="font-semibold mb-1.5">⚠ Equity-analysis caveats</div>
+      <ul class="list-disc list-outside ml-4 space-y-1">
+        <li><strong>Ecological fallacy.</strong> Neighborhood-level patterns may not apply to individuals — high-cost-burden tracts contain low-burden households and vice versa.</li>
+        <li><strong>Reporting bias.</strong> Open data reflects reported events. Communities with lower government-service engagement are likely under-represented; absence in the data is not evidence of absence in reality.</li>
+        <li><strong>Geographic-as-demographic proxy.</strong> Tract-level demographic averages are used here as a stand-in for individual-level data. Note this in any narrative claims about disparate impact.</li>
+        <li><strong>Disparities are descriptive, not causal.</strong> Cross-group differences shown above describe patterns; they do not establish what caused those patterns or what intervention would close them.</li>
+      </ul>
+      <div class="mt-2 text-amber-800">Source methodology: J-PAL evidence-to-policy framework, Bloomberg Public Innovation centers, AFFH Rule 2024 disclosure expectations.</div>
+    </div>`;
 }
 
 // ============================================================
@@ -5632,13 +5697,12 @@ function renderSafety(parent, geos, D) {
     const vcLabel = vc > 120 ? 'substantially above' : vc > 100 ? 'above' : vc > 80 ? 'near' : 'below';
     const pcLabel = pc > 120 ? 'substantially above' : pc > 100 ? 'above' : pc > 80 ? 'near' : 'below';
     body.innerHTML += narrativeBlock(
-      `${geos.target.name} has a <strong>Total Crime Index of ${tc?.toFixed(1)}</strong> <span class="cite">(SE Crime Index)</span>, which is <strong>${tcLabel}</strong> the national median (100). ` +
-      `The Violent Crime Index is <strong>${vc?.toFixed(1)}</strong> (${vcLabel} median) and the Property Crime Index is <strong>${pc?.toFixed(1)}</strong> (${pcLabel} median). ` +
-      `${geos.county.label} shows a Total Crime Index of ${val(cC, 'ORG_se_tc_index')?.toFixed(1) || '—'}, while ${geos.state.label} is at ${val(cS, 'ORG_se_tc_index')?.toFixed(1) || '—'}. ` +
-      (pc > 150 ? `<strong>Property crime is notably elevated</strong> — the index of ${pc?.toFixed(1)} suggests rates well above the national median, driven primarily by ${val(cT, 'ORG_se_GL_index') > 150 ? 'grand larceny' : 'burglary and vehicle theft'}. ` : '') +
-      (vc > 150 ? `<strong>Violent crime is notably elevated</strong> compared to the national median. ` : '') +
-      `Crime indices are a key input for comprehensive plans, neighborhood safety assessments, and grant applications requiring community needs documentation.`,
-      'SE Crime Index (SE_CRIME_INDEX via dev-data-delivery.socialexplorer.com). Index scale: 0-200, 100 = national median.'
+      `The SE Crime Index reports a <strong>Total Crime Index of ${tc?.toFixed(1)}</strong> for ${geos.target.name} <span class="cite">(SE Crime Index)</span>, <strong>${tcLabel}</strong> the national median (100). The index is a relative position measure derived from reported-incident rates re-normalized to 100 = US median; it is not a count of crimes and does not adjust for reporting bias across jurisdictions. ` +
+      `Violent Crime Index is <strong>${vc?.toFixed(1)}</strong> (${vcLabel} median) and Property Crime Index is <strong>${pc?.toFixed(1)}</strong> (${pcLabel} median). ${geos.county.label} is at ${val(cC, 'ORG_se_tc_index')?.toFixed(1) || '—'}; ${geos.state.label} is at ${val(cS, 'ORG_se_tc_index')?.toFixed(1) || '—'}. Cross-jurisdiction comparisons reflect both real differences in incident rates and differences in reporting/classification practice — descriptive only, not a causal claim about safety. ` +
+      (pc > 150 ? `Property crime indices in this range are commonly associated in the underlying rate data with elevated ${val(cT, 'ORG_se_GL_index') > 150 ? 'grand-larceny' : 'burglary and vehicle-theft'} reports. The composition is descriptive; whether prevention strategies target the right driver depends on incident-level data this index does not expose. ` : '') +
+      (vc > 150 ? `Violent Crime Index in this range is above the national median in the reported-incident data. Use with the equity caveats above — reporting bias, classification differences across agencies, and ecological-fallacy risk all apply. ` : '') +
+      `Crime indices appear in comprehensive plans, neighborhood safety assessments, and grant applications as descriptive baseline. They establish where rates sit relative to peers; they do not establish what is causing them, and they are not by themselves a basis for resource-allocation decisions without a separate analysis of underreporting and clearance.`,
+      'SE Crime Index (SE_CRIME_INDEX via dev-data-delivery.socialexplorer.com). Index scale: 0-200, 100 = national median. Claim-strength: descriptive relative-position index from reported incidents; cross-jurisdiction differences reflect both real incidence and reporting practice.'
     );
   } else {
     body.innerHTML += `
@@ -5795,12 +5859,12 @@ function renderMobility(parent, geos, D) {
     transitShare > 2 ? `Modest transit use (${fmt(transitShare, 'pct')}) suggests potential for mode-shift with service improvements. ` : '';
 
   body.innerHTML += narrativeBlock(
-    `${geos.target.name} is a <strong>${autoDep}</strong> community: <strong>${fmt(driveAlone, 'pct')}</strong> of workers drive alone, <strong>${fmt(transitShare, 'pct')}</strong> use public transit, and <strong>${fmt(walkShare, 'pct')}</strong> walk to work <span class="cite">(ACS 2020-2024, Table A09005)</span>${walkShare > 10 ? ' — a notably high walk share that reflects a compact, pedestrian-friendly built environment and supports complete streets investment' : ''}. ` +
-    `${avgCommute ? `The average commute is <strong>${avgCommute} minutes</strong> <span class="cite">(ACS Table A09003)</span>${avgCommute < 20 ? ', indicating strong jobs-housing proximity — a positive indicator for housing-transportation cost burden' : avgCommute > 30 ? ', suggesting a jobs-housing mismatch that increases combined housing+transportation cost burden' : ''}. ` : ''}` +
-    `${wfhShare > 15 ? `Work-from-home rates at <strong>${fmt(wfhShare, 'pct')}</strong> reflect the post-pandemic shift and have implications for office vacancy, daytime commercial activity, and residential broadband infrastructure planning. ` : ''}` +
+    `ACS journey-to-work shares describe a mode mix consistent with an <strong>${autoDep}</strong> commute pattern: <strong>${fmt(driveAlone, 'pct')}</strong> drive alone, <strong>${fmt(transitShare, 'pct')}</strong> use transit, <strong>${fmt(walkShare, 'pct')}</strong> walk <span class="cite">(ACS 2020-2024, Table A09005)</span>${walkShare > 10 ? '. Walk shares at this level are correlated with compact, pedestrian-supportive built environments in cross-sectional ACS comparisons; whether complete-streets investment will move the share further depends on factors this section does not measure (network connectivity, destination density, safety perception)' : ''}. ` +
+    `${avgCommute ? `Mean commute is <strong>${avgCommute} minutes</strong> <span class="cite">(ACS Table A09003)</span>${avgCommute < 20 ? '. Shorter commutes are associated with stronger jobs-housing proximity in peer geographies and lower combined housing+transportation cost burden in cross-sectional H+T modeling — descriptive only' : avgCommute > 30 ? '. Longer commutes are correlated with jobs-housing mismatch and higher combined H+T cost burden in cross-sectional studies; LEHD origin-destination flows are the more direct evidence for that claim' : ''}. ` : ''}` +
+    `${wfhShare > 15 ? `Work-from-home share is <strong>${fmt(wfhShare, 'pct')}</strong>. Post-pandemic WFH shares at this level are commonly cited in office-vacancy, daytime-commercial, and broadband-planning narratives. Whether the share is structural or transient is an open empirical question — ACS 5-year averages will under-state recent trend reversal. ` : ''}` +
     `${transitNote}` +
-    `${lehdTotal ? `LEHD (2022) shows ${fmt(lehdTotal)} workers residing in ${geos.county.label} <span class="cite">(LEHD 2022, Table B007)</span>, led by ${lehdRows?.[0]?.label || '—'} (${fmt(lehdRows?.[0]?.values.county)}) and ${lehdRows?.[1]?.label || '—'} (${fmt(lehdRows?.[1]?.values.county)}).` : ''}`,
-    'ACS 2020-2024 5-Year Estimates (A09003, A09005); LEHD 2022 Residence Area (ORGRACN:B007).'
+    `${lehdTotal ? `LEHD (2022) reports ${fmt(lehdTotal)} workers residing in ${geos.county.label} <span class="cite">(LEHD 2022, Table B007)</span>, with the largest cohorts in ${lehdRows?.[0]?.label || '—'} (${fmt(lehdRows?.[0]?.values.county)}) and ${lehdRows?.[1]?.label || '—'} (${fmt(lehdRows?.[1]?.values.county)}). LEHD covers wage-and-salary workers and excludes federal employees and some self-employed; treat as descriptive of formal employment.` : ''}`,
+    'ACS 2020-2024 5-Year Estimates (A09003, A09005); LEHD 2022 Residence Area (ORGRACN:B007). Claim-strength: descriptive cross-sectional mode-share and commute averages; jobs-housing fit claims are correlational only.'
   );
 }
 
@@ -5884,8 +5948,8 @@ function renderMarketAndLandUse(parent, geos, D) {
     'Municipal · Regrid · Phase 2'
   );
   body.innerHTML += narrativeBlock(
-    `Market & land-use analysis for ${geos.target.name} is scheduled for Phase 2 wiring and will draw on licensed/commercial data: CoStar for commercial and multifamily rents & vacancy, BLS Consumer Expenditure and Claritas for household spending and segmentation, ESRI Business Analyst for establishment and tenant mix, and municipal/Regrid feeds for zoning and parcels. This section is the primary data layer for market studies, feasibility studies, corridor studies, and neighborhood plans — the discretionary work where consultants bill the most hours.`,
-    'Planned sources: CoStar (commercial/multifamily rents & vacancy); BLS Consumer Expenditure Survey; Claritas segmentation; ESRI Business Analyst; municipal zoning & Regrid parcels.'
+    `Market & land-use analysis for ${geos.target.name} is scheduled for Phase 2 wiring. The planned data layer is licensed/commercial: CoStar for commercial and multifamily asking rents and vacancy, BLS Consumer Expenditure and Claritas for household spending and segmentation, ESRI Business Analyst for establishment and tenant mix, and municipal/Regrid feeds for zoning and parcels. These sources are the descriptive baseline cited in market studies, feasibility studies, corridor studies, and neighborhood plans; they characterize current conditions and trends but do not by themselves establish what investment, regulatory change, or program will produce a desired market outcome — that is the proforma/scenario-modeling layer this report does not include.`,
+    'Planned sources: CoStar (commercial/multifamily rents & vacancy); BLS Consumer Expenditure Survey; Claritas segmentation; ESRI Business Analyst; municipal zoning & Regrid parcels. Claim-strength: planned descriptive baseline; no causal/forecasting layer in MVP scope.'
   );
 }
 
