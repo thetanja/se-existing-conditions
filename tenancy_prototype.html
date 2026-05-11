@@ -696,7 +696,7 @@ function renderProjectArtifactsTab(p, isContributor) {
   return `
     ${isContributor ? `
       <div class="flex items-center justify-end mb-4">
-        <button onclick="openV6(${JSON.stringify('project: ' + p.name).replace(/"/g, '&quot;')}, { project: ${JSON.stringify(p.id)} })" class="px-3 py-1.5 bg-indigo-600 text-white text-xs font-medium rounded hover:bg-indigo-700">+ New analysis</button>
+        <button onclick="openV6(${JSON.stringify('project: ' + p.name).replace(/"/g, '&quot;')}, ${JSON.stringify({ project: p.id }).replace(/"/g, '&quot;')})" class="px-3 py-1.5 bg-indigo-600 text-white text-xs font-medium rounded hover:bg-indigo-700">+ New analysis</button>
       </div>
     ` : ''}
 
@@ -1418,7 +1418,7 @@ function quickNewAnalysis() {
         </div>
         <div class="p-2 max-h-80 overflow-y-auto">
           ${writable.map(p => `
-            <button onclick="closeModalById();openV6(${JSON.stringify('project: ' + p.name).replace(/"/g, '&quot;')}, { project: ${JSON.stringify(p.id)} })" class="w-full text-left px-3 py-2.5 hover:bg-slate-50 rounded flex items-start gap-2">
+            <button onclick="closeModalById();openV6(${JSON.stringify('project: ' + p.name).replace(/"/g, '&quot;')}, ${JSON.stringify({ project: p.id }).replace(/"/g, '&quot;')})" class="w-full text-left px-3 py-2.5 hover:bg-slate-50 rounded flex items-start gap-2">
               <span class="text-slate-400 text-xs mt-0.5">📁</span>
               <div class="flex-1 min-w-0">
                 <div class="text-sm font-medium text-slate-900 truncate">${p.name}</div>
