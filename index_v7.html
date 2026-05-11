@@ -11,129 +11,68 @@
 <script src="https://code.highcharts.com/12.4.0/modules/export-data.js"></script>
 <style>
   /* ============================================================
-     v7 EDITORIAL THEME — civic navy + ochre, serif typography
-     Direction: refined editorial / civic instrument (Bloomberg / NYT Upshot),
-     NOT generic indigo-on-white SaaS chrome. CSS variables let the tenancy
-     shell adopt the same theme later by importing this block.
+     v7 THEME — same Inter + indigo + slate as v6, but expressed as
+     CSS variables so the structural UX primitives (input chip,
+     toolbar menus, sources disclosure, section delta marker) all
+     read from one place. No editorial typography — the design
+     difference from v6 is purely structural / hierarchy-of-actions.
      ============================================================ */
-  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
   :root {
-    /* Ink scale — deep civic navy instead of slate */
-    --ink:           #0F1B3D;   /* primary text + headlines */
-    --ink-strong:    #060B22;   /* large display headings */
-    --ink-muted:     #4A5578;   /* secondary text, labels */
-    --ink-soft:      #8794AE;   /* meta, captions */
-    --ink-faint:     #C5CDDE;   /* dividers, disabled */
+    --ink:           #0F172A;   /* slate-900 */
+    --ink-strong:    #020617;   /* slate-950 */
+    --ink-muted:     #475569;   /* slate-600 */
+    --ink-soft:      #64748B;   /* slate-500 */
+    --ink-faint:     #CBD5E1;   /* slate-300 */
 
-    /* Paper scale */
-    --paper:         #FBFAF6;   /* warm off-white page background */
-    --paper-card:    #FFFFFF;   /* card surface */
-    --paper-sunk:    #F4F1E8;   /* recessed (disclosures, advisories) */
-    --rule:          #E5DFCF;   /* hairline rules */
-    --rule-soft:     #EFEAD9;   /* even softer rules */
+    --paper:         #F9FAFB;   /* gray-50 page background (matches v6) */
+    --paper-card:    #FFFFFF;
+    --paper-sunk:    #F8FAFC;   /* slate-50 */
+    --rule:          #E2E8F0;   /* slate-200 */
+    --rule-soft:     #F1F5F9;   /* slate-100 */
 
-    /* Accent — muted civic ochre, used sparingly */
-    --accent:        #B8862E;   /* primary CTA */
-    --accent-strong: #8E6516;   /* hover */
-    --accent-soft:   #F1E6CC;   /* tints, focus rings */
-    --accent-ink:    #5A3F0E;   /* text on accent-soft */
+    --accent:        #4F46E5;   /* indigo-600 — the v6 primary */
+    --accent-strong: #4338CA;   /* indigo-700 */
+    --accent-soft:   #EEF2FF;   /* indigo-50 */
+    --accent-ink:    #3730A3;   /* indigo-800 */
 
-    /* Semantic */
-    --signal-critical: #B0312F;
-    --signal-high:     #C57B1F;
-    --signal-moderate: #2F7D4F;
-    --signal-trend:    #2C4A8C;
+    --signal-critical: #DC2626;
+    --signal-high:     #D97706;
+    --signal-moderate: #16A34A;
+    --signal-trend:    #4F46E5;
   }
 
-  body {
-    font-family: 'Source Serif 4', 'Source Serif Pro', Georgia, serif;
-    background: var(--paper);
-    color: var(--ink);
-    font-feature-settings: "kern", "liga", "calt", "onum";
-  }
-  /* Use a refined sans for chrome / UI affordances, keep serif for editorial body. */
-  button, input, select, textarea, .ui-sans, .geo-chip, .badge, label, th, .data-table td {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    font-feature-settings: "kern", "ss01", "cv11";
-  }
-  /* Tabular numerals everywhere figures appear */
-  .data-table td, .data-table th, .signal-summary, .stat, [data-raw], .vintage-tag {
-    font-variant-numeric: tabular-nums;
-  }
-  /* Headlines — Fraunces, the editorial display face */
-  h1, h2, .brief-title, #briefTitle, .display {
-    font-family: 'Fraunces', 'Source Serif 4', Georgia, serif;
-    font-weight: 600;
-    letter-spacing: -0.011em;
-    color: var(--ink-strong);
-  }
-  h1 { font-weight: 700; letter-spacing: -0.018em; }
-  h3, h4 {
-    font-family: 'Fraunces', 'Source Serif 4', Georgia, serif;
-    font-weight: 600;
-    color: var(--ink);
-  }
-  code, pre, .mono, .tract-pill, .signal-pill, [data-raw] sup, .vintage-tag {
-    font-family: 'JetBrains Mono', ui-monospace, monospace;
-  }
+  body { font-family: 'Inter', sans-serif; }
 
   /* ============================================================
-     Tailwind overrides — re-route the indigo palette to civic navy
-     and use ochre for one true primary CTA only. Slate gets warmer.
-     ============================================================ */
-  .bg-indigo-50  { background-color: #ECEDF4 !important; }
-  .bg-indigo-100 { background-color: #DCDFEC !important; }
-  .bg-indigo-600 { background-color: var(--ink) !important; }
-  .bg-indigo-700 { background-color: var(--ink-strong) !important; }
-  .text-indigo-600 { color: var(--ink) !important; }
-  .text-indigo-700 { color: var(--ink) !important; }
-  .text-indigo-800 { color: var(--ink-strong) !important; }
-  .border-indigo-200 { border-color: var(--ink-faint) !important; }
-  .border-indigo-300 { border-color: var(--ink-faint) !important; }
-  .hover\:bg-indigo-50:hover  { background-color: #ECEDF4 !important; }
-  .hover\:bg-indigo-700:hover { background-color: var(--ink-strong) !important; }
-  .ring-indigo-500 { --tw-ring-color: var(--accent) !important; }
-  .focus\:ring-indigo-500:focus { --tw-ring-color: var(--accent) !important; }
-
-  /* Page background warmer, slate text deeper */
-  .bg-gray-50  { background-color: var(--paper) !important; }
-  .bg-slate-50 { background-color: var(--paper-sunk) !important; }
-  .bg-white    { background-color: var(--paper-card); }
-
-  /* ============================================================
-     v7 component primitives
+     v7 component primitives — same Inter/indigo as v6, but with
+     a clear hierarchy of action weights and editorial-feeling spacing.
      ============================================================ */
   .v7-primary {
     background: var(--accent);
     color: white;
-    font-weight: 600;
-    letter-spacing: 0.005em;
-    padding: 11px 22px;
-    border-radius: 4px;
-    border: 1px solid var(--accent-strong);
-    box-shadow: 0 1px 0 rgba(255,255,255,0.35) inset, 0 1px 1px rgba(15,27,61,0.06);
+    font-weight: 500;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: 1px solid var(--accent);
     transition: background 0.12s, transform 0.12s;
+    font-size: 14px;
   }
-  .v7-primary:hover { background: var(--accent-strong); }
+  .v7-primary:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
   .v7-primary:active { transform: translateY(1px); }
 
   .v7-secondary {
     background: var(--paper-card);
-    color: var(--ink);
+    color: var(--ink-muted);
     font-weight: 500;
-    padding: 10px 16px;
-    border-radius: 4px;
+    padding: 9px 16px;
+    border-radius: 8px;
     border: 1px solid var(--rule);
     transition: background 0.12s, border-color 0.12s;
+    font-size: 14px;
   }
   .v7-secondary:hover { background: var(--paper-sunk); border-color: var(--ink-faint); }
-
-  .v7-rule {
-    border: 0;
-    border-top: 1px solid var(--rule);
-    margin: 0;
-  }
 
   /* Input chip — collapsed input panel after Generate */
   .v7-input-chip {
@@ -143,20 +82,20 @@
     padding: 10px 16px;
     background: var(--paper-card);
     border: 1px solid var(--rule);
-    border-radius: 6px;
+    border-radius: 8px;
     font-size: 13px;
     color: var(--ink);
   }
   .v7-input-chip .label { color: var(--ink-soft); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
   .v7-input-chip .sep { width: 1px; height: 18px; background: var(--rule); }
-  .v7-input-chip .edit-link { margin-left: auto; color: var(--ink); border-bottom: 1px solid var(--ink-faint); padding-bottom: 1px; cursor: pointer; font-size: 12px; }
-  .v7-input-chip .edit-link:hover { border-bottom-color: var(--accent); }
+  .v7-input-chip .edit-link { margin-left: auto; color: var(--accent); cursor: pointer; font-size: 12px; }
+  .v7-input-chip .edit-link:hover { text-decoration: underline; }
 
-  /* Data-sources disclosure */
+  /* Data-sources disclosure — replaces the inline vintage badge row + advisory grid */
   details.v7-sources {
     background: var(--paper-sunk);
-    border: 1px solid var(--rule-soft);
-    border-radius: 4px;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
     padding: 0;
     margin: 14px 0 8px;
   }
@@ -180,37 +119,36 @@
   details.v7-sources[open] > summary::before { transform: rotate(90deg); }
   details.v7-sources .v7-sources-body {
     padding: 4px 14px 14px;
-    border-top: 1px solid var(--rule-soft);
+    border-top: 1px solid var(--rule);
     margin-top: 4px;
   }
 
-  /* Editorial section card — left rule + ink-strong title, thin gold leaf on delta */
+  /* Section card — left rule turns indigo with data-delta */
   .v7-section {
     background: var(--paper-card);
     border: 1px solid var(--rule);
-    border-radius: 0;
+    border-radius: 12px;
     border-left: 3px solid var(--rule);
-    padding: 22px 28px;
+    padding: 0;
     margin: 0 0 18px;
     transition: border-left-color 0.2s;
   }
   .v7-section[data-delta="true"] { border-left-color: var(--accent); }
-  .v7-section[data-delta="true"]::before {
+  .v7-section[data-delta="true"] .section-header::before {
     content: 'updated';
     display: inline-block;
-    font-family: 'Inter', sans-serif;
     font-size: 10px;
     font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--accent-strong);
+    color: var(--accent-ink);
     background: var(--accent-soft);
     padding: 2px 8px;
-    border-radius: 2px;
-    margin-bottom: 8px;
+    border-radius: 4px;
+    margin-right: 10px;
   }
 
-  /* Export menu (dropdown) */
+  /* Export / More menu (dropdown) */
   .v7-menu-wrap { position: relative; display: inline-block; }
   .v7-menu {
     position: absolute;
@@ -219,8 +157,8 @@
     min-width: 220px;
     background: var(--paper-card);
     border: 1px solid var(--rule);
-    border-radius: 4px;
-    box-shadow: 0 12px 32px rgba(15,27,61,0.10);
+    border-radius: 8px;
+    box-shadow: 0 12px 32px rgba(15,23,42,0.10);
     padding: 4px;
     display: none;
     z-index: 50;
@@ -234,57 +172,17 @@
     padding: 8px 12px;
     background: transparent;
     border: 0;
-    border-radius: 3px;
+    border-radius: 6px;
     font-size: 13px;
     color: var(--ink);
     text-align: left;
     cursor: pointer;
   }
   .v7-menu button:hover { background: var(--paper-sunk); }
-  .v7-menu .v7-menu-divider { height: 1px; background: var(--rule-soft); margin: 4px 0; }
+  .v7-menu .v7-menu-divider { height: 1px; background: var(--rule); margin: 4px 0; }
   .v7-menu .v7-menu-label { font-size: 11px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.06em; padding: 8px 12px 4px; }
-  .v7-menu-trigger {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-  }
+  .v7-menu-trigger { display: inline-flex; align-items: center; gap: 6px; }
   .v7-menu-trigger::after { content: '▾'; font-size: 10px; color: var(--ink-muted); }
-
-  /* Header */
-  .v7-pagehead {
-    background: var(--paper);
-    border-bottom: 1px solid var(--rule);
-  }
-  .v7-pagehead .brand {
-    font-family: 'Fraunces', serif;
-    font-weight: 600;
-    font-size: 22px;
-    letter-spacing: -0.012em;
-    color: var(--ink-strong);
-  }
-  .v7-pagehead .kicker {
-    font-family: 'Inter', sans-serif;
-    font-size: 10.5px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.14em;
-    color: var(--ink-soft);
-  }
-  .v7-monogram {
-    width: 36px; height: 36px;
-    border-radius: 2px;
-    background: var(--ink);
-    color: var(--paper);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Fraunces', serif;
-    font-weight: 700;
-    font-size: 14px;
-    letter-spacing: 0.04em;
-  }
-
-  /* Keep the legacy Inter import as a fallback (already loaded in @import above) */
   /* Scratch chart — chart created from row selection, exploration only, not saved. */
   .rendered-chart.scratch-chart {
     border: 2px dashed #f59e0b;
@@ -490,22 +388,23 @@
 <body class="bg-gray-50 min-h-screen">
 
 <!-- Header -->
-<header class="v7-pagehead no-print">
-  <div class="max-w-6xl mx-auto px-6 py-5">
-    <div class="flex items-end justify-between gap-3">
-      <div class="flex items-center gap-4">
-        <div class="v7-monogram">SE</div>
+<header class="bg-white border-b border-gray-200 no-print">
+  <div class="max-w-6xl mx-auto px-6 py-4">
+    <div class="flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+          <span class="text-white font-bold text-sm">SE</span>
+        </div>
         <div>
-          <div class="kicker mb-0.5">Community Intelligence</div>
-          <h1 class="brand">Existing Conditions</h1>
+          <h1 class="text-lg font-semibold text-gray-900">Community Intelligence Platform</h1>
+          <p class="text-xs text-gray-500">Existing Conditions — Phase 0 (standardized package for all planning documents)</p>
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <a href="./?view=library" class="text-xs"
-           style="color: var(--ink-muted); border-bottom: 1px solid var(--ink-faint); padding-bottom: 1px;"
+        <a href="./?view=library" class="px-3 py-1.5 text-sm text-indigo-700 hover:bg-indigo-50 border border-indigo-200 rounded inline-flex items-center gap-1"
            title="See all your saved analyses and templates in the projects shell">
-          Saved Work →
-          <span id="analysesCountBadge" class="hidden ml-1 px-1.5 py-0.5 text-xs" style="background: var(--accent-soft); color: var(--accent-ink); border-radius: 2px;"></span>
+          Open in Saved Work <span aria-hidden="true">→</span>
+          <span id="analysesCountBadge" class="hidden ml-1 px-1.5 py-0.5 text-xs bg-indigo-100 rounded-full"></span>
         </a>
       </div>
     </div>
@@ -596,7 +495,7 @@
         Preview tables
       </button>
       <button id="generateBtn" onclick="generateBrief()" class="v7-primary">
-        Generate Report →
+        Generate Existing Conditions Package
       </button>
     </div>
   </div>
