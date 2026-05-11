@@ -696,7 +696,7 @@ function renderProjectArtifactsTab(p, isContributor) {
   return `
     ${isContributor ? `
       <div class="flex items-center justify-end mb-4">
-        <button onclick="openV6(${JSON.stringify('project: ' + p.name).replace(/"/g, '&quot;')})" class="px-3 py-1.5 bg-indigo-600 text-white text-xs font-medium rounded hover:bg-indigo-700">+ New analysis</button>
+        <button onclick="openV6(${JSON.stringify('project: ' + p.name).replace(/"/g, '&quot;')}, { project: ${JSON.stringify(p.id)} })" class="px-3 py-1.5 bg-indigo-600 text-white text-xs font-medium rounded hover:bg-indigo-700">+ New analysis</button>
       </div>
     ` : ''}
 
@@ -1366,26 +1366,49 @@ function setProjectSort(s) { state.projectSort = s; render(); }
 // In production this would receive the project context as URL params so the
 // resulting saved analysis lands in the right project. v6 has the Save analysis
 // and Save as template modals wired to the buttons.
-function openV6(context) {
+// Build a v6 URL with optional context (template, project, view).
+// v6 reads these on load and applies them via applyInboundV6Params().
+function buildV6Url(opts) {
+  const params = new URLSearchParams();
+  if (opts && opts.template) params.set('template', opts.template);
+  if (opts && opts.project)  params.set('project',  opts.project);
+  if (opts && opts.view)     params.set('view',     opts.view);
+  const qs = params.toString();
+  return 'index_v6.html' + (qs ? '?' + qs : '');
+}
+
+function openV6(context, opts) {
   toast(`Opening v6 input panel — ${context}. Save analysis lands here automatically.`);
-  window.open('index_v6.html', '_blank');
+  window.open(buildV6Url(opts), '_blank');
 }
 function useSavedView(viewId) {
   const v = SAVED_VIEWS.find(x => x.id === viewId);
   if (!v) return;
+  // Saved views bundle target + comparison + (optional) template. Target/comparison
+  // payload is too big for a URL param, so stash it in localStorage under a
+  // generated handoff key; pass the key as ?handoff=<key>. v6 picks it up on
+  // load and deletes the key. sessionStorage is per-tab, so we can't use it
+  // for the cross-tab open('_blank') handoff — must be localStorage.
+  const handoffKey = 'v6Handoff_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
+  const payload = { target: v.target, comparison: v.comparison, templateId: v.templateId || null, savedViewId: v.id };
+  try { localStorage.setItem(handoffKey, JSON.stringify(payload)); } catch (e) { /* localStorage may be full or disabled; v6 will fall through to default */ }
   toast(`Opening v6 with target=${v.target.label} + ${v.comparison.length} comparison columns →`);
-  window.open('index_v6.html', '_blank');
+  const params = new URLSearchParams();
+  params.set('handoff', handoffKey);
+  if (v.templateId) params.set('template', v.templateId);
+  if (state.currentProjectId) params.set('project', state.currentProjectId);
+  window.open('index_v6.html?' + params.toString(), '_blank');
 }
 function useTemplate(tmplId) {
   const t = USER_TEMPLATES.find(x => x.id === tmplId);
   if (!t) return;
   toast(`Opening v6 with "${t.name}" applied as the user-template overlay →`);
-  window.open('index_v6.html', '_blank');
+  window.open(buildV6Url({ template: tmplId, project: state.currentProjectId || undefined }), '_blank');
 }
 function quickNewAnalysis() {
   const writable = visibleProjects().filter(p => !p.archivedAt && (() => { const r = projectRole(p, state.currentUserId); return r === 'owner' || r === 'contributor'; })());
   if (writable.length === 0) { toast('No projects you can write to. Create one first.'); return; }
-  if (writable.length === 1) { openV6('project: ' + writable[0].name); return; }
+  if (writable.length === 1) { openV6('project: ' + writable[0].name, { project: writable[0].id }); return; }
   document.getElementById('modal-root').innerHTML = `
     <div class="fixed inset-0 modal-backdrop z-40 flex items-center justify-center p-4" onclick="closeModal(event)">
       <div onclick="event.stopPropagation()" class="bg-white rounded-xl shadow-2xl max-w-md w-full">
@@ -1395,7 +1418,7 @@ function quickNewAnalysis() {
         </div>
         <div class="p-2 max-h-80 overflow-y-auto">
           ${writable.map(p => `
-            <button onclick="closeModalById();openV6(${JSON.stringify('project: ' + p.name).replace(/"/g, '&quot;')})" class="w-full text-left px-3 py-2.5 hover:bg-slate-50 rounded flex items-start gap-2">
+            <button onclick="closeModalById();openV6(${JSON.stringify('project: ' + p.name).replace(/"/g, '&quot;')}, { project: ${JSON.stringify(p.id)} })" class="w-full text-left px-3 py-2.5 hover:bg-slate-50 rounded flex items-start gap-2">
               <span class="text-slate-400 text-xs mt-0.5">📁</span>
               <div class="flex-1 min-w-0">
                 <div class="text-sm font-medium text-slate-900 truncate">${p.name}</div>
@@ -1479,6 +1502,22 @@ document.getElementById('user-switcher').addEventListener('change', (e) => {
   state.currentProjectId = null;
   render();
 });
+
+// Honor ?view=library | ?view=projects | ?project=<id> from inbound links
+// (e.g. v6's "Open in Saved Work" button passes ?view=library).
+(function applyInboundParams() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const v = params.get('view');
+    const pid = params.get('project');
+    if (pid && PROJECTS.find(p => p.id === pid)) {
+      state.currentProjectId = pid;
+      state.view = 'project';
+    } else if (v === 'library' || v === 'projects') {
+      state.view = v;
+    }
+  } catch (e) { /* swallow — URL parsing is non-critical */ }
+})();
 
 render();
 
