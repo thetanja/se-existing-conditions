@@ -87,6 +87,42 @@ jobs:
           mkdir -p _site/v3
           cp _staticrypt_v3_out/index_v5.html _site/v3/index.html
 
+      - name: Encrypt tenancy_prototype.html with StatiCrypt (v6 shell at /v6/)
+        env:
+          STATICRYPT_PASSWORD: ${{ secrets.STATICRYPT_PASSWORD }}
+        run: |
+          npx --yes staticrypt tenancy_prototype.html \
+            -p "$STATICRYPT_PASSWORD" \
+            --template login_template.html \
+            --template-color-primary '#4F46E5' \
+            --template-color-secondary '#F8FAFC' \
+            --template-title 'Existing Conditions (v6 — projects shell)' \
+            --template-instructions 'Enter your access password to view the v6 projects + saved work shell.' \
+            --template-button 'Unlock dashboard' \
+            --template-placeholder 'Access password' \
+            --template-error 'Incorrect password — please try again.' \
+            -d _staticrypt_v6_shell_out
+          mkdir -p _site/v6
+          cp _staticrypt_v6_shell_out/tenancy_prototype.html _site/v6/index.html
+
+      - name: Encrypt index_v6.html with StatiCrypt (v6 dashboard at /v6/index_v6.html)
+        env:
+          STATICRYPT_PASSWORD: ${{ secrets.STATICRYPT_PASSWORD }}
+        run: |
+          npx --yes staticrypt index_v6.html \
+            -p "$STATICRYPT_PASSWORD" \
+            --template login_template.html \
+            --template-color-primary '#4F46E5' \
+            --template-color-secondary '#F8FAFC' \
+            --template-title 'Existing Conditions (v6 — dashboard)' \
+            --template-instructions 'Enter your access password to view the v6 analysis dashboard.' \
+            --template-button 'Unlock dashboard' \
+            --template-placeholder 'Access password' \
+            --template-error 'Incorrect password — please try again.' \
+            -d _staticrypt_v6_dash_out
+          mkdir -p _site/v6
+          cp _staticrypt_v6_dash_out/index_v6.html _site/v6/index_v6.html
+
       - name: Stage static assets
         run: |
           cp .nojekyll _site/.nojekyll
