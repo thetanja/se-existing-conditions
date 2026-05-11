@@ -123,6 +123,24 @@ jobs:
           mkdir -p _site/v6
           cp _staticrypt_v6_dash_out/index_v6.html _site/v6/index_v6.html
 
+      - name: Encrypt index_v7.html with StatiCrypt (v7 editorial dashboard at /v7/)
+        env:
+          STATICRYPT_PASSWORD: ${{ secrets.STATICRYPT_PASSWORD }}
+        run: |
+          npx --yes staticrypt index_v7.html \
+            -p "$STATICRYPT_PASSWORD" \
+            --template login_template.html \
+            --template-color-primary '#0F1B3D' \
+            --template-color-secondary '#FBFAF6' \
+            --template-title 'Existing Conditions (v7 — editorial preview)' \
+            --template-instructions 'Enter your access password to view the v7 editorial-themed dashboard.' \
+            --template-button 'Unlock dashboard' \
+            --template-placeholder 'Access password' \
+            --template-error 'Incorrect password — please try again.' \
+            -d _staticrypt_v7_out
+          mkdir -p _site/v7
+          cp _staticrypt_v7_out/index_v7.html _site/v7/index.html
+
       - name: Stage static assets
         run: |
           cp .nojekyll _site/.nojekyll
