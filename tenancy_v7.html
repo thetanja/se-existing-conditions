@@ -1,0 +1,1543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SE Community Intelligence — Tenancy Prototype (Org / Projects / Artifacts)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  body { font-family: 'Inter', sans-serif; }
+  .card-hover:hover { box-shadow: 0 4px 12px -2px rgb(0 0 0 / 0.08); transform: translateY(-1px); }
+  .card-hover { transition: all 0.15s ease; }
+  /* v7: surface a quiet "Open →" hint on hover so the card reads as clickable. */
+  .v7-project-card:hover .v7-open-hint { opacity: 1; }
+  .tab-active { color: #4F46E5; border-bottom: 2px solid #4F46E5; }
+  .pill { padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 500; }
+  .pill-amber { background: #fef3c7; color: #92400e; }
+  .pill-emerald { background: #d1fae5; color: #065f46; }
+  .pill-indigo { background: #e0e7ff; color: #3730a3; }
+  .pill-slate { background: #f1f5f9; color: #475569; }
+  .pill-rose { background: #ffe4e6; color: #9f1239; }
+  .pill-violet { background: #ede9fe; color: #5b21b6; }
+  .pill-sky { background: #e0f2fe; color: #075985; }
+  .modal-backdrop { background: rgba(15, 23, 42, 0.5); }
+  .avatar { width: 28px; height: 28px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #fff; }
+  .avatar-tanja { background: #4F46E5; }
+  .avatar-amelia { background: #059669; }
+  .avatar-malcolm { background: #d97706; }
+  .avatar-stack > .avatar:not(:first-child) { margin-left: -8px; border: 2px solid #fff; }
+  details > summary { list-style: none; cursor: pointer; }
+  details > summary::-webkit-details-marker { display: none; }
+  .role-badge { font-size: 10px; padding: 1px 6px; border-radius: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+  .scope-user { background: #f1f5f9; color: #475569; }
+  .scope-project { background: #e0e7ff; color: #3730a3; }
+  .scope-org { background: #fef3c7; color: #92400e; }
+  .industry-badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 500; background: #f5f3ff; color: #5b21b6; border: 1px solid #ddd6fe; }
+  .chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.1s; }
+  .chip-active { background: #4F46E5; color: white; }
+  .chip-idle   { background: #fff; color: #475569; border: 1px solid #e2e8f0; }
+  .chip-idle:hover { background: #f8fafc; }
+  .chip-soon   { background: #fff; color: #94a3b8; border: 1px solid #e2e8f0; cursor: not-allowed; }
+  .soon-badge  { font-size: 9px; padding: 1px 4px; background: #f1f5f9; color: #64748b; border-radius: 3px; margin-left: 4px; letter-spacing: 0.04em; font-weight: 600; text-transform: uppercase; }
+</style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+
+<div class="flex h-screen overflow-hidden">
+
+  <!-- ========================== SIDEBAR ========================== -->
+  <aside class="w-60 bg-white border-r border-slate-200 flex flex-col flex-shrink-0">
+    <!-- Logo -->
+    <div class="px-5 py-4 flex items-center gap-2">
+      <div class="w-7 h-7 rounded bg-indigo-600 flex items-center justify-center text-white font-bold text-xs">SE</div>
+      <div class="text-sm font-semibold">Social Explorer</div>
+    </div>
+
+    <!-- Primary CTA — dropdown: project / analysis -->
+    <div class="px-3 pb-3 relative">
+      <details id="create-new-dropdown" class="relative">
+        <summary class="w-full px-3 py-2 border border-slate-300 rounded-full text-sm font-medium hover:bg-slate-50 flex items-center gap-2 cursor-pointer list-none select-none">
+          <span class="text-base leading-none">+</span>
+          <span>Create new</span>
+          <span class="ml-auto text-xs text-slate-400">▾</span>
+        </summary>
+        <div class="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg z-30 py-1">
+          <button onclick="document.getElementById('create-new-dropdown').removeAttribute('open');quickNewAnalysis()" class="w-full text-left px-3 py-2 text-sm hover:bg-slate-50 flex items-center gap-2 text-slate-700">
+            <span>📊</span> New analysis
+            <span class="ml-auto text-[10px] text-slate-400">in a project</span>
+          </button>
+          <button onclick="document.getElementById('create-new-dropdown').removeAttribute('open');openNewProjectModal()" class="w-full text-left px-3 py-2 text-sm hover:bg-slate-50 flex items-center gap-2 text-slate-700">
+            <span>📁</span> New project
+          </button>
+        </div>
+      </details>
+    </div>
+
+    <!-- Nav -->
+    <nav class="px-3 flex-1 space-y-0.5 text-sm">
+      <button class="nav-btn w-full text-left px-3 py-2 rounded-lg flex items-center gap-2.5" data-view="projects">
+        <span class="opacity-60">📁</span> Projects
+      </button>
+      <button class="nav-btn w-full text-left px-3 py-2 rounded-lg flex items-center gap-2.5" data-view="library">
+        <span class="opacity-60">📚</span> Saved Work
+      </button>
+    </nav>
+
+    <!-- User profile card at bottom of sidebar -->
+    <div class="p-3 border-t border-slate-100" id="sidebar-user"></div>
+  </aside>
+
+  <!-- ========================== MAIN AREA ========================== -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+    <!-- Top bar — v7: stripped to essentials.
+         The Data Navigator pill, ?, ..., 🔔 icons were dead affordances and
+         have been removed. The admin "View as" switcher only renders when
+         the page is opened with ?debug=1 (prototype-only role demos). -->
+    <header class="bg-white border-b border-slate-200 px-6 py-3 flex items-center gap-4 flex-shrink-0 relative">
+      <div id="top-page-title" class="text-base font-semibold text-slate-900">Projects</div>
+      <div id="debug-user-switcher" class="ml-auto items-center gap-2 px-3 py-1.5 bg-slate-100 rounded text-xs hidden">
+        <span class="text-slate-500">View as:</span>
+        <select id="user-switcher" class="bg-transparent border-0 font-medium text-slate-900 focus:ring-0 cursor-pointer">
+          <option value="user_tanja">Tanja (owns RE deal)</option>
+          <option value="user_amelia" selected>Amelia (owns ConPlan)</option>
+          <option value="user_malcolm">Malcolm (owns Corridor)</option>
+        </select>
+      </div>
+    </header>
+
+    <main class="flex-1 overflow-y-auto px-6 py-6">
+      <div id="view-container"></div>
+    </main>
+  </div>
+</div>
+
+<!-- ========================== MODALS ========================== -->
+<div id="modal-root"></div>
+
+<!-- ========================== JS ========================== -->
+<script>
+// ============================================================
+// MOCK DATA
+// ============================================================
+
+const ORG = {
+  id: 'org_se',
+  displayName: 'Social Explorer',
+  subscriptionTier: 'platform',
+  availableSystemTemplates: ['system_existing_conditions_v1']
+};
+
+const USERS = {
+  user_tanja:   { id: 'user_tanja',   displayName: 'Tanja Petrovic',     email: 'tanja@socialexplorer.com',   orgRole: 'admin',  avatarClass: 'avatar-tanja',   initials: 'TP' },
+  user_amelia:  { id: 'user_amelia',  displayName: 'Amelia Marcantonio', email: 'amelia@example.gov',         orgRole: 'member', avatarClass: 'avatar-amelia',  initials: 'AM' },
+  user_malcolm: { id: 'user_malcolm', displayName: 'Malcolm Simpson',    email: 'malcolm@consult.co',         orgRole: 'member', avatarClass: 'avatar-malcolm', initials: 'MS' }
+};
+
+const SYSTEM_TEMPLATES = {
+  system_existing_conditions_v1: { id: 'system_existing_conditions_v1', name: 'Existing Conditions', docType: 'existing_conditions' }
+};
+
+// ----- ARTIFACT TYPES (the unit of variation across industries) -----
+// Only `analysis` is wired in MVP. The other types are first-class in the data model
+// but rendered as "coming soon" placeholders until the relevant SE product is ready.
+// ----- VINTAGE REGISTRY (mocked) -----
+// In production EC reads `lastRunVintages` off each artifact and compares to a
+// current-vintages registry maintained by the data backbone. For the prototype
+// we mock the registry as constants. A thread's latest card shows a "newer data"
+// pill if any of its lastRunVintages is older than the current.
+const CURRENT_VINTAGES = {
+  acs_current:    'ACS2025_5yr',     // ACS 2025 just dropped (mock)
+  acs_historical: 'ACS2015_5yr',
+  chas:           'CHAS2021_5yr',
+  fmr:            'ILFMR2025',
+  easi:           'EASI2025',         // EASI 2025 just dropped (mock)
+  laus:           'LAUS2025',
+  cbp:            'CBP2023',
+  lehd:           'LEHD2022',
+  svi:            'SVI2022',
+  crime:          'SE_CRIME_INDEX_v2026Q1'
+};
+const VINTAGE_DISPLAY_NAMES = {
+  acs_current:    'ACS',
+  acs_historical: 'ACS historical',
+  chas:           'CHAS',
+  fmr:            'HUD FMR',
+  easi:           'EASI',
+  laus:           'BLS LAUS',
+  cbp:            'BLS CBP',
+  lehd:           'LEHD',
+  svi:            'CDC SVI',
+  crime:          'SE Crime Index'
+};
+
+// MVP planner focus: only the `analysis` artifact type is wired. Other types
+// (maps, reports, stories, AI summaries) are part of the platform thesis but
+// excluded from this prototype so planner reviewers stay focused on analysis.
+const ARTIFACT_ICON = '📊';
+const ARTIFACT_SINGULAR = 'analysis';
+
+const USER_TEMPLATES = [
+  { id: 'utmpl_my_conplan',         name: 'My ConPlan layout',         ownerUserId: 'user_amelia',  visibility: 'private', parentTemplateId: 'system_existing_conditions_v1', description: 'Hides MOE flags · adds CHAS T9 + T11', updatedAt: '2026-04-12' },
+  { id: 'utmpl_burlington_council', name: 'Burlington council layout', ownerUserId: 'user_amelia',  visibility: 'org',     parentTemplateId: 'system_existing_conditions_v1', description: 'Council-friendly layout · simplified equity section', updatedAt: '2026-04-30' },
+  { id: 'utmpl_se_default',         name: 'SE baseline',               ownerUserId: 'user_tanja',   visibility: 'org',     parentTemplateId: 'system_existing_conditions_v1', description: 'Org-wide baseline · SE branding header', updatedAt: '2026-03-15' },
+  { id: 'utmpl_my_corridor',        name: 'My corridor study layout',  ownerUserId: 'user_malcolm', visibility: 'private', parentTemplateId: 'system_existing_conditions_v1', description: 'Mobility + market sections lead', updatedAt: '2026-04-15' }
+];
+
+// Saved views — a planner-friendly merge of comparison sets + saved geographies.
+// Each view bundles a target + comparison columns under one name, so applying a
+// view pre-fills both at once in the v5 input panel. Privacy: private | org.
+const SAVED_VIEWS = [
+  { id: 'view_blr_council',        ownerUserId: 'user_amelia',  visibility: 'org',
+    name: 'Burlington — council baseline',
+    target:     { type: 'place',  fips: '5010675', label: 'Burlington, VT' },
+    comparison: [
+      { type: 'msa',    fips: '15540', label: 'Burlington-S.Burlington MSA' },
+      { type: 'county', fips: '50007', label: 'Chittenden County' },
+      { type: 'state',  fips: '50',    label: 'Vermont' }
+    ],
+    lastUsedAt: '2026-05-06' },
+  { id: 'view_old_north_end',      ownerUserId: 'user_amelia',  visibility: 'private',
+    name: 'Old North End — 8 tracts',
+    target:     { type: 'custom', label: 'Old North End — 8 tracts', tractGeoids: 8, definitionMethod: 'csv' },
+    comparison: [
+      { type: 'place',  fips: '5010675', label: 'Burlington, VT' },
+      { type: 'county', fips: '50007',   label: 'Chittenden County' }
+    ],
+    lastUsedAt: '2026-04-22' },
+  { id: 'view_tarrant',            ownerUserId: 'user_amelia',  visibility: 'private',
+    name: 'Tarrant County — HNA scan',
+    target:     { type: 'county', fips: '48439', label: 'Tarrant County, TX' },
+    comparison: [
+      { type: 'msa',   fips: '23104', label: 'Dallas-Fort Worth-Arlington MSA' },
+      { type: 'state', fips: '48',    label: 'Texas' }
+    ],
+    lastUsedAt: '2026-05-05' },
+  { id: 'view_phila_corridor',     ownerUserId: 'user_malcolm', visibility: 'private',
+    name: 'Downtown Philly — 5-tract corridor',
+    target:     { type: 'custom', label: 'Downtown Philly — 5 tracts', tractGeoids: 5, definitionMethod: 'paste' },
+    comparison: [
+      { type: 'place',  fips: '4260000', label: 'Philadelphia, PA' },
+      { type: 'county', fips: '42101',   label: 'Philadelphia County' }
+    ],
+    lastUsedAt: '2026-04-29' }
+];
+
+// MVP planner focus: only the `analysis` artifact type is wired. Other types
+// (maps, reports, stories, AI summaries) are part of the platform thesis but
+// excluded from this prototype to keep planner feedback focused.
+const PROJECTS = [
+  {
+    id: 'proj_burlington_conplan',
+    name: 'City of Burlington — 2026 ConPlan',
+    description: 'Five-year ConPlan cycle starting July 2026. First review November 2026.',
+    ownerUserId: 'user_amelia',
+    createdAt: '2026-01-15', updatedAt: '2026-05-06T17:30',
+    archivedAt: null, deletedAt: null,
+    homeTarget: { type: 'place', fips: '5010675', label: 'Burlington, VT' },
+    defaultTemplateId: 'system_existing_conditions_v1',
+    engagement: { deliverable: 'HUD Consolidated Plan', cycle: '2026–2030', dueDate: '2026-11-15', status: 'in_progress' },
+    members: [
+      { userId: 'user_amelia',  role: 'owner',  addedAt: '2026-01-15' },
+      { userId: 'user_tanja',   role: 'contributor', addedAt: '2026-02-04' },
+      { userId: 'user_malcolm', role: 'reviewer', addedAt: '2026-03-12' }
+    ],
+    tags: ['conplan', 'vt', '2026'],
+    artifacts: [
+      { id: 'a_1', type: 'analysis', name: 'Initial baseline — Jan 2026',         target: 'Burlington, VT',          userTemplateId: 'utmpl_burlington_council', createdAt: '2026-01-20', parentArtifactId: null },
+      { id: 'a_2', type: 'analysis', name: 'After ACS 2024 5-yr release',         target: 'Burlington, VT',          userTemplateId: 'utmpl_burlington_council', createdAt: '2026-03-10', parentArtifactId: 'a_1' },
+      { id: 'a_3', type: 'analysis', name: 'Old North End neighborhood scope',    target: 'Old North End — 8 tracts',userTemplateId: 'utmpl_burlington_council', createdAt: '2026-04-22', parentArtifactId: null,
+        lastRunVintages: { acs_current: 'ACS2025_5yr', acs_historical: 'ACS2015_5yr', easi: 'EASI2025', chas: 'CHAS2021_5yr' } },
+      { id: 'a_4', type: 'analysis', name: 'Council briefing snapshot — May',     target: 'Burlington, VT',          userTemplateId: 'utmpl_burlington_council', createdAt: '2026-05-01', parentArtifactId: 'a_2',
+        lastRunVintages: { acs_current: 'ACS2024_5yr', acs_historical: 'ACS2014_5yr', easi: 'EASI2024', chas: 'CHAS2021_5yr' } }
+    ]
+  },
+  {
+    id: 'proj_tarrant_hna',
+    name: 'Tarrant County — 2027 HNA',
+    description: 'Housing needs assessment with affordable+available analysis (CHAS T18A/B/C).',
+    ownerUserId: 'user_amelia',
+    createdAt: '2026-05-05', updatedAt: '2026-05-05',
+    archivedAt: null, deletedAt: null,
+    homeTarget: { type: 'county', fips: '48439', label: 'Tarrant County, TX' },
+    defaultTemplateId: 'system_existing_conditions_v1',
+    engagement: { deliverable: 'Housing Needs Assessment', cycle: '2027', dueDate: '2027-03-31', status: 'in_progress' },
+    members: [{ userId: 'user_amelia', role: 'owner', addedAt: '2026-05-05' }],
+    tags: ['hna', 'tx'],
+    artifacts: [
+      { id: 'a_5', type: 'analysis', name: 'Tarrant baseline', target: 'Tarrant County, TX', userTemplateId: 'utmpl_my_conplan', createdAt: '2026-05-05', parentArtifactId: null,
+        lastRunVintages: { acs_current: 'ACS2024_5yr', chas: 'CHAS2021_5yr', easi: 'EASI2025' } }
+    ]
+  },
+  {
+    id: 'proj_phila_corridor',
+    name: 'Downtown Philadelphia Corridor Study',
+    description: 'Five-tract corridor study — Center City core.',
+    ownerUserId: 'user_malcolm',
+    createdAt: '2026-04-01', updatedAt: '2026-04-29',
+    archivedAt: null, deletedAt: null,
+    homeTarget: { type: 'custom', label: 'Downtown Philly — 5 tracts', tractGeoids: 5 },
+    defaultTemplateId: 'system_existing_conditions_v1',
+    engagement: { deliverable: 'Corridor study', cycle: '2026', dueDate: null, status: 'review' },
+    members: [
+      { userId: 'user_malcolm', role: 'owner',  addedAt: '2026-04-01' },
+      { userId: 'user_tanja',   role: 'contributor', addedAt: '2026-04-15' }
+    ],
+    tags: ['corridor', 'pa', '2026'],
+    artifacts: [
+      { id: 'a_6', type: 'analysis', name: 'Phila corridor baseline',              target: 'Downtown Philly — 5 tracts', userTemplateId: 'utmpl_my_corridor', createdAt: '2026-04-01', parentArtifactId: null },
+      { id: 'a_7', type: 'analysis', name: 'Phila corridor — after EASI update',   target: 'Downtown Philly — 5 tracts', userTemplateId: 'utmpl_my_corridor', createdAt: '2026-04-29', parentArtifactId: 'a_6',
+        lastRunVintages: { acs_current: 'ACS2024_5yr', easi: 'EASI2025' } }
+    ]
+  },
+  {
+    id: 'proj_sb_housing',
+    name: 'South Burlington Housing Element',
+    description: 'Housing element for the SB comprehensive plan update.',
+    ownerUserId: 'user_amelia',
+    createdAt: '2025-09-01', updatedAt: '2026-04-01',
+    archivedAt: '2026-04-01', deletedAt: null,
+    homeTarget: { type: 'place', fips: '5050575', label: 'South Burlington, VT' },
+    defaultTemplateId: 'system_existing_conditions_v1',
+    engagement: { deliverable: 'Housing element', cycle: '2025', dueDate: null, status: 'submitted' },
+    members: [{ userId: 'user_amelia', role: 'owner', addedAt: '2025-09-01' }],
+    tags: ['housing-element', 'vt', 'archived'],
+    artifacts: [
+      { id: 'a_10', type: 'analysis', name: 'SB housing baseline', target: 'South Burlington, VT', userTemplateId: null, createdAt: '2025-12-15', parentArtifactId: null }
+    ]
+  }
+];
+
+// ============================================================
+// STATE
+// ============================================================
+
+let state = {
+  currentUserId: 'user_amelia',
+  view: 'projects',         // 'projects' | 'project' | 'library'
+  currentProjectId: null,
+  libraryTab: 'templates',  // 'templates' | 'views'
+  showArchived: false,
+  projectSort: 'most_stale' // 'most_stale' | 'last_updated' | 'due_date' | 'name'
+};
+
+// ============================================================
+// CROSS-PROTOTYPE SYNC — pull v6 saves from localStorage
+// ============================================================
+// v7 (index_v7.html) saves analyses + templates to the same localStorage keys
+// as v6 (seec.savedAnalyses / seec.userTemplates), so reads cross-version. We read those
+// keys here and splice the saves into the in-memory mock state so the user
+// sees their v6 saves alongside the seed demo data. Re-runs on every render
+// (cheap), plus a `storage` event listener for live cross-tab sync.
+const V6_ANALYSES_KEY  = 'seec.savedAnalyses';
+const V6_TEMPLATES_KEY = 'seec.userTemplates';
+
+function loadV6Analyses()  { try { return JSON.parse(localStorage.getItem(V6_ANALYSES_KEY)  || '[]'); } catch (e) { return []; } }
+function loadV6Templates() { try { return JSON.parse(localStorage.getItem(V6_TEMPLATES_KEY) || '[]'); } catch (e) { return []; } }
+
+// Convert a v6 saved analysis (rich shape) → tenancy artifact (lean shape).
+function v6AnalysisToArtifact(a) {
+  const targetLabel = a.target?.label || a.target?.name || a.target?.fips || 'Unknown';
+  const userTemplateId = (a.templateId && a.templateId.startsWith('utmpl_')) ? a.templateId : null;
+  return {
+    id: a.id,
+    type: 'analysis',
+    name: a.name,
+    target: targetLabel,
+    userTemplateId,
+    createdAt: a.createdAt,
+    parentArtifactId: a.parentAnalysisId || null,
+    lastRunVintages: a.lastRunVintages || {},
+    _fromV6: true
+  };
+}
+// Convert a v6 saved template → tenancy USER_TEMPLATES row.
+function v6TemplateToTenancy(t) {
+  return {
+    id: t.id,
+    name: t.name,
+    ownerUserId: state.currentUserId,        // attribute to whoever is "viewing as"
+    visibility: t.visibility || 'private',
+    parentTemplateId: t.parentTemplateId || 'system_existing_conditions_v1',
+    description: t.description || '',
+    updatedAt: t.updatedAt,
+    _fromV6: true
+  };
+}
+
+function syncFromV6() {
+  // Group v6 analyses by projectId
+  const byProject = {};
+  for (const a of loadV6Analyses()) {
+    if (!a.projectId) continue;             // standalone (no project) — not surfaced in tenancy
+    (byProject[a.projectId] ||= []).push(v6AnalysisToArtifact(a));
+  }
+  // Rebuild each project's artifacts: seed items + v6 items (avoids duplicates on re-render)
+  for (const p of PROJECTS) {
+    const seed   = p.artifacts.filter(a => !a._fromV6);
+    const v6Adds = byProject[p.id] || [];
+    p.artifacts = [...seed, ...v6Adds];
+  }
+  // Rebuild USER_TEMPLATES the same way
+  const seedTemplates = USER_TEMPLATES.filter(t => !t._fromV6);
+  const v6Templates   = loadV6Templates().map(v6TemplateToTenancy);
+  USER_TEMPLATES.length = 0;
+  USER_TEMPLATES.push(...seedTemplates, ...v6Templates);
+}
+
+function currentUser() { return USERS[state.currentUserId]; }
+function visibleProjects(forUserId) {
+  const uid = forUserId || state.currentUserId;
+  return PROJECTS.filter(p => {
+    if (p.deletedAt) return false;
+    return p.members.some(m => m.userId === uid);
+  });
+}
+function projectRole(project, uid) {
+  const m = project.members.find(x => x.userId === uid);
+  return m ? m.role : null;
+}
+function visibleUserTemplates() {
+  const uid = state.currentUserId;
+  return USER_TEMPLATES.filter(t => {
+    if (t.visibility === 'org') return true;          // visible to everyone in the org
+    return t.ownerUserId === uid;                      // private: only the owner sees it
+  });
+}
+function visibleSavedViews() {
+  const uid = state.currentUserId;
+  return SAVED_VIEWS.filter(v => v.visibility === 'org' || v.ownerUserId === uid);
+}
+// How many threads in this project have a stale latest? Used by the project card.
+function countStaleThreads(project) {
+  if (project.archivedAt) return 0;
+  const groups = new Map();
+  for (const a of project.artifacts) {
+    const key = `${a.type}|${a.target}|${a.userTemplateId || ''}`;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(a);
+  }
+  let n = 0;
+  for (const arr of groups.values()) {
+    const sorted = arr.slice().sort((x, y) => new Date(y.createdAt) - new Date(x.createdAt));
+    if (staleSurveys(sorted[0]).length > 0) n++;
+  }
+  return n;
+}
+
+// ============================================================
+// RENDER ROOT
+// ============================================================
+
+function render() {
+  syncFromV6();
+  const u = currentUser();
+  document.getElementById('sidebar-user').innerHTML = `
+    <div class="flex items-center gap-2 px-2 py-1.5">
+      <div class="avatar ${u.avatarClass}">${u.initials}</div>
+      <div class="text-xs leading-tight flex-1 min-w-0">
+        <div class="font-medium truncate">${u.displayName}</div>
+        <div class="text-slate-500 truncate">${ORG.displayName}</div>
+      </div>
+    </div>`;
+
+  document.querySelectorAll('.nav-btn').forEach(b => {
+    if (b.disabled) return;
+    const active = b.dataset.view === state.view || (b.dataset.view === 'projects' && state.view === 'project');
+    b.classList.toggle('bg-indigo-50', active);
+    b.classList.toggle('text-indigo-700', active);
+    b.classList.toggle('font-medium', active);
+    b.classList.toggle('text-slate-700', !active);
+    b.classList.toggle('hover:bg-slate-50', !active);
+  });
+
+  // Top-bar page title — static text for list views, project switcher dropdown when inside a project
+  const titleEl = document.getElementById('top-page-title');
+  if (state.view === 'project') {
+    const p = PROJECTS.find(x => x.id === state.currentProjectId);
+    if (p) {
+      const otherProjects = visibleProjects().filter(x => !x.archivedAt && x.id !== p.id);
+      titleEl.innerHTML = `
+        <details class="relative inline-block" id="proj-switcher">
+          <summary class="cursor-pointer flex items-center gap-1.5 hover:text-slate-700 list-none select-none">
+            ${p.name}
+            <span class="text-xs text-slate-400">▾</span>
+          </summary>
+          <div class="absolute left-0 mt-2 w-80 bg-white border border-slate-200 rounded-lg shadow-lg z-30 py-1 max-h-96 overflow-y-auto font-normal">
+            <div class="px-3 py-1.5 text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Switch to</div>
+            ${otherProjects.length ? otherProjects.map(other => `
+              <button onclick="closeSwitcher();openProject('${other.id}')" class="w-full text-left px-3 py-2 text-sm hover:bg-slate-50 flex items-start gap-2 text-slate-700">
+                <span class="text-slate-400 text-xs mt-0.5">📁</span>
+                <div class="flex-1 min-w-0">
+                  <div class="truncate text-slate-900">${other.name}</div>
+                  <div class="text-[11px] text-slate-500 truncate">${other.homeTarget.label} · ${other.artifacts.length} ${other.artifacts.length === 1 ? 'analysis' : 'analyses'}</div>
+                </div>
+              </button>`).join('') : `<div class="px-3 py-2 text-sm text-slate-500 italic">No other projects</div>`}
+            <div class="border-t border-slate-100 my-1"></div>
+            <button onclick="closeSwitcher();goToProjects()" class="w-full text-left px-3 py-2 text-xs hover:bg-slate-50 text-slate-600">All projects →</button>
+          </div>
+        </details>`;
+    } else {
+      titleEl.textContent = 'Project';
+    }
+  } else if (state.view === 'library') {
+    titleEl.textContent = 'Saved Work';
+  } else {
+    titleEl.textContent = 'Projects';
+  }
+
+  const c = document.getElementById('view-container');
+  if      (state.view === 'projects') c.innerHTML = renderProjectsView();
+  else if (state.view === 'project')  c.innerHTML = renderProjectView();
+  else if (state.view === 'library')  c.innerHTML = renderLibraryView();
+}
+
+// ============================================================
+// VIEW: MY PROJECTS
+// ============================================================
+
+function renderProjectsView() {
+  const all = visibleProjects();
+  const active   = all.filter(p => !p.archivedAt);
+  const archived = all.filter(p => p.archivedAt);
+  let list = state.showArchived ? archived : active;
+  list = sortProjects(list, state.projectSort);
+
+  const sortLabels = {
+    most_stale:   'Most stale first',
+    last_updated: 'Last updated',
+    due_date:     'Due date (soonest)',
+    name:         'Name (A–Z)'
+  };
+
+  return `
+    <div class="flex items-center justify-between mb-6 gap-4 flex-wrap">
+      <div>
+        <h1 class="text-2xl font-semibold text-slate-900">Projects</h1>
+        <p class="text-sm text-slate-600 mt-0.5">${active.length} active${archived.length ? ` · ${archived.length} archived` : ''} · ${ORG.displayName}</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <div class="flex items-center bg-white border border-slate-200 rounded-lg p-0.5 text-sm">
+          <button onclick="setShowArchived(false)" class="px-3 py-1.5 rounded ${!state.showArchived ? 'bg-indigo-50 text-indigo-700 font-medium' : 'text-slate-600'}">Active</button>
+          <button onclick="setShowArchived(true)"  class="px-3 py-1.5 rounded ${ state.showArchived ? 'bg-indigo-50 text-indigo-700 font-medium' : 'text-slate-600'}">Archived</button>
+        </div>
+        <select onchange="setProjectSort(this.value)" class="bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-sm text-slate-700 cursor-pointer hover:bg-slate-50">
+          ${Object.entries(sortLabels).map(([id, label]) => `
+            <option value="${id}" ${state.projectSort === id ? 'selected' : ''}>Sort: ${label}</option>
+          `).join('')}
+        </select>
+        <button onclick="openNewProjectModal()" class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700">+ New project</button>
+      </div>
+    </div>
+
+    ${list.length === 0 ? renderEmptyState() : `
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        ${list.map(renderProjectCard).join('')}
+      </div>
+    `}`;
+}
+
+// Sort helper. "Most stale" surfaces the projects that need attention first —
+// the planner-relevant default; trumps last-updated for at-a-glance triage.
+function sortProjects(arr, mode) {
+  const copy = arr.slice();
+  if (mode === 'most_stale') {
+    return copy.sort((a, b) => {
+      const sa = countStaleThreads(a);
+      const sb = countStaleThreads(b);
+      if (sa !== sb) return sb - sa; // more stale first
+      return new Date(b.updatedAt) - new Date(a.updatedAt); // tiebreak by recency
+    });
+  }
+  if (mode === 'last_updated') return copy.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+  if (mode === 'due_date') {
+    return copy.sort((a, b) => {
+      const da = a.engagement.dueDate ? new Date(a.engagement.dueDate).getTime() : Infinity;
+      const db = b.engagement.dueDate ? new Date(b.engagement.dueDate).getTime() : Infinity;
+      return da - db;
+    });
+  }
+  if (mode === 'name') return copy.sort((a, b) => a.name.localeCompare(b.name));
+  return copy;
+}
+
+function renderEmptyState() {
+  return `
+    <div class="bg-white border border-slate-200 rounded-lg p-12 text-center">
+      <div class="text-slate-400 text-5xl mb-3">📋</div>
+      <h3 class="text-base font-medium text-slate-900 mb-1">No ${state.showArchived ? 'archived' : 'active'} projects yet</h3>
+      <p class="text-sm text-slate-600 mb-4">${state.showArchived ? 'Archived projects will appear here.' : 'Create your first project to start running profiles.'}</p>
+      ${!state.showArchived ? `<button onclick="openNewProjectModal()" class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700">+ New Project</button>` : ''}
+    </div>`;
+}
+
+function renderProjectCard(p) {
+  const archived = !!p.archivedAt;
+  const lastActivity = formatRelative(p.updatedAt);
+  const wiredCount = p.artifacts.length;
+  const staleThreadCount = countStaleThreads(p);
+  // Due-date pill only when imminent (≤30 days) — otherwise quiet
+  const daysToDue = p.engagement.dueDate ? Math.ceil((new Date(p.engagement.dueDate) - new Date()) / 86400000) : null;
+  const imminentDue = daysToDue !== null && daysToDue <= 30 && !archived;
+
+  // v7: project card hierarchy — title is the obvious anchor, stale/due pills
+  // demote to a thin meta row at the bottom (not competing with title), and
+  // we surface a hover affordance ("Open →") so users see it's clickable.
+  const metaPills = [];
+  if (staleThreadCount > 0 && !archived) {
+    metaPills.push(`<span class="text-amber-700" title="${staleThreadCount} thread${staleThreadCount > 1 ? 's have' : ' has'} a newer survey vintage available">↻ ${staleThreadCount} update${staleThreadCount > 1 ? 's' : ''}</span>`);
+  }
+  if (imminentDue) {
+    metaPills.push(`<span class="${daysToDue < 7 ? 'text-rose-700' : 'text-amber-700'}" title="Due ${new Date(p.engagement.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}">${daysToDue <= 0 ? 'Overdue' : daysToDue < 7 ? `Due in ${daysToDue}d` : `Due in ${Math.round(daysToDue/7)}w`}</span>`);
+  }
+  return `
+    <div onclick="openProject('${p.id}')" class="v7-project-card bg-white border ${archived ? 'border-slate-300 opacity-75' : 'border-slate-200'} rounded-lg p-5 cursor-pointer card-hover relative">
+      <h3 class="text-base font-semibold text-slate-900 leading-tight mb-1.5">${p.name}</h3>
+      <div class="flex items-center gap-1.5 text-xs text-slate-500 mb-4">
+        <span class="font-medium text-slate-700">${p.homeTarget.label}</span>
+        <span>·</span>
+        <span>${wiredCount} ${wiredCount !== 1 ? 'analyses' : 'analysis'}</span>
+        ${archived ? `<span>·</span><span class="pill pill-slate">Archived</span>` : ''}
+      </div>
+
+      <div class="flex items-center justify-between text-xs text-slate-500 pt-3 border-t border-slate-100">
+        <span class="avatar-stack flex">
+          ${p.members.map(m => {
+            const u = USERS[m.userId];
+            return `<span class="avatar ${u.avatarClass}" title="${u.displayName} (${m.role})">${u.initials}</span>`;
+          }).join('')}
+        </span>
+        <span class="flex items-center gap-3">
+          ${metaPills.length ? metaPills.join('<span class="text-slate-300">·</span>') + '<span class="text-slate-300">·</span>' : ''}
+          <span>${lastActivity}</span>
+        </span>
+      </div>
+      <span class="v7-open-hint absolute right-4 top-5 text-slate-400 text-xs opacity-0 transition-opacity">Open →</span>
+    </div>`;
+}
+
+function renderStatusPill(status, archived) {
+  if (archived) return `<span class="pill pill-slate">Archived</span>`;
+  const map = {
+    in_progress: ['pill-indigo', 'In progress'],
+    review:      ['pill-amber',  'In review'],
+    submitted:   ['pill-emerald','Submitted'],
+    closed:      ['pill-slate',  'Closed']
+  };
+  const [cls, label] = map[status] || ['pill-slate', status];
+  return `<span class="pill ${cls}">${label}</span>`;
+}
+
+function formatRelative(dateStr) {
+  const then = new Date(dateStr);
+  const now = new Date();
+  const diff = (now - then) / 1000;
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  if (diff < 86400 * 7) return `${Math.floor(diff / 86400)}d ago`;
+  return then.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+// ============================================================
+// VIEW: SINGLE PROJECT
+// ============================================================
+
+function renderProjectView() {
+  const p = PROJECTS.find(x => x.id === state.currentProjectId);
+  if (!p) return `<div class="text-slate-500">Project not found.</div>`;
+  const myRole = projectRole(p, state.currentUserId);
+  const isOwner = myRole === 'owner';
+  const isContributor = myRole === 'owner' || myRole === 'contributor';
+
+  const ownerUser = USERS[p.ownerUserId];
+  const ownerLabel = p.ownerUserId === state.currentUserId ? `${ownerUser.displayName} (You)` : ownerUser.displayName;
+  const lastMod = formatRelative(p.updatedAt);
+
+  return `
+    <!-- Header card — SE-Academic pattern: breadcrumb + folder icon + title + meta + avatars + Share -->
+    <div class="bg-indigo-50/40 border border-indigo-100 rounded-xl p-5 mb-6">
+      <button onclick="goToProjects()" class="text-xs text-slate-600 hover:text-slate-900 mb-2 flex items-center gap-1">‹ <span class="underline">Projects</span></button>
+      <div class="flex items-start justify-between gap-4">
+        <div class="flex items-start gap-3 flex-1 min-w-0">
+          <div class="w-10 h-10 rounded bg-white border border-indigo-200 flex items-center justify-center flex-shrink-0 mt-0.5">
+            <span class="text-lg">📁</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap mb-1">
+              ${renderStatusPill(p.engagement.status, !!p.archivedAt)}
+            </div>
+            <h1 class="text-2xl font-semibold text-slate-900 leading-tight">${p.name}</h1>
+            <div class="text-xs text-slate-600 mt-1.5">
+              Owned by <strong>${ownerLabel}</strong>
+              · ${p.artifacts.length} ${p.artifacts.length === 1 ? 'item' : 'items'}
+              · Last modified ${lastMod}
+              ${p.engagement.dueDate ? ` · Due ${new Date(p.engagement.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}` : ''}
+            </div>
+            ${p.description ? `<p class="text-sm text-slate-600 mt-2">${p.description}</p>` : ''}
+          </div>
+        </div>
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <span class="avatar-stack flex">
+            ${p.members.map(m => {
+              const u = USERS[m.userId];
+              return `<span class="avatar ${u.avatarClass}" title="${u.displayName} (${m.role})">${u.initials}</span>`;
+            }).join('')}
+          </span>
+          <button onclick="${isOwner ? `openAddMembersModal('${p.id}')` : `toast('Only project owner can share')`}" class="px-3 py-1.5 bg-white border border-slate-200 rounded-full text-xs font-medium hover:bg-slate-50 flex items-center gap-1.5">
+            ⤴ Share
+          </button>
+          <button onclick="openProjectSettingsModal('${p.id}')" class="w-8 h-8 rounded-full border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center text-slate-500" title="Project settings">⚙</button>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      ${renderProjectArtifactsTab(p, isContributor)}
+    </div>`;
+}
+
+function renderProjectArtifactsTab(p, isContributor) {
+  return `
+    ${isContributor ? `
+      <div class="flex items-center justify-end mb-4">
+        <button onclick="openV6(${JSON.stringify('project: ' + p.name).replace(/"/g, '&quot;')}, ${JSON.stringify({ project: p.id }).replace(/"/g, '&quot;')})" class="px-3 py-1.5 bg-indigo-600 text-white text-xs font-medium rounded hover:bg-indigo-700">+ New analysis</button>
+      </div>
+    ` : ''}
+
+    ${p.artifacts.length === 0 ? `
+      <div class="bg-slate-50 border border-slate-200 rounded-lg p-8 text-center text-sm text-slate-500">
+        No analyses yet. ${isContributor ? 'Click "+ New analysis" to start.' : 'Members with contributor role can create analyses.'}
+      </div>
+    ` : `
+      <div class="space-y-2">
+        ${renderThreadedArtifacts(p.artifacts, p)}
+      </div>
+    `}`;
+}
+
+// Group artifacts into threads: each thread = artifacts sharing (type, target, userTemplateId).
+// Render only the latest of each thread at top level; older runs collapse into a
+// <details> block under the latest card.
+function renderThreadedArtifacts(artifacts, project) {
+  const groups = new Map();
+  for (const a of artifacts) {
+    const key = `${a.type}|${a.target}|${a.userTemplateId || ''}`;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(a);
+  }
+
+  // Sort threads by their latest artifact (most recent thread first)
+  const threads = [...groups.values()]
+    .map(arr => arr.slice().sort((x, y) => new Date(y.createdAt) - new Date(x.createdAt)))
+    .sort((t1, t2) => new Date(t2[0].createdAt) - new Date(t1[0].createdAt));
+
+  return threads.map(t => {
+    const latest = t[0];
+    const older = t.slice(1);
+    return `
+      <div>
+        ${renderArtifactRow(latest, project, t)}
+        ${older.length ? `
+          <details class="ml-6 mt-1 mb-1">
+            <summary class="text-xs text-slate-500 hover:text-slate-700 cursor-pointer py-1.5 select-none">
+              <span class="inline-block w-3">▸</span> ${older.length} earlier ${older.length === 1 ? 'version' : 'versions'} of this analysis
+            </summary>
+            <div class="border-l-2 border-slate-200 pl-3 mt-1 space-y-1">
+              ${older.map((a, i) => renderOlderVersionRow(a, t.length - 1 - i, t.length)).join('')}
+            </div>
+          </details>
+        ` : ''}
+      </div>`;
+  }).join('');
+}
+
+function renderOlderVersionRow(a, versionIdx, total) {
+  const parent = null;
+  return `
+    <div class="flex items-center gap-3 py-1.5 px-2 hover:bg-slate-50 rounded cursor-pointer text-xs" onclick="toast('Would open ${a.name} in the v5 dashboard →')">
+      <span class="pill pill-slate text-[10px]" style="min-width:46px;text-align:center">v${versionIdx} of ${total}</span>
+      <div class="flex-1 min-w-0">
+        <div class="font-medium text-slate-700 truncate">${a.name}</div>
+        <div class="text-slate-400 text-[11px]">saved ${formatRelative(a.createdAt)}</div>
+      </div>
+      <button onclick="event.stopPropagation();toast('Would create updated copy from this older version →')" class="text-slate-400 hover:text-slate-600">↪ Create copy</button>
+    </div>`;
+}
+
+function renderArtifactRow(a, p, thread) {
+  const tmpl = a.userTemplateId ? USER_TEMPLATES.find(t => t.id === a.userTemplateId) : null;
+  const stale = staleSurveys(a);
+  const isArchived = !!p.archivedAt;
+  const showStale = stale.length > 0 && !isArchived;
+  const stalePill = showStale ? renderStalePill(stale) : '';
+  const stripStyle = showStale ? 'border-l-4 border-amber-400' : '';
+  return `
+    <div class="border border-slate-200 ${stripStyle} rounded-lg p-4 hover:border-indigo-300 cursor-pointer" onclick="toast('Would open ${a.name} in the v5 dashboard →')">
+      <div class="flex items-center justify-between gap-4">
+        <div class="flex-1">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-base">${ARTIFACT_ICON}</span>
+            <span class="font-medium text-slate-900">${a.name}</span>
+            <span class="pill pill-violet text-[10px]">${ARTIFACT_SINGULAR}</span>
+            ${stalePill}
+          </div>
+          <div class="flex items-center gap-2 mt-1 text-xs text-slate-500">
+            ${a.target ? `<span>${a.target}</span>` : ''}
+            ${tmpl ? `<span>·</span><span>via ${tmpl.name}</span>` : ''}
+            ${a.createdAt ? `<span>·</span><span>saved ${formatRelative(a.createdAt)}</span>` : ''}
+          </div>
+        </div>
+        <div class="flex items-center gap-1">
+          <button onclick="event.stopPropagation();toast('Would create updated copy with current vintages of every survey →')" class="px-2.5 py-1 text-xs ${showStale ? 'bg-amber-50 text-amber-800 hover:bg-amber-100 font-medium' : 'text-slate-600 hover:bg-slate-100'} rounded">↪ Create updated copy</button>
+          <button class="px-2.5 py-1 text-xs text-slate-600 hover:bg-slate-100 rounded">⋯</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+// Returns the list of surveys whose lastRunVintage on this artifact is older
+// than the current registry. Used only on the latest of a thread (production
+// would skip older artifacts because they're already superseded).
+function staleSurveys(artifact) {
+  if (!artifact.lastRunVintages) return [];
+  const out = [];
+  for (const survey of Object.keys(artifact.lastRunVintages)) {
+    const cur = CURRENT_VINTAGES[survey];
+    const run = artifact.lastRunVintages[survey];
+    if (cur && run && cur !== run) {
+      out.push({ key: survey, name: VINTAGE_DISPLAY_NAMES[survey] || survey, current: cur, ran: run });
+    }
+  }
+  return out;
+}
+function renderStalePill(stale) {
+  const tooltip = stale.map(s => `${s.name}: ran ${s.ran} → ${s.current} available`).join(' · ');
+  if (stale.length === 1) {
+    const s = stale[0];
+    const yr = (s.current.match(/\d{4}/) || [''])[0];
+    return `<span class="pill pill-amber text-[10px]" title="${tooltip}">↻ ${s.name}${yr ? ' ' + yr : ''} available</span>`;
+  }
+  return `<span class="pill pill-amber text-[10px]" title="${tooltip}">↻ ${stale.length} newer vintages available</span>`;
+}
+
+function renderProjectSettingsTab(p, isOwner) {
+  const owner = USERS[p.ownerUserId];
+  return `
+    <div class="space-y-6">
+      <section>
+        <h3 class="text-sm font-semibold text-slate-900 mb-3">Details</h3>
+        <div class="space-y-2 text-sm">
+          ${kv('Name', p.name, isOwner)}
+          ${kv('Description', p.description || '—', isOwner)}
+          ${kv('Owner', owner.displayName)}
+          ${kv('Created', new Date(p.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }))}
+          ${kv('Tags', (p.tags || []).map(t => `<span class="pill pill-slate">${t}</span>`).join(' '), isOwner)}
+        </div>
+      </section>
+
+      <section>
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-sm font-semibold text-slate-900">Members (${p.members.length})</h3>
+          ${isOwner ? `<button onclick="openAddMembersModal('${p.id}')" class="px-3 py-1.5 text-xs bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded font-medium">+ Add member</button>` : ''}
+        </div>
+        <div class="space-y-1">
+          ${p.members.map(m => {
+            const u = USERS[m.userId];
+            return `
+              <div class="flex items-center gap-3 px-3 py-2 hover:bg-slate-50 rounded">
+                <div class="avatar ${u.avatarClass}">${u.initials}</div>
+                <div class="flex-1">
+                  <div class="text-sm font-medium text-slate-900">${u.displayName}</div>
+                  <div class="text-xs text-slate-500">${u.email}</div>
+                </div>
+                <span class="role-badge scope-${m.role === 'owner' ? 'org' : m.role === 'contributor' ? 'project' : 'user'}">${m.role}</span>
+                ${isOwner && m.role !== 'owner' ? `<button onclick="toast('Would remove ${u.displayName} from this project')" class="text-xs text-rose-600 hover:underline">Remove</button>` : ''}
+              </div>`;
+          }).join('')}
+        </div>
+      </section>
+
+      <section>
+        <h3 class="text-sm font-semibold text-slate-900 mb-3">Document type</h3>
+        <div class="space-y-2 text-sm">
+          ${kv('System template', SYSTEM_TEMPLATES[p.defaultTemplateId].name)}
+        </div>
+        <p class="text-xs text-slate-500 mt-2">The doc type the engagement is about. User templates and comparison sets are picked at analysis-creation time, not pre-set on the project.</p>
+      </section>
+
+      ${isOwner ? `
+        <section class="pt-6 border-t border-slate-200">
+          <h3 class="text-sm font-semibold text-rose-700 mb-3">Danger zone</h3>
+          <div class="space-y-2">
+            ${!p.archivedAt ? `
+              <div class="flex items-center justify-between gap-4 p-3 border border-amber-200 bg-amber-50 rounded">
+                <div>
+                  <div class="text-sm font-medium text-amber-900">Archive project</div>
+                  <div class="text-xs text-amber-700">Removes from default list. Saved artifacts still readable. Reversible.</div>
+                </div>
+                <button onclick="archiveProject('${p.id}')" class="px-3 py-1.5 text-xs bg-white border border-amber-300 text-amber-800 rounded font-medium hover:bg-amber-100">Archive</button>
+              </div>
+            ` : `
+              <div class="flex items-center justify-between gap-4 p-3 border border-emerald-200 bg-emerald-50 rounded">
+                <div>
+                  <div class="text-sm font-medium text-emerald-900">Project is archived</div>
+                  <div class="text-xs text-emerald-700">Restore to make it active again.</div>
+                </div>
+                <button onclick="restoreProject('${p.id}')" class="px-3 py-1.5 text-xs bg-white border border-emerald-300 text-emerald-800 rounded font-medium hover:bg-emerald-100">Restore</button>
+              </div>
+            `}
+            <div class="flex items-center justify-between gap-4 p-3 border border-rose-200 bg-rose-50 rounded">
+              <div>
+                <div class="text-sm font-medium text-rose-900">Delete project</div>
+                <div class="text-xs text-rose-700">Soft-delete with 30-day retention. All ${p.artifacts.length} artifacts go with it.</div>
+              </div>
+              <button onclick="deleteProject('${p.id}')" class="px-3 py-1.5 text-xs bg-rose-600 text-white rounded font-medium hover:bg-rose-700">Delete</button>
+            </div>
+            <div class="flex items-center justify-between gap-4 p-3 border border-slate-200 bg-slate-50 rounded">
+              <div>
+                <div class="text-sm font-medium text-slate-900">Transfer ownership</div>
+                <div class="text-xs text-slate-600">Hand off to another project member.</div>
+              </div>
+              <button onclick="toast('Would open transfer ownership modal')" class="px-3 py-1.5 text-xs bg-white border border-slate-300 text-slate-800 rounded font-medium hover:bg-slate-100">Transfer →</button>
+            </div>
+          </div>
+        </section>
+      ` : ''}
+    </div>`;
+}
+
+function kv(label, value, editable) {
+  return `
+    <div class="grid grid-cols-3 gap-4 py-1.5">
+      <div class="text-slate-500">${label}</div>
+      <div class="col-span-2 flex items-center gap-2">
+        <span class="text-slate-900">${value}</span>
+        ${editable ? `<button onclick="toast('Would open inline editor for ${label}')" class="text-xs text-indigo-600 hover:underline">edit</button>` : ''}
+      </div>
+    </div>`;
+}
+
+// ============================================================
+// VIEW: MY LIBRARY
+// ============================================================
+
+function renderLibraryView() {
+  const tplCount  = visibleUserTemplates().filter(t => t.ownerUserId === state.currentUserId).length;
+  const viewCount = visibleSavedViews().filter(v => v.ownerUserId === state.currentUserId).length;
+  const tabs = [
+    ['templates', 'User templates', tplCount,  'Layout customizations you save and apply to new analyses'],
+    ['views',     'Saved views',    viewCount, 'A target + comparison columns bundled together — apply both at once when starting a new analysis']
+  ];
+
+  return `
+    <div class="mb-6">
+      <h1 class="text-2xl font-semibold text-slate-900">Saved Work</h1>
+      <p class="text-sm text-slate-600 mt-0.5">Reusable building blocks across your projects — your customization templates and your target+comparison views.</p>
+    </div>
+
+    <div class="bg-white border border-slate-200 rounded-lg">
+      <div class="border-b border-slate-200 flex items-center px-2">
+        ${tabs.map(([id, label, n, tt]) => `
+          <button onclick="setLibraryTab('${id}')" class="px-4 py-3 text-sm font-medium ${state.libraryTab === id ? 'tab-active' : 'text-slate-600 hover:text-slate-900'}" title="${tt}">
+            ${label} · ${n}
+          </button>`).join('')}
+      </div>
+      <div class="p-6">
+        ${state.libraryTab === 'templates' ? renderLibraryTemplatesTab() : renderLibraryViewsTab()}
+      </div>
+    </div>`;
+}
+
+function renderLibraryTemplatesTab() {
+  const visible = visibleUserTemplates();
+  const mine    = visible.filter(t => t.ownerUserId === state.currentUserId);
+  const others  = visible.filter(t => t.visibility === 'org' && t.ownerUserId !== state.currentUserId);
+
+  const renderRow = (t, isMine) => {
+    const isOrg = t.visibility === 'org';
+    const owner = USERS[t.ownerUserId];
+    return `
+      <div class="border border-slate-200 rounded-lg p-3 mb-2 flex items-start gap-3">
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="font-medium text-slate-900 text-sm">${t.name}</span>
+            <span class="role-badge ${isOrg ? 'scope-org' : 'scope-user'}">${isOrg ? 'org-visible' : 'private'}</span>
+          </div>
+          <div class="text-xs text-slate-500 mt-0.5">${t.description}</div>
+          <div class="text-xs text-slate-400 mt-1">${isMine ? 'You' : owner.displayName} · updated ${formatRelative(t.updatedAt)}${isOrg && isMine ? ' · edits propagate to everyone using it' : ''}</div>
+        </div>
+        <div class="flex items-center gap-1 flex-shrink-0">
+          <button onclick="useTemplate('${t.id}')" class="px-2.5 py-1 text-xs bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded font-medium">Use →</button>
+          ${isMine ? `
+            <label class="flex items-center gap-1.5 text-xs text-slate-600 cursor-pointer px-2.5 py-1 hover:bg-slate-100 rounded" title="When org-visible, anyone in your org can apply this template. Edits you make propagate to everyone using it.">
+              <input type="checkbox" ${isOrg ? 'checked' : ''} onchange="toggleVisibility('${t.id}')" class="rounded text-indigo-600">
+              Org-visible
+            </label>
+            <button onclick="toast('Would open template editor')" class="px-2.5 py-1 text-xs text-slate-600 hover:bg-slate-100 rounded">Edit</button>
+            <button onclick="toast('Would delete with dependent-analyses warning')" class="px-2.5 py-1 text-xs text-rose-600 hover:bg-rose-50 rounded">Delete</button>
+          ` : ''}
+        </div>
+      </div>`;
+  };
+
+  return `
+    <div class="space-y-6">
+      <section>
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-sm font-semibold text-slate-900">Your templates · ${mine.length}</h3>
+          <span class="text-xs text-slate-500">Toggle org-visible to share with your team</span>
+        </div>
+        ${mine.length === 0 ? `<div class="text-sm text-slate-500 italic px-3 py-4 bg-slate-50 rounded">No templates yet. Customize an analysis and click "Save as Template" to create one.</div>` :
+          mine.map(t => renderRow(t, true)).join('')}
+      </section>
+
+      <section>
+        <h3 class="text-sm font-semibold text-slate-900 mb-2">Org-visible from teammates · ${others.length}</h3>
+        ${others.length === 0 ? `<div class="text-sm text-slate-500 italic px-3 py-4 bg-slate-50 rounded">No org-visible templates shared by others yet.</div>` :
+          others.map(t => renderRow(t, false)).join('')}
+      </section>
+    </div>`;
+}
+
+function renderLibraryViewsTab() {
+  const mine = SAVED_VIEWS.filter(v => v.ownerUserId === state.currentUserId);
+  const others = SAVED_VIEWS.filter(v => v.visibility === 'org' && v.ownerUserId !== state.currentUserId);
+
+  const renderRow = (v, isMine) => {
+    const isOrg = v.visibility === 'org';
+    const targetIsCustom = v.target.type === 'custom';
+    return `
+      <div class="border border-slate-200 rounded-lg p-3 mb-2 flex items-start gap-3">
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="font-medium text-slate-900 text-sm">${v.name}</span>
+            <span class="role-badge ${isOrg ? 'scope-org' : 'scope-user'}">${isOrg ? 'org-visible' : 'private'}</span>
+          </div>
+          <div class="text-xs text-slate-700 mt-1">
+            <span class="text-slate-500">Target:</span>
+            <strong>${v.target.label}</strong>
+            ${targetIsCustom ? `<span class="text-slate-400"> (${v.target.tractGeoids} tracts via ${v.target.definitionMethod})</span>` : ` <span class="text-slate-400">(${v.target.type})</span>`}
+          </div>
+          <div class="text-xs text-slate-700 mt-0.5 flex items-center gap-1.5 flex-wrap">
+            <span class="text-slate-500">Compare:</span>
+            ${v.comparison.map(c => `<span class="pill pill-indigo">${c.label}</span>`).join('')}
+          </div>
+          ${v.lastUsedAt ? `<div class="text-[11px] text-slate-400 mt-1">Last used ${formatRelative(v.lastUsedAt)}</div>` : ''}
+        </div>
+        <div class="flex items-center gap-1 flex-shrink-0">
+          <button onclick="useSavedView('${v.id}')" class="px-2.5 py-1 text-xs bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded font-medium">Use →</button>
+          ${isMine ? `
+            <label class="flex items-center gap-1.5 text-xs text-slate-600 cursor-pointer px-2.5 py-1 hover:bg-slate-100 rounded" title="When org-visible, anyone in your org can apply this view.">
+              <input type="checkbox" ${isOrg ? 'checked' : ''} onchange="toggleSavedViewVisibility('${v.id}')" class="rounded text-indigo-600">
+              Org-visible
+            </label>
+            <button onclick="toast('Would open saved-view editor')" class="px-2.5 py-1 text-xs text-slate-600 hover:bg-slate-100 rounded">Edit</button>
+            <button onclick="toast('Would delete')" class="px-2.5 py-1 text-xs text-rose-600 hover:bg-rose-50 rounded">Delete</button>
+          ` : ''}
+        </div>
+      </div>`;
+  };
+
+  return `
+    <div class="space-y-6">
+      <section>
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-sm font-semibold text-slate-900">Your views · ${mine.length}</h3>
+          <span class="text-xs text-slate-500">A view = target + comparison, applied together when starting an analysis</span>
+        </div>
+        ${mine.length === 0 ? `<div class="text-sm text-slate-500 italic px-3 py-4 bg-slate-50 rounded">No saved views yet. Save one from the analysis input panel after picking a target and a comparison set.</div>` :
+          mine.map(v => renderRow(v, true)).join('')}
+      </section>
+
+      <section>
+        <h3 class="text-sm font-semibold text-slate-900 mb-2">Org-visible views from teammates · ${others.length}</h3>
+        ${others.length === 0 ? `<div class="text-sm text-slate-500 italic px-3 py-4 bg-slate-50 rounded">No org-visible views shared by others yet.</div>` :
+          others.map(v => renderRow(v, false)).join('')}
+      </section>
+    </div>`;
+}
+
+// ============================================================
+// MODALS
+// ============================================================
+
+function openNewProjectModal() {
+  document.getElementById('modal-root').innerHTML = `
+    <div class="fixed inset-0 modal-backdrop z-40 flex items-center justify-center p-4" onclick="closeModal(event)">
+      <div onclick="event.stopPropagation()" class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[92vh] overflow-y-auto">
+        <div class="p-6 border-b border-slate-200">
+          <h2 class="text-xl font-semibold text-slate-900">New Project</h2>
+          <p class="text-sm text-slate-500 mt-1">Start a new planning engagement.</p>
+        </div>
+
+        <div class="p-6 space-y-5">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Name <span class="text-rose-600">*</span></label>
+            <input type="text" placeholder="e.g. City of Burlington — 2026 ConPlan" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Home target geography <span class="text-rose-600">*</span></label>
+            <input type="text" placeholder="Search city, county, MSA, or pick a saved custom area…" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500" />
+            <p class="text-xs text-slate-500 mt-1">Anchors the project. Per-analysis targets can override.</p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">Document type / Template <span class="text-rose-600">*</span></label>
+              <select class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">
+                <option>Existing Conditions</option>
+                <option disabled>HUD Consolidated Plan (coming soon)</option>
+                <option disabled>CDBG Action Plan (coming soon)</option>
+                <option disabled>CAPER (coming soon)</option>
+                <option disabled>Vision Zero (coming soon)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">Cycle / Period <span class="text-slate-400">(optional)</span></label>
+              <input type="text" placeholder="e.g. 2026–2030" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Description <span class="text-slate-400">(optional)</span></label>
+            <textarea rows="2" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" placeholder="One sentence about this engagement"></textarea>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">Due date <span class="text-slate-400">(optional)</span></label>
+              <input type="date" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">Tags <span class="text-slate-400">(optional)</span></label>
+              <input type="text" placeholder="comma-separated" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Initial members <span class="text-slate-400">(optional)</span></label>
+            <div class="space-y-1.5 max-h-32 overflow-y-auto border border-slate-200 rounded-lg p-2">
+              ${Object.values(USERS).filter(u => u.id !== state.currentUserId).map(u => `
+                <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-slate-50 rounded">
+                  <input type="checkbox" class="rounded text-indigo-600" />
+                  <div class="avatar ${u.avatarClass}" style="width:22px;height:22px;font-size:10px">${u.initials}</div>
+                  <span class="text-sm flex-1">${u.displayName}</span>
+                  <select class="text-xs border border-slate-200 rounded px-1.5 py-0.5">
+                    <option>contributor</option>
+                    <option>reviewer</option>
+                  </select>
+                </label>`).join('')}
+            </div>
+            <p class="text-xs text-slate-500 mt-1">You'll be the owner. Members can be added/removed later.</p>
+          </div>
+        </div>
+
+        <div class="p-4 border-t border-slate-200 flex items-center justify-end gap-2 bg-slate-50 rounded-b-xl">
+          <button onclick="closeModalById()" class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded">Cancel</button>
+          <button onclick="closeModalById();toast('Would create the project and open it')" class="px-4 py-2 text-sm font-medium bg-indigo-600 text-white rounded hover:bg-indigo-700">Create project</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ---------- Project Settings modal ----------
+// Settings doesn't earn its own tab — it's configuration the user dips into
+// occasionally. Opens from the gear icon in the project header.
+function openProjectSettingsModal(projectId) {
+  const p = PROJECTS.find(x => x.id === projectId);
+  if (!p) return;
+  const myRole = projectRole(p, state.currentUserId);
+  const isOwner = myRole === 'owner';
+  document.getElementById('modal-root').innerHTML = `
+    <div class="fixed inset-0 modal-backdrop z-40 flex items-center justify-center p-4" onclick="closeModal(event)">
+      <div onclick="event.stopPropagation()" class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[92vh] overflow-y-auto">
+        <div class="p-6 border-b border-slate-200 flex items-start justify-between">
+          <div>
+            <h2 class="text-xl font-semibold text-slate-900">⚙ Project settings</h2>
+            <p class="text-sm text-slate-500 mt-1">${p.name}</p>
+          </div>
+          <button onclick="closeModalById()" class="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-500">✕</button>
+        </div>
+        <div class="p-6">
+          ${renderProjectSettingsTab(p, isOwner)}
+        </div>
+      </div>
+    </div>`;
+}
+
+// ---------- Save Analysis modal ----------
+// Triggered from v5 in production. The prototype mocks the modal so you can
+// see the flow: name + project picker + threading hint + optional view-save.
+function openSaveAnalysisModal(opts = {}) {
+  const uid = state.currentUserId;
+  const writable = PROJECTS.filter(p =>
+    !p.archivedAt && !p.deletedAt &&
+    p.members.some(m => m.userId === uid && (m.role === 'owner' || m.role === 'contributor'))
+  );
+  // Pre-select project: if launched from a project, use it; else pick first writable
+  const preselectedId = opts.projectId || (writable[0] && writable[0].id) || '';
+  // Mock target + template — would come from v5 session state in production
+  const mockTarget = opts.targetLabel || 'Burlington, VT';
+  const mockTemplateId = opts.userTemplateId || 'utmpl_burlington_council';
+  const mockTemplate = USER_TEMPLATES.find(t => t.id === mockTemplateId);
+  const mockTemplateName = mockTemplate ? mockTemplate.name : 'Existing Conditions (system)';
+
+  // Threading hint — count existing artifacts with same (target, userTemplateId) in the chosen project
+  const threadingHint = (projectId) => {
+    const p = PROJECTS.find(x => x.id === projectId);
+    if (!p) return '';
+    const matching = p.artifacts.filter(a =>
+      a.type === 'analysis' && a.target === mockTarget && (a.userTemplateId || null) === (mockTemplateId || null)
+    );
+    if (matching.length === 0) return `<span class="text-slate-500">First analysis with this target + template combination in this project.</span>`;
+    return `<span class="text-indigo-700">↪ Will join the existing thread of ${matching.length} ${matching.length === 1 ? 'analysis' : 'analyses'} with the same target + template — saves as version ${matching.length + 1}.</span>`;
+  };
+
+  const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const suggestedName = `${mockTarget.split(',')[0]} — ${today} run`;
+
+  function modalHtml(currentProjectId) {
+    return `
+      <div class="fixed inset-0 modal-backdrop z-40 flex items-center justify-center p-4" onclick="closeModal(event)">
+        <div onclick="event.stopPropagation()" class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[92vh] overflow-y-auto">
+          <div class="p-6 border-b border-slate-200">
+            <h2 class="text-xl font-semibold text-slate-900">📊 Save analysis</h2>
+            <p class="text-sm text-slate-500 mt-1">Persist this profile as a saved record bound to a project.</p>
+          </div>
+
+          <div class="p-6 space-y-5">
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">Name <span class="text-rose-600">*</span></label>
+              <input type="text" value="${suggestedName}" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 p-3 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-600">
+              <div><span class="text-slate-500">Target:</span> <strong class="text-slate-900">${mockTarget}</strong></div>
+              <div><span class="text-slate-500">Template:</span> <strong class="text-slate-900">${mockTemplateName}</strong></div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">Save to project <span class="text-rose-600">*</span></label>
+              <select id="save-analysis-project" onchange="document.getElementById('thread-hint').innerHTML = (${JSON.stringify(writable.map(p => [p.id, threadingHint(p.id)]))}.find(x => x[0] === this.value) || ['', ''])[1]" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">
+                ${writable.map(p => `<option value="${p.id}" ${p.id === currentProjectId ? 'selected' : ''}>${p.name}</option>`).join('')}
+                <option disabled>──────────</option>
+                <option value="__new__">+ Create new project…</option>
+              </select>
+              <div id="thread-hint" class="text-xs mt-1.5">${threadingHint(currentProjectId)}</div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">Notes <span class="text-slate-400">(optional)</span></label>
+              <textarea rows="2" maxlength="280" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" placeholder="Anything specific about this run that future-you should remember"></textarea>
+            </div>
+
+            <label class="flex items-start gap-2 px-2 py-1 cursor-pointer">
+              <input type="checkbox" class="mt-0.5 rounded text-indigo-600" />
+              <span class="text-sm text-slate-700">
+                Also save target + comparison as a view named <strong>"${mockTarget} — ${mockTemplateName.split('—')[0].trim()}"</strong>
+                <span class="block text-xs text-slate-500 mt-0.5">For re-use across analyses. Lands in Saved Work → Saved views.</span>
+              </span>
+            </label>
+          </div>
+
+          <div class="p-4 border-t border-slate-200 flex items-center justify-end gap-2 bg-slate-50 rounded-b-xl">
+            <button onclick="closeModalById()" class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded">Cancel</button>
+            <button onclick="closeModalById();toast('Saved to project. Would redirect to the project Artifacts tab with the new entry highlighted.')" class="px-4 py-2 text-sm font-medium bg-indigo-600 text-white rounded hover:bg-indigo-700">Save analysis</button>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  document.getElementById('modal-root').innerHTML = modalHtml(preselectedId);
+}
+
+// ---------- Save Template modal ----------
+// Triggered from v5 after customization. Captures the override layer only —
+// no target, no data. Lands in Saved Work → User templates.
+function openSaveTemplateModal(opts = {}) {
+  // Mock — would come from v5 session state in production
+  const baseTemplate = opts.parentTemplate || null; // if applied an existing template
+  const suggestedName = baseTemplate ? `My ${baseTemplate.name} variant` : 'My Existing Conditions layout';
+  document.getElementById('modal-root').innerHTML = `
+    <div class="fixed inset-0 modal-backdrop z-40 flex items-center justify-center p-4" onclick="closeModal(event)">
+      <div onclick="event.stopPropagation()" class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[92vh] overflow-y-auto">
+        <div class="p-6 border-b border-slate-200">
+          <h2 class="text-xl font-semibold text-slate-900">📐 Save as template</h2>
+          <p class="text-sm text-slate-500 mt-1">Save these customizations as a reusable layout. Templates capture overrides only — no target, no data.</p>
+        </div>
+
+        <div class="p-6 space-y-5">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Name <span class="text-rose-600">*</span></label>
+            <input type="text" value="${suggestedName}" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Description <span class="text-slate-400">(optional)</span></label>
+            <textarea rows="2" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" placeholder="e.g. Hides MOE flags · simplified equity section · adds CHAS T11"></textarea>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-2">Visibility</label>
+            <div class="space-y-2">
+              <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:border-indigo-300 has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50/40">
+                <input type="radio" name="vis" value="private" checked class="mt-0.5 text-indigo-600" />
+                <div>
+                  <div class="text-sm font-medium text-slate-900">Private</div>
+                  <div class="text-xs text-slate-500 mt-0.5">Only you can see and apply this template. You can flip to org-visible later from Saved Work.</div>
+                </div>
+              </label>
+              <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:border-indigo-300 has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50/40">
+                <input type="radio" name="vis" value="org" class="mt-0.5 text-indigo-600" />
+                <div>
+                  <div class="text-sm font-medium text-slate-900">Org-visible</div>
+                  <div class="text-xs text-slate-500 mt-0.5">Anyone in <strong>${ORG.displayName}</strong> can apply it. You stay the owner — your future edits propagate to anyone using it.</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          ${baseTemplate ? `
+            <div class="p-3 bg-amber-50 border border-amber-200 rounded text-xs text-amber-900">
+              <strong>Forking:</strong> This will create a new private template with your additional customizations on top of <strong>${baseTemplate.name}</strong>. The original template stays unchanged. If ${USERS[baseTemplate.ownerUserId]?.displayName || 'the original owner'} updates it later, your variant won't auto-update.
+            </div>
+          ` : ''}
+        </div>
+
+        <div class="p-4 border-t border-slate-200 flex items-center justify-end gap-2 bg-slate-50 rounded-b-xl">
+          <button onclick="closeModalById()" class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded">Cancel</button>
+          <button onclick="closeModalById();toast('Template saved. Find it in Saved Work → User templates.')" class="px-4 py-2 text-sm font-medium bg-indigo-600 text-white rounded hover:bg-indigo-700">Save template</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function openAddMembersModal(projectId) {
+  const p = PROJECTS.find(x => x.id === projectId);
+  const current = new Set(p.members.map(m => m.userId));
+  const available = Object.values(USERS).filter(u => !current.has(u.id));
+  document.getElementById('modal-root').innerHTML = `
+    <div class="fixed inset-0 modal-backdrop z-40 flex items-center justify-center p-4" onclick="closeModal(event)">
+      <div onclick="event.stopPropagation()" class="bg-white rounded-xl shadow-2xl max-w-md w-full">
+        <div class="p-6 border-b border-slate-200">
+          <h2 class="text-xl font-semibold text-slate-900">Add members</h2>
+          <p class="text-sm text-slate-500 mt-1">to ${p.name}</p>
+        </div>
+        <div class="p-6">
+          ${available.length === 0 ? `<div class="text-sm text-slate-500">Everyone in your org is already on this project.</div>` : `
+            <div class="space-y-1">
+              ${available.map(u => `
+                <label class="flex items-center gap-2 px-2 py-2 hover:bg-slate-50 rounded">
+                  <input type="checkbox" class="rounded text-indigo-600" />
+                  <div class="avatar ${u.avatarClass}">${u.initials}</div>
+                  <div class="flex-1">
+                    <div class="text-sm font-medium">${u.displayName}</div>
+                    <div class="text-xs text-slate-500">${u.email}</div>
+                  </div>
+                  <select class="text-xs border border-slate-200 rounded px-1.5 py-0.5">
+                    <option>contributor</option>
+                    <option>reviewer</option>
+                  </select>
+                </label>`).join('')}
+            </div>
+          `}
+        </div>
+        <div class="p-4 border-t border-slate-200 flex items-center justify-end gap-2 bg-slate-50 rounded-b-xl">
+          <button onclick="closeModalById()" class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded">Cancel</button>
+          <button onclick="closeModalById();toast('Would add members + send invitation emails')" class="px-4 py-2 text-sm font-medium bg-indigo-600 text-white rounded hover:bg-indigo-700">Add</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function closeModal(e) { if (e.target === e.currentTarget) closeModalById(); }
+function closeModalById() { document.getElementById('modal-root').innerHTML = ''; }
+
+// ============================================================
+// HANDLERS
+// ============================================================
+
+function setView(v) { state.view = v; if (v !== 'project') state.currentProjectId = null; render(); }
+function closeSwitcher() { const d = document.getElementById('proj-switcher'); if (d) d.removeAttribute('open'); }
+function openProject(id) { state.currentProjectId = id; state.view = 'project'; render(); }
+function goToProjects() { state.view = 'projects'; state.currentProjectId = null; render(); }
+function setLibraryTab(t) { state.libraryTab = t; render(); }
+function setShowArchived(b) { state.showArchived = b; render(); }
+function setProjectSort(s) { state.projectSort = s; render(); }
+
+// Open v6 (the analysis-creation prototype with wired Save flows) in a new tab.
+// In production this would receive the project context as URL params so the
+// resulting saved analysis lands in the right project. v6 has the Save analysis
+// and Save as template modals wired to the buttons.
+// Build a v6 URL with optional context (template, project, view).
+// v6 reads these on load and applies them via applyInboundV6Params().
+function buildV6Url(opts) {
+  const params = new URLSearchParams();
+  if (opts && opts.template) params.set('template', opts.template);
+  if (opts && opts.project)  params.set('project',  opts.project);
+  if (opts && opts.view)     params.set('view',     opts.view);
+  const qs = params.toString();
+  return 'index_v7.html' + (qs ? '?' + qs : '');
+}
+
+function openV6(context, opts) {
+  toast(`Opening v6 input panel — ${context}. Save analysis lands here automatically.`);
+  window.open(buildV6Url(opts), '_blank');
+}
+function useSavedView(viewId) {
+  const v = SAVED_VIEWS.find(x => x.id === viewId);
+  if (!v) return;
+  // Saved views bundle target + comparison + (optional) template. Target/comparison
+  // payload is too big for a URL param, so stash it in localStorage under a
+  // generated handoff key; pass the key as ?handoff=<key>. v6 picks it up on
+  // load and deletes the key. sessionStorage is per-tab, so we can't use it
+  // for the cross-tab open('_blank') handoff — must be localStorage.
+  const handoffKey = 'v6Handoff_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
+  const payload = { target: v.target, comparison: v.comparison, templateId: v.templateId || null, savedViewId: v.id };
+  try { localStorage.setItem(handoffKey, JSON.stringify(payload)); } catch (e) { /* localStorage may be full or disabled; v6 will fall through to default */ }
+  toast(`Opening v6 with target=${v.target.label} + ${v.comparison.length} comparison columns →`);
+  const params = new URLSearchParams();
+  params.set('handoff', handoffKey);
+  if (v.templateId) params.set('template', v.templateId);
+  if (state.currentProjectId) params.set('project', state.currentProjectId);
+  window.open('index_v7.html?' + params.toString(), '_blank');
+}
+function useTemplate(tmplId) {
+  const t = USER_TEMPLATES.find(x => x.id === tmplId);
+  if (!t) return;
+  toast(`Opening v6 with "${t.name}" applied as the user-template overlay →`);
+  window.open(buildV6Url({ template: tmplId, project: state.currentProjectId || undefined }), '_blank');
+}
+function quickNewAnalysis() {
+  const writable = visibleProjects().filter(p => !p.archivedAt && (() => { const r = projectRole(p, state.currentUserId); return r === 'owner' || r === 'contributor'; })());
+  if (writable.length === 0) { toast('No projects you can write to. Create one first.'); return; }
+  if (writable.length === 1) { openV6('project: ' + writable[0].name, { project: writable[0].id }); return; }
+  document.getElementById('modal-root').innerHTML = `
+    <div class="fixed inset-0 modal-backdrop z-40 flex items-center justify-center p-4" onclick="closeModal(event)">
+      <div onclick="event.stopPropagation()" class="bg-white rounded-xl shadow-2xl max-w-md w-full">
+        <div class="p-5 border-b border-slate-200">
+          <h2 class="text-lg font-semibold text-slate-900">New analysis</h2>
+          <p class="text-xs text-slate-500 mt-1">Pick a project to save into. Opens v6 to generate.</p>
+        </div>
+        <div class="p-2 max-h-80 overflow-y-auto">
+          ${writable.map(p => `
+            <button onclick="closeModalById();openV6(${JSON.stringify('project: ' + p.name).replace(/"/g, '&quot;')}, ${JSON.stringify({ project: p.id }).replace(/"/g, '&quot;')})" class="w-full text-left px-3 py-2.5 hover:bg-slate-50 rounded flex items-start gap-2">
+              <span class="text-slate-400 text-xs mt-0.5">📁</span>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium text-slate-900 truncate">${p.name}</div>
+                <div class="text-xs text-slate-500 truncate">${p.homeTarget.label}</div>
+              </div>
+            </button>`).join('')}
+        </div>
+      </div>
+    </div>`;
+}
+
+function archiveProject(id) {
+  const p = PROJECTS.find(x => x.id === id);
+  if (confirm(`Archive "${p.name}"? It will move out of the active list. Reversible.`)) {
+    p.archivedAt = new Date().toISOString();
+    closeModalById();
+    toast('Project archived. Find it under the Archived filter.');
+    render();
+  }
+}
+function restoreProject(id) {
+  const p = PROJECTS.find(x => x.id === id);
+  p.archivedAt = null;
+  closeModalById();
+  toast('Project restored.');
+  render();
+}
+function deleteProject(id) {
+  const p = PROJECTS.find(x => x.id === id);
+  if (confirm(`Soft-delete "${p.name}"? All ${p.artifacts.length} artifacts go with it. Recoverable for 30 days by Org Admin.`)) {
+    p.deletedAt = new Date().toISOString();
+    closeModalById();
+    toast('Project soft-deleted (30-day retention).');
+    goToProjects();
+  }
+}
+
+function toggleVisibility(tmplId) {
+  const t = USER_TEMPLATES.find(x => x.id === tmplId);
+  if (t.ownerUserId !== state.currentUserId) { toast('Only the template owner can change its visibility.'); return; }
+  t.visibility = t.visibility === 'org' ? 'private' : 'org';
+  toast(t.visibility === 'org'
+    ? `"${t.name}" is now visible to everyone in ${ORG.displayName}. Your future edits propagate to anyone using it.`
+    : `"${t.name}" is now private. Others who applied it before keep their copy unchanged unless they re-apply.`);
+  render();
+}
+function toggleSavedViewVisibility(viewId) {
+  const v = SAVED_VIEWS.find(x => x.id === viewId);
+  if (v.ownerUserId !== state.currentUserId) { toast('Only the view owner can change its visibility.'); return; }
+  v.visibility = v.visibility === 'org' ? 'private' : 'org';
+  toast(v.visibility === 'org'
+    ? `"${v.name}" is now visible to everyone in ${ORG.displayName}.`
+    : `"${v.name}" is now private.`);
+  render();
+}
+
+function toast(msg) {
+  let el = document.getElementById('toast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'toast';
+    el.className = 'fixed bottom-6 left-1/2 -translate-x-1/2 px-4 py-2.5 bg-slate-900 text-white text-sm rounded-lg shadow-lg z-50';
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.style.opacity = '1';
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.style.transition = 'opacity 0.3s'; el.style.opacity = '0'; }, 2400);
+}
+
+// ============================================================
+// NAV WIRING
+// ============================================================
+
+document.querySelectorAll('.nav-btn').forEach(b => {
+  b.addEventListener('click', () => setView(b.dataset.view));
+});
+document.getElementById('user-switcher').addEventListener('change', (e) => {
+  state.currentUserId = e.target.value;
+  state.view = 'projects';
+  state.currentProjectId = null;
+  render();
+});
+
+// Honor ?view=library | ?view=projects | ?project=<id> from inbound links
+// (e.g. v6's "Open in Saved Work" button passes ?view=library).
+(function applyInboundParams() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const v = params.get('view');
+    const pid = params.get('project');
+    if (pid && PROJECTS.find(p => p.id === pid)) {
+      state.currentProjectId = pid;
+      state.view = 'project';
+    } else if (v === 'library' || v === 'projects') {
+      state.view = v;
+    }
+    // v7: reveal the admin "View as" switcher only when ?debug=1 — it's a
+    // prototype-only role-demo affordance and shouldn't sit in production chrome.
+    if (params.get('debug') === '1') {
+      const sw = document.getElementById('debug-user-switcher');
+      if (sw) { sw.classList.remove('hidden'); sw.classList.add('flex'); }
+    }
+  } catch (e) { /* swallow — URL parsing is non-critical */ }
+})();
+
+render();
+
+// Cross-tab + cross-window sync with v6:
+// - `storage` event fires in this tab when v6 (in another tab) writes to localStorage
+// - `focus` event re-renders when the user returns to this tab after using v6
+window.addEventListener('storage', (e) => {
+  if (e.key === V6_ANALYSES_KEY || e.key === V6_TEMPLATES_KEY) render();
+});
+window.addEventListener('focus', render);
+</script>
+</body>
+</html>
