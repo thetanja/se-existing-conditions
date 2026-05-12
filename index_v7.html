@@ -5041,80 +5041,28 @@ function sviCuts(palette) {
 // (The Dingo iframe embed in mountDingoMap() is kept for the day this dashboard is served from
 // inside the SE Academic shell; it can't render on a non-SE origin because Dingo redirects to
 // /embed?unsupported=true when the parent isn't authenticated.)
+// v7: the four hardcoded MVP maps were retired in favor of the
+// "open any variable in map" pattern — every row in every data table now
+// has its own per-row map button that deep-links to SE Maps with that
+// variable preselected, so template-level fixed maps add noise without
+// adding capability. EJScreen stays as the Phase 1 placeholder because
+// it represents a whole data source we haven't ingested yet.
 function renderMaps(parent, geos, D) {
-  const body = createSection(parent, 8, 'Maps (MVP)', 'partial', false);
+  const body = createSection(parent, 8, 'Maps', 'partial', false);
 
   body.insertAdjacentHTML('beforeend', `
-    <p class="text-xs text-gray-600 mb-3 leading-relaxed">
-      Four MVP maps from the <em>SEAI Existing Conditions Proposal v4 — Complete Data Inventory</em>.
-      Each card shows the indicator, the planned legend breakpoints, and links into the
-      Social Explorer explore-maps tool with the source table preselected. (The same indicator/palette
-      configs feed an embedded <code class="text-[11px] bg-gray-100 px-1 rounded">DingoMap</code> iframe
-      — using the SE chatbot's pattern in <code class="text-[11px]">packages/ui/.../DingoMap.tsx</code> —
-      that activates once this dashboard is served from inside the authenticated SE shell.)
+    <p class="text-sm text-gray-600 mb-3 leading-relaxed">
+      Maps are now opened per-variable: click the map icon next to any row in
+      any data table above to view that indicator as a choropleth in the
+      Social Explorer explore-maps tool. The section below tracks data
+      sources still planned for ingest.
     </p>
   `);
 
-  // ---- MVP Map 1: Race & ethnicity 10-yr change (% White NH) ----
-  mountSEMapLink(body, {
-    title: 'Race / Ethnicity 10-yr Change — Δ % White (Non-Hispanic)',
-    description: 'Diverging map of the 10-year shift in non-Hispanic White share by census tract — flags neighborhoods undergoing rapid demographic change. Diverging palette (red = whitening, orange = browning).',
-    cuts: divPctChangeCuts(SE_MAP_PALETTES.orange),
-    geographyLabel: 'Census Tract',
-    surveyLabel: 'ACS 2014 + 2024 5yr',
-    source: 'ACS 2010-2014 vs 2020-2024 5-Year Estimates (Tables B02001 / B03003) · 10-year change in non-Hispanic White share',
-    deepLink: seMapDeepLink({ surveyName: 'ACS2024_5yr', tableName: 'A04001' }),
-  });
-
-  // ---- MVP Map 2: Cost burden (renter 30%+) ----
-  mountSEMapLink(body, {
-    title: 'Renter Cost Burden — % Households Paying ≥ 30% of Income on Rent',
-    description: 'Sequential map of severe rent burden by tract — the strongest cross-dataset stress indicator (ACS × CHAS AMI tiers). Higher values flag neighborhoods at risk of displacement.',
-    cuts: pctCuts(SE_MAP_PALETTES.indigo),
-    geographyLabel: 'Census Tract',
-    surveyLabel: 'ACS 2024 5yr + CHAS',
-    source: 'ACS 2020-2024 5-Year Estimates (Table B25070) cross-walked with CHAS AMI tiers · cost burden = gross rent ≥ 30% of household income',
-    deepLink: seMapDeepLink({ surveyName: 'ACS2024_5yr', tableName: 'A18002' }),
-  });
-
-  // ---- MVP Map 3: Poverty + no vehicle access ----
-  mountSEMapLink(body, {
-    title: 'Poverty + No Vehicle Access — Composite Equity Stress',
-    description: 'Households that are both below the poverty line AND have no vehicle — a composite mobility-equity indicator that often drives transit, food-access, and health-care priorities.',
-    cuts: pctCuts(SE_MAP_PALETTES.rose),
-    geographyLabel: 'Census Tract',
-    surveyLabel: 'ACS 2024 5yr',
-    source: 'ACS 2020-2024 5-Year Estimates (B17001 poverty × B25044 vehicles available) · intersection of poverty status and zero-vehicle households',
-    deepLink: seMapDeepLink({ surveyName: 'ACS2024_5yr', tableName: 'B17001' }),
-  });
-
-  // ---- MVP Map 4: CDC Social Vulnerability Index (SVI) ----
-  mountSEMapLink(body, {
-    title: 'CDC Social Vulnerability Index (Overall Percentile)',
-    description: 'CDC/ATSDR composite social vulnerability score by tract (0–1). Combines socioeconomic status, household composition, minority status, and housing/transportation themes.',
-    cuts: sviCuts(SE_MAP_PALETTES.teal),
-    geographyLabel: 'Census Tract',
-    surveyLabel: 'CDC SVI 2022',
-    source: 'CDC/ATSDR Social Vulnerability Index 2022 · RPL_THEMES (overall percentile, 0–1; higher = more vulnerable)',
-    deepLink: seMapDeepLink({ surveyName: 'SVI2022', tableName: 'RPL_THEMES' }),
-  });
-
-  // ---- Phase 1 placeholder: EJScreen ----
   body.insertAdjacentHTML('beforeend', placeholderCard(
     'EPA EJScreen Environmental Justice Indicators (Phase 1)',
     'EJScreen environmental burden indicators (PM2.5, ozone, lead paint, traffic proximity, hazardous-waste proximity) at block-group resolution. ' +
     'Per MVP_Sprint_Plan.md, EJScreen is deferred from Phase 0 to Phase 1 — needs ~27-32 engineering days for ingest + cross-walk to the SE Data Delivery survey schema.'
-  ));
-
-  body.insertAdjacentHTML('beforeend', methodologyBlock(
-    'Map list and indicator choices are taken verbatim from docs/SEAI Existing Conditions Proposal v4 — ' +
-    'Complete Data Inventory (Artifact Format = "Map"). Each card links into the SE explore-maps tool ' +
-    '(`https://www.socialexplorer.com/explore-maps?survey=<name>&ds=SE&table=<table>`); without an SE ' +
-    'session this 301-redirects to login. The same configs (palette, geography, breakpoints, source ' +
-    'table) feed `mountDingoMap()`, which embeds the choropleth via the SE chatbot\'s iframe pattern ' +
-    '(packages/ui/src/lib/artifacts/DingoMap.tsx) once this dashboard is served from inside the ' +
-    'authenticated SE shell — Dingo refuses to render on non-SE origins, redirecting unauthenticated ' +
-    'embed iframes to /embed?unsupported=true.'
   ));
 }
 
@@ -6050,7 +5998,6 @@ function renderBrief(geos, D) {
   renderSafety(sectionsEl,     geos, D);
   renderMobility(sectionsEl,   geos, D);
   renderMarketAndLandUse(sectionsEl, geos, D);
-  renderTractSample(sectionsEl, geos, D);
   renderMaps(sectionsEl, geos, D);
 }
 
@@ -7249,87 +7196,6 @@ function renderMarketAndLandUse(parent, geos, D) {
     `Market & land-use analysis for ${geos.target.name} is scheduled for Phase 2 wiring. The planned data layer is licensed/commercial: CoStar for commercial and multifamily asking rents and vacancy, BLS Consumer Expenditure and Claritas for household spending and segmentation, ESRI Business Analyst for establishment and tenant mix, and municipal/Regrid feeds for zoning and parcels. These sources are the descriptive baseline cited in market studies, feasibility studies, corridor studies, and neighborhood plans; they characterize current conditions and trends but do not by themselves establish what investment, regulatory change, or program will produce a desired market outcome — that is the proforma/scenario-modeling layer this report does not include.`,
     'Planned sources: CoStar (commercial/multifamily rents & vacancy); BLS Consumer Expenditure Survey; Claritas segmentation; ESRI Business Analyst; municipal zoning & Regrid parcels. Claim-strength: planned descriptive baseline; no causal/forecasting layer in MVP scope.'
   );
-}
-
-// ============================================================
-// SECTION 8 — TRACT-LEVEL SAMPLE (demonstrates sub-place capability)
-// ============================================================
-async function renderTractSample(parent, geos, D) {
-  const body = createSection(parent, 8, 'Sub-Place Geography — Census Tract Sample', 'partial');
-  const countyFips = geos.county.fips;
-
-  body.innerHTML += `
-    <p class="text-sm text-gray-600 leading-relaxed mb-3">
-      <strong>Census tract data is available</strong> for ACS, CHAS, EASI, LEHD, SVI, and SE Crime Index via the v2 API endpoint.
-      This section demonstrates tract-level output for the tracts within <strong>${geos.county.label}</strong>.
-      Full tract-level analysis (AFFH R/ECAP, neighborhood plans, corridor studies) is planned for Phase 1.
-    </p>`;
-
-  try {
-    // Get tracts in the county
-    const tractResp = await seGet(`/v1/GetGeoItemsByGeoType?geoTypeSelectionName=SL140&surveyName=${SURVEYS.current}&geoSelectionFips=${countyFips}`);
-    const tracts = (tractResp?.d || tractResp || []).slice(0, 10); // Show first 10 tracts
-    if (tracts.length === 0) {
-      body.innerHTML += `<p class="text-sm text-gray-500">No tracts found for ${geos.county.label}.</p>`;
-      return;
-    }
-
-    const tractFips = tracts.map(t => t.FIPS);
-
-    // Fetch ACS population + income + poverty for these tracts via v2
-    const tractData = await fetchDataV2(SURVEYS.current, [
-      TABLES.population.id, TABLES.medianIncome.id,
-    ].map(id => id), 'SL140', tractFips).catch(() => null);
-
-    if (!tractData) {
-      body.innerHTML += `<p class="text-sm text-gray-500">Tract data fetch failed — v2 endpoint may require table GUIDs.</p>`;
-      return;
-    }
-
-    const tractRecords = extractRecords(tractData).records;
-    const tractRows = tracts.map(t => {
-      const rec = tractRecords[t.FIPS] || {};
-      const pop = val(rec, 'SE_A00001_001');
-      const medInc = val(rec, `${TABLES.medianIncome.prefix}_001`);
-      return {
-        fips: t.FIPS,
-        label: t.Label?.replace(/, .*/, '') || t.FIPS,
-        pop,
-        medInc,
-      };
-    }).filter(r => r.pop != null);
-
-    if (tractRows.length === 0) {
-      body.innerHTML += `<p class="text-sm text-gray-500">No tract-level data returned. Table GUIDs may be required for v2 endpoint.</p>`;
-      return;
-    }
-
-    // Render tract comparison table
-    const tid = 'tbl_tracts';
-    let html = `<div class="flex items-center justify-between mt-4 mb-2">
-      <h4 class="text-sm font-semibold text-gray-700">Census Tracts in ${geos.county.label} — Population & Median Income (sample, first ${tractRows.length})</h4>
-      <button class="copy-btn" onclick="copyTable('${tid}')">⧉ Copy table</button>
-    </div>`;
-    html += `<table id="${tid}" class="data-table w-full text-sm"><thead><tr><th class="text-left">Census Tract</th><th>FIPS</th><th>Population</th><th>Median HH Income</th></tr></thead><tbody>`;
-    for (const r of tractRows) {
-      const incColor = r.medInc && val(D.target, `${TABLES.medianIncome.prefix}_001`) && r.medInc < val(D.target, `${TABLES.medianIncome.prefix}_001`) * 0.8 ? 'text-red-700 font-semibold' : 'text-gray-600';
-      html += `<tr>
-        <td class="font-medium text-gray-700">${r.label}</td>
-        <td class="text-gray-400 text-xs">${r.fips}</td>
-        <td class="text-gray-600">${fmt(r.pop)}</td>
-        <td class="${incColor}">${fmt(r.medInc, 'dollar')}</td>
-      </tr>`;
-    }
-    html += '</tbody></table>';
-    body.innerHTML += html;
-
-    body.innerHTML += `<p class="text-xs text-gray-500 mt-2">Tracts with median income below 80% of the city median are highlighted in red — these are candidate LMI areas for CDBG eligibility and potential R/ECAP designation when combined with racial composition data.</p>`;
-
-    body.innerHTML += methodologyBlock('Census tract data fetched via the SE v2 API endpoint with table GUIDs (the llm_api endpoint does not serve sub-county data). ACS 2020-2024 5-Year Estimates at SL140 (Census Tract). Tract-level data is also available for CHAS (cost burden by AMI), EASI (consumer expenditure), LEHD (employment), SVI (vulnerability), and SE Crime Index. Full tract-level analysis with choropleth mapping planned for Phase 1.');
-  } catch (e) {
-    console.error('Tract sample error:', e);
-    body.innerHTML += `<p class="text-sm text-red-600">Error loading tract data: ${e.message}</p>`;
-  }
 }
 
 // Wait for the user to click "Generate Existing Conditions Package" — no auto-run.
