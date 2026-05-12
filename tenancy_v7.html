@@ -823,9 +823,20 @@ function toggleArtifactMenu(id) {
   });
   document.getElementById('artifact-menu-' + id)?.classList.toggle('hidden');
 }
+function toggleTemplateMenu(id) {
+  document.querySelectorAll('[id^="template-menu-"]').forEach(m => {
+    if (m.id !== 'template-menu-' + id) m.classList.add('hidden');
+  });
+  document.getElementById('template-menu-' + id)?.classList.toggle('hidden');
+}
+function closeTemplateMenus() {
+  document.querySelectorAll('[id^="template-menu-"]').forEach(m => m.classList.add('hidden'));
+}
 document.addEventListener('click', (e) => {
   if (e.target.closest('[id^="artifact-menu-"]') || e.target.closest('[aria-label="Actions"]')) return;
   document.querySelectorAll('[id^="artifact-menu-"]').forEach(m => m.classList.add('hidden'));
+  if (e.target.closest('[id^="template-menu-"]') || e.target.closest('[aria-label="Template actions"]')) return;
+  closeTemplateMenus();
 });
 
 // Returns the list of surveys whose lastRunVintage on this artifact is older
@@ -989,25 +1000,29 @@ function renderLibraryTemplatesTab() {
   const renderRow = (t, isMine) => {
     const isOrg = t.visibility === 'org';
     const owner = USERS[t.ownerUserId];
+    const parent = SYSTEM_TEMPLATES[t.parentTemplateId];
+    const parentLabel = parent ? parent.name : 'Existing Conditions';
     return `
-      <div class="border border-slate-200 rounded-lg p-3 mb-2 flex items-start gap-3">
+      <div class="border border-slate-200 rounded-lg p-3 mb-2 flex items-start gap-3 relative">
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 flex-wrap">
             <span class="font-medium text-slate-900 text-sm">${t.name}</span>
             <span class="role-badge ${isOrg ? 'scope-org' : 'scope-user'}">${isOrg ? 'org-visible' : 'private'}</span>
           </div>
-          <div class="text-xs text-slate-500 mt-0.5">${t.description}</div>
+          <div class="text-[11px] text-slate-400 mt-0.5">Extends ${parentLabel}</div>
+          <div class="text-xs text-slate-500 mt-1">${t.description}</div>
           <div class="text-xs text-slate-400 mt-1">${isMine ? 'You' : owner.displayName} · updated ${formatRelative(t.updatedAt)}${isOrg && isMine ? ' · edits propagate to everyone using it' : ''}</div>
         </div>
         <div class="flex items-center gap-1 flex-shrink-0">
           <button onclick="useTemplate('${t.id}')" class="px-2.5 py-1 text-xs bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded font-medium">Use →</button>
           ${isMine ? `
-            <label class="flex items-center gap-1.5 text-xs text-slate-600 cursor-pointer px-2.5 py-1 hover:bg-slate-100 rounded" title="When org-visible, anyone in your org can apply this template. Edits you make propagate to everyone using it.">
-              <input type="checkbox" ${isOrg ? 'checked' : ''} onchange="toggleVisibility('${t.id}')" class="rounded text-indigo-600">
-              Org-visible
-            </label>
-            <button onclick="toast('Would open template editor')" class="px-2.5 py-1 text-xs text-slate-600 hover:bg-slate-100 rounded">Edit</button>
-            <button onclick="toast('Would delete with dependent-analyses warning')" class="px-2.5 py-1 text-xs text-rose-600 hover:bg-rose-50 rounded">Delete</button>
+            <button onclick="event.stopPropagation(); toggleTemplateMenu('${t.id}')" class="px-2.5 py-1 text-xs text-slate-600 hover:bg-slate-100 rounded" aria-label="Template actions">⋯</button>
+            <div id="template-menu-${t.id}" class="hidden absolute right-3 top-12 bg-white border border-slate-200 rounded-lg shadow-lg py-1 z-10 text-xs" style="min-width:200px">
+              <button onclick="event.stopPropagation(); toggleVisibility('${t.id}'); closeTemplateMenus();" class="w-full text-left px-3 py-2 hover:bg-slate-50">${isOrg ? 'Make private' : 'Make org-visible'}</button>
+              <button onclick="event.stopPropagation(); closeTemplateMenus(); toast('Would open template editor');" class="w-full text-left px-3 py-2 hover:bg-slate-50">Edit</button>
+              <div class="border-t border-slate-100 my-1"></div>
+              <button onclick="event.stopPropagation(); closeTemplateMenus(); toast('Would delete with dependent-analyses warning');" class="w-full text-left px-3 py-2 hover:bg-slate-50 text-rose-700">Delete…</button>
+            </div>
           ` : ''}
         </div>
       </div>`;
@@ -1016,10 +1031,7 @@ function renderLibraryTemplatesTab() {
   return `
     <div class="space-y-6">
       <section>
-        <div class="flex items-center justify-between mb-2">
-          <h3 class="text-sm font-semibold text-slate-900">Your templates · ${mine.length}</h3>
-          <span class="text-xs text-slate-500">Toggle org-visible to share with your team</span>
-        </div>
+        <h3 class="text-sm font-semibold text-slate-900 mb-2">Your templates · ${mine.length}</h3>
         ${mine.length === 0 ? `<div class="text-sm text-slate-500 italic px-3 py-4 bg-slate-50 rounded">No templates yet. Customize an analysis and click "Save as Template" to create one.</div>` :
           mine.map(t => renderRow(t, true)).join('')}
       </section>
