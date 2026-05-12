@@ -12,8 +12,10 @@
   .card-hover { transition: all 0.15s ease; }
   /* v7: surface a quiet "Open →" hint on hover so the card reads as clickable. */
   .v7-project-card:hover .v7-open-hint { opacity: 1; }
-  /* v7: template cards brighten the "Use →" hint on hover. */
-  .v7-template-card:hover .v7-use-hint { opacity: 1; }
+  /* v7: template cards reveal their action buttons on hover (Google-Drive
+     pattern). Resting state shows just the content; hover surfaces the kebab. */
+  .v7-template-card:hover .v7-hover-actions { opacity: 1; }
+  .v7-template-card:focus-within .v7-hover-actions { opacity: 1; }
   .tab-active { color: #4F46E5; border-bottom: 2px solid #4F46E5; }
   .pill { padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 500; }
   .pill-amber { background: #fef3c7; color: #92400e; }
@@ -999,10 +1001,11 @@ function renderLibraryTemplatesTab() {
   const mine    = visible.filter(t => t.ownerUserId === state.currentUserId);
   const others  = visible.filter(t => t.visibility === 'org' && t.ownerUserId !== state.currentUserId);
 
-  // v7: template cards follow the same clickable-row pattern as analysis cards
-  // in the project view. The whole card is the Use target — generous hit area,
-  // no orphan button to mis-align. A right-side "Use →" hint brightens on hover
-  // so the affordance reads. Manage actions tuck into the kebab.
+  // v7: hover-revealed actions, Google-Drive style. The whole card is the Use
+  // target (cursor: pointer + hover bg/border state); the kebab is hidden by
+  // default and fades in on hover. No persistent "Use →" label cluttering the
+  // resting state. Card carries title="Use this template" so the action is
+  // discoverable for screen readers + delayed-hover tooltip.
   const renderRow = (t, isMine) => {
     const isOrg = t.visibility === 'org';
     const owner = USERS[t.ownerUserId];
@@ -1010,7 +1013,8 @@ function renderLibraryTemplatesTab() {
     const parentLabel = parent ? parent.name : 'Existing Conditions';
     return `
       <div class="v7-template-card border border-slate-200 hover:border-indigo-300 hover:bg-slate-50/50 rounded-lg p-3 mb-2 flex items-center gap-3 relative cursor-pointer transition-colors"
-           onclick="useTemplate('${t.id}')">
+           onclick="useTemplate('${t.id}')"
+           title="Use this template">
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 flex-wrap">
             <span class="font-medium text-slate-900 text-sm">${t.name}</span>
@@ -1020,18 +1024,17 @@ function renderLibraryTemplatesTab() {
           <div class="text-xs text-slate-500 mt-1">${t.description}</div>
           <div class="text-xs text-slate-400 mt-1">${isMine ? 'You' : owner.displayName} · updated ${formatRelative(t.updatedAt)}${isOrg && isMine ? ' · edits propagate to everyone using it' : ''}</div>
         </div>
-        <div class="flex items-center gap-2 flex-shrink-0">
-          <span class="v7-use-hint text-xs text-indigo-600 font-medium opacity-60 transition-opacity">Use →</span>
-          ${isMine ? `
-            <button onclick="event.stopPropagation(); toggleTemplateMenu('${t.id}')" class="px-2 py-1 text-xs text-slate-500 hover:bg-slate-100 rounded" aria-label="Template actions">⋯</button>
-            <div id="template-menu-${t.id}" class="hidden absolute right-3 top-12 bg-white border border-slate-200 rounded-lg shadow-lg py-1 z-10 text-xs" style="min-width:200px">
-              <button onclick="event.stopPropagation(); toggleVisibility('${t.id}'); closeTemplateMenus();" class="w-full text-left px-3 py-2 hover:bg-slate-50">${isOrg ? 'Make private' : 'Make org-visible'}</button>
-              <button onclick="event.stopPropagation(); closeTemplateMenus(); toast('Would open template editor');" class="w-full text-left px-3 py-2 hover:bg-slate-50">Edit</button>
-              <div class="border-t border-slate-100 my-1"></div>
-              <button onclick="event.stopPropagation(); closeTemplateMenus(); toast('Would delete with dependent-analyses warning');" class="w-full text-left px-3 py-2 hover:bg-slate-50 text-rose-700">Delete…</button>
-            </div>
-          ` : ''}
-        </div>
+        ${isMine ? `
+          <div class="v7-hover-actions flex items-center gap-1 flex-shrink-0 opacity-0 transition-opacity">
+            <button onclick="event.stopPropagation(); toggleTemplateMenu('${t.id}')" class="px-2 py-1 text-xs text-slate-500 hover:bg-slate-200 rounded" aria-label="Template actions" title="More actions">⋯</button>
+          </div>
+          <div id="template-menu-${t.id}" class="hidden absolute right-3 top-12 bg-white border border-slate-200 rounded-lg shadow-lg py-1 z-10 text-xs" style="min-width:200px">
+            <button onclick="event.stopPropagation(); toggleVisibility('${t.id}'); closeTemplateMenus();" class="w-full text-left px-3 py-2 hover:bg-slate-50">${isOrg ? 'Make private' : 'Make org-visible'}</button>
+            <button onclick="event.stopPropagation(); closeTemplateMenus(); toast('Would open template editor');" class="w-full text-left px-3 py-2 hover:bg-slate-50">Edit</button>
+            <div class="border-t border-slate-100 my-1"></div>
+            <button onclick="event.stopPropagation(); closeTemplateMenus(); toast('Would delete with dependent-analyses warning');" class="w-full text-left px-3 py-2 hover:bg-slate-50 text-rose-700">Delete…</button>
+          </div>
+        ` : ''}
       </div>`;
   };
 
