@@ -411,22 +411,28 @@
   </div>
 </header>
 
-<!-- Input Section (v3) -->
-<!-- Collapsed input chip — shown post-Generate as a one-line summary above the brief.
-     Clicking "Edit inputs" expands the full input panel back. -->
-<div id="inputSummaryBar" class="max-w-6xl mx-auto px-6 py-3 no-print" style="display:none;">
-  <div class="v7-input-chip">
-    <span><span class="label">Target</span> <strong id="chipTarget">—</strong></span>
-    <span class="sep"></span>
-    <span><span class="label">Compare</span> <span id="chipCompare">—</span></span>
-    <span class="sep"></span>
-    <span><span class="label">Template</span> <span id="chipTemplate">—</span></span>
-    <a class="edit-link" onclick="expandInputPanel(); return false;" href="#">Edit inputs</a>
-  </div>
-</div>
+<!-- Input panel — one collapsible card. Post-Generate it collapses into a
+     one-line summary row (target · compare · template) with a chevron toggle.
+     Clicking the summary row or chevron expands the form fields back. -->
+<div id="inputPanel" class="max-w-6xl mx-auto px-6 py-6 no-print" data-collapsed="false">
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
 
-<div id="inputPanel" class="max-w-6xl mx-auto px-6 py-6 no-print">
-  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+    <!-- Collapsed summary row — visible only when data-collapsed="true". -->
+    <button id="inputCollapsedRow" type="button"
+            onclick="toggleInputCollapse()"
+            class="hidden w-full flex items-center gap-3 px-6 py-3 text-sm text-left hover:bg-slate-50 transition-colors">
+      <span class="flex-1 min-w-0 flex items-center gap-3 text-slate-700">
+        <span><span class="text-[10px] uppercase tracking-wide text-slate-500 font-semibold mr-1.5">Target</span><strong id="chipTarget">—</strong></span>
+        <span class="text-slate-300">·</span>
+        <span class="truncate"><span class="text-[10px] uppercase tracking-wide text-slate-500 font-semibold mr-1.5">Compare</span><span id="chipCompare">—</span></span>
+        <span class="text-slate-300">·</span>
+        <span class="truncate"><span class="text-[10px] uppercase tracking-wide text-slate-500 font-semibold mr-1.5">Template</span><span id="chipTemplate">—</span></span>
+      </span>
+      <span class="text-slate-400 text-xs flex items-center gap-1 flex-shrink-0">Edit <span id="inputChevron" class="inline-block transition-transform">▾</span></span>
+    </button>
+
+    <!-- Full input body — hidden when collapsed. -->
+    <div id="inputBody" class="p-6">
 
     <!-- Target geography -->
     <div class="mb-5">
@@ -498,8 +504,9 @@
         Generate Existing Conditions Package
       </button>
     </div>
-  </div>
-</div>
+    </div><!-- /#inputBody -->
+  </div><!-- /inner card -->
+</div><!-- /#inputPanel -->
 
 <!-- Comparison editor modal -->
 <div id="comparisonModal" class="modal-backdrop no-print" onclick="closeIfBackdrop(event, 'comparisonModal')">
@@ -4078,14 +4085,10 @@ function setLoading(msg) {
 function clearLoading() { document.getElementById('loadingSection').classList.add('hidden'); }
 function showOutput(show) {
   document.getElementById('outputSection').classList[show ? 'remove' : 'add']('hidden');
-  // v7: when output appears, collapse the full input panel into a chip so the
-  // report breathes above the fold. When showOutput(false), restore the panel.
-  const panel = document.getElementById('inputPanel');
-  const chip  = document.getElementById('inputSummaryBar');
-  if (panel && chip) {
-    if (show) { panel.style.display = 'none'; chip.style.display = ''; renderInputChip(); }
-    else      { panel.style.display = '';     chip.style.display = 'none'; }
-  }
+  // v7: when output appears, collapse the input panel into a single-row
+  // summary (still inside the same card — body hidden, summary row shown).
+  // When showOutput(false), restore the form fields.
+  setInputCollapsed(show);
   // v7: contextual page title — pre-Generate the user is creating a new
   // report; post-Generate they're looking AT a generated report for a target.
   const titleEl = document.getElementById('pageTitle');
@@ -4110,21 +4113,44 @@ document.addEventListener('click', (e) => {
   if (!e.target.closest('.v7-menu-wrap')) closeV7Menus();
 });
 
-function expandInputPanel() {
+// v7: collapse/expand the input panel as a single element. The summary row
+// (target · compare · template) is visible when collapsed; the form body is
+// visible when expanded. State lives on data-collapsed of #inputPanel so CSS
+// can drive the toggle and the chevron rotation.
+function setInputCollapsed(collapsed) {
   const panel = document.getElementById('inputPanel');
-  const chip  = document.getElementById('inputSummaryBar');
-  if (panel) panel.style.display = '';
-  if (chip)  chip.style.display = 'none';
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  const row   = document.getElementById('inputCollapsedRow');
+  const body  = document.getElementById('inputBody');
+  const chev  = document.getElementById('inputChevron');
+  if (!panel || !row || !body) return;
+  panel.dataset.collapsed = collapsed ? 'true' : 'false';
+  if (collapsed) {
+    row.classList.remove('hidden');
+    row.classList.add('flex');
+    body.classList.add('hidden');
+    renderInputSummary();
+    if (chev) chev.style.transform = 'rotate(0deg)';
+  } else {
+    row.classList.add('hidden');
+    row.classList.remove('flex');
+    body.classList.remove('hidden');
+    if (chev) chev.style.transform = 'rotate(180deg)';
+  }
 }
-function renderInputChip() {
+function toggleInputCollapse() {
+  const panel = document.getElementById('inputPanel');
+  const isCollapsed = panel?.dataset.collapsed === 'true';
+  setInputCollapsed(!isCollapsed);
+  if (isCollapsed) window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function renderInputSummary() {
   const tgt   = document.getElementById('chipTarget');
   const cmp   = document.getElementById('chipCompare');
   const tmpl  = document.getElementById('chipTemplate');
   if (tgt) tgt.textContent = (typeof TargetState !== 'undefined' && (TargetState.customName || TargetState.label)) || 'Burlington, VT';
   if (cmp) {
     const list = (typeof ComparisonState !== 'undefined' && Array.isArray(ComparisonState.geos))
-      ? ComparisonState.geos.map(g => g.label).join(' · ')
+      ? ComparisonState.geos.map(g => g.label).join(', ')
       : '';
     cmp.textContent = list || '—';
   }
