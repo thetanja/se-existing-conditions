@@ -653,42 +653,46 @@ function renderProjectView() {
   const ownerLabel = p.ownerUserId === state.currentUserId ? `${ownerUser.displayName} (You)` : ownerUser.displayName;
   const lastMod = formatRelative(p.updatedAt);
 
+  // v7: compressed project header — single-row title + status + actions, with
+  // a thin meta strip below. Owner/items/last-modified used to live in a
+  // 4-line block; here it's one muted line. Description is only shown if
+  // present (and stays one line — users can expand the gear modal for full
+  // text). Saves ~150px above the fold so the analyses list appears sooner.
+  const dueLabel = p.engagement.dueDate
+    ? new Date(p.engagement.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    : null;
+  const daysToDue = p.engagement.dueDate
+    ? Math.ceil((new Date(p.engagement.dueDate) - new Date()) / 86400000)
+    : null;
+  const dueAccent = daysToDue !== null && daysToDue <= 30 && !p.archivedAt;
   return `
-    <!-- Header card — SE-Academic pattern: breadcrumb + folder icon + title + meta + avatars + Share -->
-    <div class="bg-indigo-50/40 border border-indigo-100 rounded-xl p-5 mb-6">
-      <button onclick="goToProjects()" class="text-xs text-slate-600 hover:text-slate-900 mb-2 flex items-center gap-1">‹ <span class="underline">Projects</span></button>
-      <div class="flex items-start justify-between gap-4">
-        <div class="flex items-start gap-3 flex-1 min-w-0">
-          <div class="w-10 h-10 rounded bg-white border border-indigo-200 flex items-center justify-center flex-shrink-0 mt-0.5">
-            <span class="text-lg">📁</span>
-          </div>
-          <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-2 flex-wrap mb-1">
-              ${renderStatusPill(p.engagement.status, !!p.archivedAt)}
-            </div>
-            <h1 class="text-2xl font-semibold text-slate-900 leading-tight">${p.name}</h1>
-            <div class="text-xs text-slate-600 mt-1.5">
-              Owned by <strong>${ownerLabel}</strong>
-              · ${p.artifacts.length} ${p.artifacts.length === 1 ? 'item' : 'items'}
-              · Last modified ${lastMod}
-              ${p.engagement.dueDate ? ` · Due ${new Date(p.engagement.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}` : ''}
-            </div>
-            ${p.description ? `<p class="text-sm text-slate-600 mt-2">${p.description}</p>` : ''}
-          </div>
+    <div class="mb-5">
+      <button onclick="goToProjects()" class="text-xs text-slate-500 hover:text-slate-700 mb-2 inline-flex items-center gap-1">‹ Projects</button>
+      <div class="flex items-center justify-between gap-4 flex-wrap">
+        <div class="flex items-center gap-3 min-w-0">
+          <h1 class="text-xl font-semibold text-slate-900 leading-tight truncate">${p.name}</h1>
+          ${renderStatusPill(p.engagement.status, !!p.archivedAt)}
         </div>
         <div class="flex items-center gap-2 flex-shrink-0">
-          <span class="avatar-stack flex">
+          <span class="avatar-stack flex" title="${p.members.map(m => `${USERS[m.userId].displayName} (${m.role})`).join(', ')}">
             ${p.members.map(m => {
               const u = USERS[m.userId];
-              return `<span class="avatar ${u.avatarClass}" title="${u.displayName} (${m.role})">${u.initials}</span>`;
+              return `<span class="avatar ${u.avatarClass}">${u.initials}</span>`;
             }).join('')}
           </span>
-          <button onclick="${isOwner ? `openAddMembersModal('${p.id}')` : `toast('Only project owner can share')`}" class="px-3 py-1.5 bg-white border border-slate-200 rounded-full text-xs font-medium hover:bg-slate-50 flex items-center gap-1.5">
-            ⤴ Share
-          </button>
-          <button onclick="openProjectSettingsModal('${p.id}')" class="w-8 h-8 rounded-full border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center text-slate-500" title="Project settings">⚙</button>
+          <button onclick="${isOwner ? `openAddMembersModal('${p.id}')` : `toast('Only project owner can share')`}" class="px-2.5 py-1 text-xs text-slate-600 hover:bg-slate-100 rounded inline-flex items-center gap-1">⤴ Share</button>
+          <button onclick="openProjectSettingsModal('${p.id}')" class="w-7 h-7 rounded hover:bg-slate-100 flex items-center justify-center text-slate-500" title="Project settings">⚙</button>
         </div>
       </div>
+      <div class="mt-1.5 text-xs text-slate-500 flex items-center gap-2 flex-wrap">
+        <span title="Project owner">${ownerLabel}</span>
+        <span class="text-slate-300">·</span>
+        <span>${p.artifacts.length} ${p.artifacts.length === 1 ? 'analysis' : 'analyses'}</span>
+        <span class="text-slate-300">·</span>
+        <span title="Last modified">updated ${lastMod}</span>
+        ${dueLabel ? `<span class="text-slate-300">·</span><span class="${dueAccent ? 'text-amber-700 font-medium' : ''}" title="Due date">Due ${dueLabel}</span>` : ''}
+      </div>
+      ${p.description ? `<p class="mt-2 text-sm text-slate-600 truncate" title="${p.description.replace(/"/g, '&quot;')}">${p.description}</p>` : ''}
     </div>
 
     <div>
@@ -697,12 +701,17 @@ function renderProjectView() {
 }
 
 function renderProjectArtifactsTab(p, isContributor) {
+  // v7: "Analyses" section header gets the + New action inline (no more
+  // orphaned button floating in empty space). Count makes the list scannable.
   return `
-    ${isContributor ? `
-      <div class="flex items-center justify-end mb-4">
-        <button onclick="openV6(${JSON.stringify('project: ' + p.name).replace(/"/g, '&quot;')}, ${JSON.stringify({ project: p.id }).replace(/"/g, '&quot;')})" class="px-3 py-1.5 bg-indigo-600 text-white text-xs font-medium rounded hover:bg-indigo-700">+ New analysis</button>
-      </div>
-    ` : ''}
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-sm font-semibold text-slate-700 uppercase tracking-wide">
+        Analyses <span class="text-slate-400 font-normal normal-case">· ${p.artifacts.length}</span>
+      </h2>
+      ${isContributor ? `
+        <button onclick="openV6(${JSON.stringify('project: ' + p.name).replace(/"/g, '&quot;')}, ${JSON.stringify({ project: p.id }).replace(/"/g, '&quot;')})" class="px-3 py-1.5 bg-indigo-600 text-white text-xs font-medium rounded hover:bg-indigo-700 inline-flex items-center gap-1">+ New analysis</button>
+      ` : ''}
+    </div>
 
     ${p.artifacts.length === 0 ? `
       <div class="bg-slate-50 border border-slate-200 rounded-lg p-8 text-center text-sm text-slate-500">
@@ -769,31 +778,55 @@ function renderArtifactRow(a, p, thread) {
   const stale = staleSurveys(a);
   const isArchived = !!p.archivedAt;
   const showStale = stale.length > 0 && !isArchived;
-  const stalePill = showStale ? renderStalePill(stale) : '';
-  const stripStyle = showStale ? 'border-l-4 border-amber-400' : '';
+  // v7: target and template repeat across every card in a project — drop them
+  // from the row. Only show target if it diverges from the project's home
+  // target (e.g. a sub-area analysis like "Old North End — 8 tracts").
+  const showTarget = a.target && p.homeTarget && a.target !== p.homeTarget.label;
+  // v7: dedupe the stale signal. Previously we had border + pill saying the
+  // same thing. Keep the chip only; drop the amber left border.
+  const staleChip = showStale ? renderStalePill(stale) : '';
+  // v7: Create-updated-copy is an occasional action — demote into the kebab.
+  // The amber background made it look like the primary CTA on the row, but
+  // the primary action here is "Open the analysis" (clicking the row).
   return `
-    <div class="border border-slate-200 ${stripStyle} rounded-lg p-4 hover:border-indigo-300 cursor-pointer" onclick="toast('Would open ${a.name} in the v5 dashboard →')">
+    <div class="border border-slate-200 rounded-lg p-4 hover:border-indigo-300 hover:bg-slate-50/50 cursor-pointer transition-colors" onclick="toast('Would open ${a.name} in the v7 dashboard →')">
       <div class="flex items-center justify-between gap-4">
-        <div class="flex-1">
+        <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 flex-wrap">
-            <span class="text-base">${ARTIFACT_ICON}</span>
-            <span class="font-medium text-slate-900">${a.name}</span>
-            <span class="pill pill-violet text-[10px]">${ARTIFACT_SINGULAR}</span>
-            ${stalePill}
+            <span class="text-base flex-shrink-0">${ARTIFACT_ICON}</span>
+            <span class="font-medium text-slate-900 truncate">${a.name}</span>
+            ${staleChip}
           </div>
           <div class="flex items-center gap-2 mt-1 text-xs text-slate-500">
-            ${a.target ? `<span>${a.target}</span>` : ''}
-            ${tmpl ? `<span>·</span><span>via ${tmpl.name}</span>` : ''}
-            ${a.createdAt ? `<span>·</span><span>saved ${formatRelative(a.createdAt)}</span>` : ''}
+            ${showTarget ? `<span>${a.target}</span><span class="text-slate-300">·</span>` : ''}
+            ${tmpl ? `<span class="text-slate-400">via ${tmpl.name}</span><span class="text-slate-300">·</span>` : ''}
+            <span>saved ${formatRelative(a.createdAt)}</span>
           </div>
         </div>
-        <div class="flex items-center gap-1">
-          <button onclick="event.stopPropagation();toast('Would create updated copy with current vintages of every survey →')" class="px-2.5 py-1 text-xs ${showStale ? 'bg-amber-50 text-amber-800 hover:bg-amber-100 font-medium' : 'text-slate-600 hover:bg-slate-100'} rounded">↪ Create updated copy</button>
-          <button class="px-2.5 py-1 text-xs text-slate-600 hover:bg-slate-100 rounded">⋯</button>
+        <div class="flex items-center gap-1 flex-shrink-0">
+          <button onclick="event.stopPropagation(); toggleArtifactMenu('${a.id}')" class="relative px-2.5 py-1 text-xs text-slate-600 hover:bg-slate-100 rounded" aria-label="Actions">⋯</button>
+          <div id="artifact-menu-${a.id}" class="hidden absolute right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg py-1 z-10 text-xs" style="min-width:200px">
+            ${showStale ? `<button onclick="event.stopPropagation();toast('Would create updated copy with current vintages →')" class="w-full text-left px-3 py-2 hover:bg-slate-50 text-amber-800 font-medium">↪ Create updated copy</button>` : ''}
+            <button onclick="event.stopPropagation();toast('Would duplicate →')" class="w-full text-left px-3 py-2 hover:bg-slate-50">Duplicate</button>
+            <button onclick="event.stopPropagation();toast('Would rename →')" class="w-full text-left px-3 py-2 hover:bg-slate-50">Rename…</button>
+            <button onclick="event.stopPropagation();toast('Would delete →')" class="w-full text-left px-3 py-2 hover:bg-slate-50 text-rose-700">Delete…</button>
+          </div>
         </div>
       </div>
     </div>`;
 }
+
+// v7: per-row action menu (kebab). Close any other open menu first.
+function toggleArtifactMenu(id) {
+  document.querySelectorAll('[id^="artifact-menu-"]').forEach(m => {
+    if (m.id !== 'artifact-menu-' + id) m.classList.add('hidden');
+  });
+  document.getElementById('artifact-menu-' + id)?.classList.toggle('hidden');
+}
+document.addEventListener('click', (e) => {
+  if (e.target.closest('[id^="artifact-menu-"]') || e.target.closest('[aria-label="Actions"]')) return;
+  document.querySelectorAll('[id^="artifact-menu-"]').forEach(m => m.classList.add('hidden'));
+});
 
 // Returns the list of surveys whose lastRunVintage on this artifact is older
 // than the current registry. Used only on the latest of a thread (production
