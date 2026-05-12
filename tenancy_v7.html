@@ -12,6 +12,8 @@
   .card-hover { transition: all 0.15s ease; }
   /* v7: surface a quiet "Open →" hint on hover so the card reads as clickable. */
   .v7-project-card:hover .v7-open-hint { opacity: 1; }
+  /* v7: template cards brighten the "Use →" hint on hover. */
+  .v7-template-card:hover .v7-use-hint { opacity: 1; }
   .tab-active { color: #4F46E5; border-bottom: 2px solid #4F46E5; }
   .pill { padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 500; }
   .pill-amber { background: #fef3c7; color: #92400e; }
@@ -997,13 +999,18 @@ function renderLibraryTemplatesTab() {
   const mine    = visible.filter(t => t.ownerUserId === state.currentUserId);
   const others  = visible.filter(t => t.visibility === 'org' && t.ownerUserId !== state.currentUserId);
 
+  // v7: template cards follow the same clickable-row pattern as analysis cards
+  // in the project view. The whole card is the Use target — generous hit area,
+  // no orphan button to mis-align. A right-side "Use →" hint brightens on hover
+  // so the affordance reads. Manage actions tuck into the kebab.
   const renderRow = (t, isMine) => {
     const isOrg = t.visibility === 'org';
     const owner = USERS[t.ownerUserId];
     const parent = SYSTEM_TEMPLATES[t.parentTemplateId];
     const parentLabel = parent ? parent.name : 'Existing Conditions';
     return `
-      <div class="border border-slate-200 rounded-lg p-3 mb-2 flex items-start gap-3 relative">
+      <div class="v7-template-card border border-slate-200 hover:border-indigo-300 hover:bg-slate-50/50 rounded-lg p-3 mb-2 flex items-center gap-3 relative cursor-pointer transition-colors"
+           onclick="useTemplate('${t.id}')">
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 flex-wrap">
             <span class="font-medium text-slate-900 text-sm">${t.name}</span>
@@ -1013,10 +1020,10 @@ function renderLibraryTemplatesTab() {
           <div class="text-xs text-slate-500 mt-1">${t.description}</div>
           <div class="text-xs text-slate-400 mt-1">${isMine ? 'You' : owner.displayName} · updated ${formatRelative(t.updatedAt)}${isOrg && isMine ? ' · edits propagate to everyone using it' : ''}</div>
         </div>
-        <div class="flex items-center gap-1 flex-shrink-0">
-          <button onclick="useTemplate('${t.id}')" class="px-2.5 py-1 text-xs bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded font-medium">Use →</button>
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <span class="v7-use-hint text-xs text-indigo-600 font-medium opacity-60 transition-opacity">Use →</span>
           ${isMine ? `
-            <button onclick="event.stopPropagation(); toggleTemplateMenu('${t.id}')" class="px-2.5 py-1 text-xs text-slate-600 hover:bg-slate-100 rounded" aria-label="Template actions">⋯</button>
+            <button onclick="event.stopPropagation(); toggleTemplateMenu('${t.id}')" class="px-2 py-1 text-xs text-slate-500 hover:bg-slate-100 rounded" aria-label="Template actions">⋯</button>
             <div id="template-menu-${t.id}" class="hidden absolute right-3 top-12 bg-white border border-slate-200 rounded-lg shadow-lg py-1 z-10 text-xs" style="min-width:200px">
               <button onclick="event.stopPropagation(); toggleVisibility('${t.id}'); closeTemplateMenus();" class="w-full text-left px-3 py-2 hover:bg-slate-50">${isOrg ? 'Make private' : 'Make org-visible'}</button>
               <button onclick="event.stopPropagation(); closeTemplateMenus(); toast('Would open template editor');" class="w-full text-left px-3 py-2 hover:bg-slate-50">Edit</button>
