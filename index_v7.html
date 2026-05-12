@@ -323,6 +323,14 @@
   .table-picker-row:hover { background: #f8fafc; }
   .table-picker-row.is-required { background: #f0fdf4; }
   .table-picker-row.is-coming { opacity: 0.7; }
+  /* v7 #6: peek-in-report button revealed on row hover. Resting state hides it
+     so casual mouseovers don\'t add visual noise; click triggers the scroll-to-flash. */
+  .tp-peek-btn { opacity: 0; transition: opacity 0.12s, background 0.12s;
+    background: transparent; border: 1px solid transparent; border-radius: 4px;
+    width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 13px; flex-shrink: 0; color: #64748b; }
+  .table-picker-row:hover .tp-peek-btn { opacity: 1; }
+  .tp-peek-btn:hover { background: #eef2ff; color: #4338ca; border-color: #c7d2fe; }
   .tp-tag { display: inline-block; font-size: 9px; font-weight: 700; text-transform: uppercase;
     letter-spacing: 0.04em; padding: 1px 6px; border-radius: 3px; margin-left: 6px; }
   .tp-tag-required    { background: #dcfce7; color: #166534; }
@@ -1866,27 +1874,20 @@ function openSectionTablesModal(sectionId, sectionTitle) {
   hookTablePickerRowHover();
 }
 
-// v7 #6: hovering a table row in the modal flashes the matching rendered table
-// in the report behind, so users can see what they're hiding before they do it.
+// v7 #6: previous version auto-scrolled on row hover, which was distracting.
+// New behavior: each row reveals a small 👁 "Show in report" action on hover;
+// clicking it scrolls to + flashes the matching table. Mousing across rows
+// doesn't move the report.
 function hookTablePickerRowHover() {
-  const rows = document.querySelectorAll('#sectionTablesModalBody [data-tp-rendered-id]');
-  rows.forEach(input => {
-    const renderedId = input.dataset.tpRenderedId;
-    if (!renderedId) return;
-    const row = input.closest('.table-picker-row');
-    if (!row || row.dataset.hoverHooked) return;
-    row.dataset.hoverHooked = '1';
-    row.addEventListener('mouseenter', () => {
-      const el = document.querySelector(`[data-table-id="${renderedId}"]`);
-      if (!el) return;
-      el.classList.add('table-flash');
-      el.scrollIntoView({ block: 'center', behavior: 'smooth' });
-    });
-    row.addEventListener('mouseleave', () => {
-      const el = document.querySelector(`[data-table-id="${renderedId}"]`);
-      if (el) setTimeout(() => el.classList.remove('table-flash'), 250);
-    });
-  });
+  // no-op — action is wired via the inline button in renderTablePickerRow().
+}
+function peekTableInReport(renderedId) {
+  if (!renderedId) return;
+  const el = document.querySelector(`[data-table-id="${renderedId}"]`);
+  if (!el) return;
+  el.classList.add('table-flash');
+  el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  setTimeout(() => el.classList.remove('table-flash'), 1400);
 }
 
 // Render a single row from the user's table library — distinct visual treatment
@@ -1921,6 +1922,13 @@ function renderTablePickerRow(entry, idx, isComing) {
   const isRequired = entry.requirement === 'required';
   const checked = entry.rendered && !entry.isHidden;
   const disabled = isRequired || isComing;
+  // v7 #6: "Show in report" peek button — hidden until row hover.
+  // Only render the button for rows that actually have a rendered table.
+  const peekBtn = entry.renderedTableId
+    ? `<button type="button" onclick="event.stopPropagation(); peekTableInReport('${entry.renderedTableId}')"
+                title="Show this table in the report" aria-label="Show in report"
+                class="tp-peek-btn">👁</button>`
+    : '';
   return `
     <div class="table-picker-row${isRequired ? ' is-required' : ''}${isComing ? ' is-coming' : ''}">
       <input type="checkbox" data-tp-id="${entry.id}" data-tp-rendered-id="${entry.renderedTableId || ''}"
@@ -1929,6 +1937,7 @@ function renderTablePickerRow(entry, idx, isComing) {
         <div class="text-sm text-gray-900">${entry.title} ${reqTag} ${comingTag}</div>
         <div class="text-xs text-gray-500 mt-0.5">${entry.note || ''}</div>
       </div>
+      ${peekBtn}
     </div>`;
 }
 
