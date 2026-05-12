@@ -12,10 +12,15 @@
   .card-hover { transition: all 0.15s ease; }
   /* v7: surface a quiet "Open →" hint on hover so the card reads as clickable. */
   .v7-project-card:hover .v7-open-hint { opacity: 1; }
-  /* v7: template cards reveal their action buttons on hover (Google-Drive
-     pattern). Resting state shows just the content; hover surfaces the kebab. */
-  .v7-template-card:hover .v7-hover-actions { opacity: 1; }
-  .v7-template-card:focus-within .v7-hover-actions { opacity: 1; }
+  /* v7: cards reveal their action buttons on hover (Google-Drive pattern).
+     Resting state shows just the content; hover surfaces the kebab. Applies
+     uniformly across template, saved-view, and analysis cards. */
+  .v7-template-card:hover .v7-hover-actions,
+  .v7-template-card:focus-within .v7-hover-actions,
+  .v7-view-card:hover .v7-hover-actions,
+  .v7-view-card:focus-within .v7-hover-actions,
+  .v7-artifact-card:hover .v7-hover-actions,
+  .v7-artifact-card:focus-within .v7-hover-actions { opacity: 1; }
   .tab-active { color: #4F46E5; border-bottom: 2px solid #4F46E5; }
   .pill { padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 500; }
   .pill-amber { background: #fef3c7; color: #92400e; }
@@ -793,7 +798,9 @@ function renderArtifactRow(a, p, thread) {
   // The amber background made it look like the primary CTA on the row, but
   // the primary action here is "Open the analysis" (clicking the row).
   return `
-    <div class="border border-slate-200 rounded-lg p-4 hover:border-indigo-300 hover:bg-slate-50/50 cursor-pointer transition-colors" onclick="toast('Would open ${a.name} in the v7 dashboard →')">
+    <div class="v7-artifact-card relative border border-slate-200 rounded-lg p-4 hover:border-indigo-300 hover:bg-slate-50/50 cursor-pointer transition-colors"
+         onclick="toast('Would open ${a.name} in the v7 dashboard →')"
+         title="Open this analysis">
       <div class="flex items-center justify-between gap-4">
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 flex-wrap">
@@ -807,14 +814,14 @@ function renderArtifactRow(a, p, thread) {
             <span>saved ${formatRelative(a.createdAt)}</span>
           </div>
         </div>
-        <div class="flex items-center gap-1 flex-shrink-0">
-          <button onclick="event.stopPropagation(); toggleArtifactMenu('${a.id}')" class="relative px-2.5 py-1 text-xs text-slate-600 hover:bg-slate-100 rounded" aria-label="Actions">⋯</button>
-          <div id="artifact-menu-${a.id}" class="hidden absolute right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg py-1 z-10 text-xs" style="min-width:200px">
-            ${showStale ? `<button onclick="event.stopPropagation();toast('Would create updated copy with current vintages →')" class="w-full text-left px-3 py-2 hover:bg-slate-50 text-amber-800 font-medium">↪ Create updated copy</button>` : ''}
-            <button onclick="event.stopPropagation();toast('Would duplicate →')" class="w-full text-left px-3 py-2 hover:bg-slate-50">Duplicate</button>
-            <button onclick="event.stopPropagation();toast('Would rename →')" class="w-full text-left px-3 py-2 hover:bg-slate-50">Rename…</button>
-            <button onclick="event.stopPropagation();toast('Would delete →')" class="w-full text-left px-3 py-2 hover:bg-slate-50 text-rose-700">Delete…</button>
-          </div>
+        <div class="v7-hover-actions flex items-center gap-1 flex-shrink-0 opacity-0 transition-opacity">
+          <button onclick="event.stopPropagation(); toggleArtifactMenu('${a.id}')" class="px-2 py-1 text-xs text-slate-500 hover:bg-slate-200 rounded" aria-label="Actions" title="More actions">⋯</button>
+        </div>
+        <div id="artifact-menu-${a.id}" class="hidden absolute right-3 top-12 bg-white border border-slate-200 rounded-lg shadow-lg py-1 z-10 text-xs" style="min-width:200px">
+          ${showStale ? `<button onclick="event.stopPropagation();toast('Would create updated copy with current vintages →')" class="w-full text-left px-3 py-2 hover:bg-slate-50 text-amber-800 font-medium">↪ Create updated copy</button>` : ''}
+          <button onclick="event.stopPropagation();toast('Would duplicate →')" class="w-full text-left px-3 py-2 hover:bg-slate-50">Duplicate</button>
+          <button onclick="event.stopPropagation();toast('Would rename →')" class="w-full text-left px-3 py-2 hover:bg-slate-50">Rename…</button>
+          <button onclick="event.stopPropagation();toast('Would delete →')" class="w-full text-left px-3 py-2 hover:bg-slate-50 text-rose-700">Delete…</button>
         </div>
       </div>
     </div>`;
@@ -836,11 +843,22 @@ function toggleTemplateMenu(id) {
 function closeTemplateMenus() {
   document.querySelectorAll('[id^="template-menu-"]').forEach(m => m.classList.add('hidden'));
 }
+function toggleViewMenu(id) {
+  document.querySelectorAll('[id^="view-menu-"]').forEach(m => {
+    if (m.id !== 'view-menu-' + id) m.classList.add('hidden');
+  });
+  document.getElementById('view-menu-' + id)?.classList.toggle('hidden');
+}
+function closeViewMenus() {
+  document.querySelectorAll('[id^="view-menu-"]').forEach(m => m.classList.add('hidden'));
+}
 document.addEventListener('click', (e) => {
   if (e.target.closest('[id^="artifact-menu-"]') || e.target.closest('[aria-label="Actions"]')) return;
   document.querySelectorAll('[id^="artifact-menu-"]').forEach(m => m.classList.add('hidden'));
   if (e.target.closest('[id^="template-menu-"]') || e.target.closest('[aria-label="Template actions"]')) return;
   closeTemplateMenus();
+  if (e.target.closest('[id^="view-menu-"]') || e.target.closest('[aria-label="View actions"]')) return;
+  closeViewMenus();
 });
 
 // Returns the list of surveys whose lastRunVintage on this artifact is older
@@ -1058,11 +1076,17 @@ function renderLibraryViewsTab() {
   const mine = SAVED_VIEWS.filter(v => v.ownerUserId === state.currentUserId);
   const others = SAVED_VIEWS.filter(v => v.visibility === 'org' && v.ownerUserId !== state.currentUserId);
 
+  // v7: same hover-revealed-actions pattern as template cards. Drop the
+  // duplicated PRIVATE/ORG pill + checkbox combo (pill alone), drop the
+  // persistent Use → button, demote Edit/Delete/visibility into a kebab
+  // that only appears on hover.
   const renderRow = (v, isMine) => {
     const isOrg = v.visibility === 'org';
     const targetIsCustom = v.target.type === 'custom';
     return `
-      <div class="border border-slate-200 rounded-lg p-3 mb-2 flex items-start gap-3">
+      <div class="v7-view-card relative border border-slate-200 hover:border-indigo-300 hover:bg-slate-50/50 rounded-lg p-3 mb-2 flex items-center gap-3 cursor-pointer transition-colors"
+           onclick="useSavedView('${v.id}')"
+           title="Apply this view (target + comparison)">
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 flex-wrap">
             <span class="font-medium text-slate-900 text-sm">${v.name}</span>
@@ -1079,27 +1103,24 @@ function renderLibraryViewsTab() {
           </div>
           ${v.lastUsedAt ? `<div class="text-[11px] text-slate-400 mt-1">Last used ${formatRelative(v.lastUsedAt)}</div>` : ''}
         </div>
-        <div class="flex items-center gap-1 flex-shrink-0">
-          <button onclick="useSavedView('${v.id}')" class="px-2.5 py-1 text-xs bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded font-medium">Use →</button>
-          ${isMine ? `
-            <label class="flex items-center gap-1.5 text-xs text-slate-600 cursor-pointer px-2.5 py-1 hover:bg-slate-100 rounded" title="When org-visible, anyone in your org can apply this view.">
-              <input type="checkbox" ${isOrg ? 'checked' : ''} onchange="toggleSavedViewVisibility('${v.id}')" class="rounded text-indigo-600">
-              Org-visible
-            </label>
-            <button onclick="toast('Would open saved-view editor')" class="px-2.5 py-1 text-xs text-slate-600 hover:bg-slate-100 rounded">Edit</button>
-            <button onclick="toast('Would delete')" class="px-2.5 py-1 text-xs text-rose-600 hover:bg-rose-50 rounded">Delete</button>
-          ` : ''}
-        </div>
+        ${isMine ? `
+          <div class="v7-hover-actions flex items-center gap-1 flex-shrink-0 opacity-0 transition-opacity">
+            <button onclick="event.stopPropagation(); toggleViewMenu('${v.id}')" class="px-2 py-1 text-xs text-slate-500 hover:bg-slate-200 rounded" aria-label="View actions" title="More actions">⋯</button>
+          </div>
+          <div id="view-menu-${v.id}" class="hidden absolute right-3 top-12 bg-white border border-slate-200 rounded-lg shadow-lg py-1 z-10 text-xs" style="min-width:200px">
+            <button onclick="event.stopPropagation(); toggleSavedViewVisibility('${v.id}'); closeViewMenus();" class="w-full text-left px-3 py-2 hover:bg-slate-50">${isOrg ? 'Make private' : 'Make org-visible'}</button>
+            <button onclick="event.stopPropagation(); closeViewMenus(); toast('Would open saved-view editor');" class="w-full text-left px-3 py-2 hover:bg-slate-50">Edit</button>
+            <div class="border-t border-slate-100 my-1"></div>
+            <button onclick="event.stopPropagation(); closeViewMenus(); toast('Would delete');" class="w-full text-left px-3 py-2 hover:bg-slate-50 text-rose-700">Delete…</button>
+          </div>
+        ` : ''}
       </div>`;
   };
 
   return `
     <div class="space-y-6">
       <section>
-        <div class="flex items-center justify-between mb-2">
-          <h3 class="text-sm font-semibold text-slate-900">Your views · ${mine.length}</h3>
-          <span class="text-xs text-slate-500">A view = target + comparison, applied together when starting an analysis</span>
-        </div>
+        <h3 class="text-sm font-semibold text-slate-900 mb-2">Your views · ${mine.length}</h3>
         ${mine.length === 0 ? `<div class="text-sm text-slate-500 italic px-3 py-4 bg-slate-50 rounded">No saved views yet. Save one from the analysis input panel after picking a target and a comparison set.</div>` :
           mine.map(v => renderRow(v, true)).join('')}
       </section>
