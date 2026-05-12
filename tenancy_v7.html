@@ -1027,17 +1027,13 @@ function renderLibraryView() {
       <p class="text-sm text-slate-600 mt-0.5">Reusable building blocks across your projects — your customization templates and your target+comparison views.</p>
     </div>
 
-    <div class="bg-white border border-slate-200 rounded-lg">
-      <div class="border-b border-slate-200 flex items-center px-2">
-        ${tabs.map(([id, label, n, tt]) => `
-          <button onclick="setLibraryTab('${id}')" class="px-4 py-3 text-sm font-medium ${state.libraryTab === id ? 'tab-active' : 'text-slate-600 hover:text-slate-900'}" title="${tt}">
-            ${label} · ${n}
-          </button>`).join('')}
-      </div>
-      <div class="p-6">
-        ${state.libraryTab === 'templates' ? renderLibraryTemplatesTab() : renderLibraryViewsTab()}
-      </div>
-    </div>`;
+    <div class="border-b border-slate-200 flex items-center mb-5">
+      ${tabs.map(([id, label, n, tt]) => `
+        <button onclick="setLibraryTab('${id}')" class="px-4 py-3 text-sm font-medium ${state.libraryTab === id ? 'tab-active' : 'text-slate-600 hover:text-slate-900'}" title="${tt}">
+          ${label} · ${n}
+        </button>`).join('')}
+    </div>
+    ${state.libraryTab === 'templates' ? renderLibraryTemplatesTab() : renderLibraryViewsTab()}`;
 }
 
 function renderLibraryTemplatesTab() {
