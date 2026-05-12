@@ -13,14 +13,31 @@
   /* v7: surface a quiet "Open →" hint on hover so the card reads as clickable. */
   .v7-project-card:hover .v7-open-hint { opacity: 1; }
   /* v7: cards reveal their action buttons on hover (Google-Drive pattern).
-     Resting state shows just the content; hover surfaces the kebab. Applies
-     uniformly across template, saved-view, and analysis cards. */
+     Resting state shows the actions at low opacity so users see *something*
+     is there; hover surfaces them fully. */
+  .v7-hover-actions { opacity: 0.3; }
   .v7-template-card:hover .v7-hover-actions,
   .v7-template-card:focus-within .v7-hover-actions,
   .v7-view-card:hover .v7-hover-actions,
   .v7-view-card:focus-within .v7-hover-actions,
   .v7-artifact-card:hover .v7-hover-actions,
   .v7-artifact-card:focus-within .v7-hover-actions { opacity: 1; }
+  /* Punchier icon buttons in the action strip: square, slate-700 ink,
+     slate-200 hover. Matches Google's hover-row treatment in Drive/Gmail. */
+  .v7-row-action {
+    width: 30px; height: 30px;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: rgb(51 65 85); /* slate-700 */
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    font-size: 15px;
+    line-height: 1;
+    transition: background 0.12s, border-color 0.12s;
+  }
+  .v7-row-action:hover { background: rgb(226 232 240); border-color: rgb(203 213 225); }
+  .v7-row-action.v7-row-action-amber { color: rgb(146 64 14); /* amber-800 */ }
+  .v7-row-action.v7-row-action-amber:hover { background: rgb(254 243 199); border-color: rgb(252 211 77); }
   .tab-active { color: #4F46E5; border-bottom: 2px solid #4F46E5; }
   .pill { padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 500; }
   .pill-amber { background: #fef3c7; color: #92400e; }
@@ -814,13 +831,22 @@ function renderArtifactRow(a, p, thread) {
             <span>saved ${formatRelative(a.createdAt)}</span>
           </div>
         </div>
-        <div class="v7-hover-actions flex items-center gap-1 flex-shrink-0 opacity-0 transition-opacity">
-          <button onclick="event.stopPropagation(); toggleArtifactMenu('${a.id}')" class="px-2 py-1 text-xs text-slate-500 hover:bg-slate-200 rounded" aria-label="Actions" title="More actions">⋯</button>
+        <div class="v7-hover-actions flex items-center gap-1 flex-shrink-0 transition-opacity">
+          ${showStale ? `
+            <button onclick="event.stopPropagation();toast('Would create updated copy with current vintages →')"
+                    class="v7-row-action v7-row-action-amber"
+                    aria-label="Create updated copy"
+                    title="Create updated copy with current vintages">↻</button>
+          ` : ''}
+          <button onclick="event.stopPropagation(); toggleArtifactMenu('${a.id}')"
+                  class="v7-row-action"
+                  aria-label="More actions"
+                  title="More actions">⋯</button>
         </div>
         <div id="artifact-menu-${a.id}" class="hidden absolute right-3 top-12 bg-white border border-slate-200 rounded-lg shadow-lg py-1 z-10 text-xs" style="min-width:200px">
-          ${showStale ? `<button onclick="event.stopPropagation();toast('Would create updated copy with current vintages →')" class="w-full text-left px-3 py-2 hover:bg-slate-50 text-amber-800 font-medium">↪ Create updated copy</button>` : ''}
           <button onclick="event.stopPropagation();toast('Would duplicate →')" class="w-full text-left px-3 py-2 hover:bg-slate-50">Duplicate</button>
           <button onclick="event.stopPropagation();toast('Would rename →')" class="w-full text-left px-3 py-2 hover:bg-slate-50">Rename…</button>
+          <div class="border-t border-slate-100 my-1"></div>
           <button onclick="event.stopPropagation();toast('Would delete →')" class="w-full text-left px-3 py-2 hover:bg-slate-50 text-rose-700">Delete…</button>
         </div>
       </div>
@@ -1043,8 +1069,8 @@ function renderLibraryTemplatesTab() {
           <div class="text-xs text-slate-400 mt-1">${isMine ? 'You' : owner.displayName} · updated ${formatRelative(t.updatedAt)}${isOrg && isMine ? ' · edits propagate to everyone using it' : ''}</div>
         </div>
         ${isMine ? `
-          <div class="v7-hover-actions flex items-center gap-1 flex-shrink-0 opacity-0 transition-opacity">
-            <button onclick="event.stopPropagation(); toggleTemplateMenu('${t.id}')" class="px-2 py-1 text-xs text-slate-500 hover:bg-slate-200 rounded" aria-label="Template actions" title="More actions">⋯</button>
+          <div class="v7-hover-actions flex items-center gap-1 flex-shrink-0 transition-opacity">
+            <button onclick="event.stopPropagation(); toggleTemplateMenu('${t.id}')" class="v7-row-action" aria-label="Template actions" title="More actions">⋯</button>
           </div>
           <div id="template-menu-${t.id}" class="hidden absolute right-3 top-12 bg-white border border-slate-200 rounded-lg shadow-lg py-1 z-10 text-xs" style="min-width:200px">
             <button onclick="event.stopPropagation(); toggleVisibility('${t.id}'); closeTemplateMenus();" class="w-full text-left px-3 py-2 hover:bg-slate-50">${isOrg ? 'Make private' : 'Make org-visible'}</button>
@@ -1104,8 +1130,8 @@ function renderLibraryViewsTab() {
           ${v.lastUsedAt ? `<div class="text-[11px] text-slate-400 mt-1">Last used ${formatRelative(v.lastUsedAt)}</div>` : ''}
         </div>
         ${isMine ? `
-          <div class="v7-hover-actions flex items-center gap-1 flex-shrink-0 opacity-0 transition-opacity">
-            <button onclick="event.stopPropagation(); toggleViewMenu('${v.id}')" class="px-2 py-1 text-xs text-slate-500 hover:bg-slate-200 rounded" aria-label="View actions" title="More actions">⋯</button>
+          <div class="v7-hover-actions flex items-center gap-1 flex-shrink-0 transition-opacity">
+            <button onclick="event.stopPropagation(); toggleViewMenu('${v.id}')" class="v7-row-action" aria-label="View actions" title="More actions">⋯</button>
           </div>
           <div id="view-menu-${v.id}" class="hidden absolute right-3 top-12 bg-white border border-slate-200 rounded-lg shadow-lg py-1 z-10 text-xs" style="min-width:200px">
             <button onclick="event.stopPropagation(); toggleSavedViewVisibility('${v.id}'); closeViewMenus();" class="w-full text-left px-3 py-2 hover:bg-slate-50">${isOrg ? 'Make private' : 'Make org-visible'}</button>
