@@ -432,7 +432,16 @@
     </button>
 
     <!-- Full input body — hidden when collapsed. -->
-    <div id="inputBody" class="p-6">
+    <div id="inputBody" class="p-6 pt-2">
+
+    <!-- Collapse toggle — sits at the top of the expanded form so users can
+         hide the panel without having to click Generate first. -->
+    <div class="flex items-center justify-end -mt-1 mb-3 pb-2 border-b border-slate-100">
+      <button type="button" onclick="toggleInputCollapse()" title="Collapse input panel"
+              class="text-xs text-slate-500 hover:text-slate-900 flex items-center gap-1">
+        Hide inputs <span class="inline-block">▴</span>
+      </button>
+    </div>
 
     <!-- Target geography -->
     <div class="mb-5">
