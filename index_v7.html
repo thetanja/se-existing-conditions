@@ -396,15 +396,15 @@
           <span class="text-white font-bold text-sm">SE</span>
         </div>
         <div>
-          <h1 class="text-lg font-semibold text-gray-900">Community Intelligence Platform</h1>
-          <p class="text-xs text-gray-500">Existing Conditions — Phase 0 (standardized package for all planning documents)</p>
+          <p class="text-[10px] text-gray-500 font-medium uppercase tracking-wider">Community Intelligence</p>
+          <h1 id="pageTitle" class="text-lg font-semibold text-gray-900">New Existing Conditions Report</h1>
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <a href="./?view=library" class="px-3 py-1.5 text-sm text-indigo-700 hover:bg-indigo-50 border border-indigo-200 rounded inline-flex items-center gap-1"
+        <a href="./?view=library" class="text-sm text-gray-600 hover:text-gray-900 hover:underline inline-flex items-center gap-1"
            title="See all your saved analyses and templates in the projects shell">
-          Open in Saved Work <span aria-hidden="true">→</span>
-          <span id="analysesCountBadge" class="hidden ml-1 px-1.5 py-0.5 text-xs bg-indigo-100 rounded-full"></span>
+          Saved Work <span aria-hidden="true">↗</span>
+          <span id="analysesCountBadge" class="hidden ml-1 px-1.5 py-0.5 text-xs bg-indigo-100 text-indigo-700 rounded-full"></span>
         </a>
       </div>
     </div>
@@ -464,7 +464,7 @@
       <div class="flex items-center justify-between mb-2">
         <label class="text-sm font-medium text-gray-700">Compare against</label>
         <button onclick="openComparisonEditor()" class="text-xs text-indigo-600 hover:underline">
-          ✎ Edit set
+          Edit comparison set
         </button>
       </div>
       <div id="comparisonChips" class="flex flex-wrap gap-2">
@@ -472,11 +472,11 @@
       </div>
     </div>
 
-    <!-- Document type / Template + Generate -->
+    <!-- Template selector + Generate -->
     <div class="flex flex-wrap gap-4 items-end pt-3 border-t border-gray-100 pb-5 relative">
       <div class="flex-1 min-w-[280px] relative">
         <div class="flex items-center justify-between mb-1">
-          <label class="block text-sm font-medium text-gray-700">Document type / Template</label>
+          <label class="block text-sm font-medium text-gray-700">Template</label>
           <a href="./?view=library" class="text-xs text-indigo-600 hover:underline no-print"
              title="Manage your templates in the projects shell">
             Manage templates →
@@ -762,7 +762,7 @@
     <div id="tabPanelTemplates" class="hidden">
       <p class="text-xs text-gray-500 mb-4">
         Manage your saved templates (rename / delete). To <strong>use</strong> a template, pick it from the
-        <strong>Document type / Template</strong> dropdown on the input panel before clicking Generate.
+        <strong>Template</strong> dropdown on the input panel before clicking Generate.
       </p>
       <div id="myTemplatesList" class="space-y-2 max-h-96 overflow-y-auto">
         <div class="text-sm text-gray-400 italic p-4 text-center">No saved templates yet. From any open analysis, click "📋 Save as Template" to capture your current customizations.</div>
@@ -1204,16 +1204,54 @@ function previewStatusFor(dataset, targetType) {
   return row[targetType] || 'direct';
 }
 
-function previewStatusMeta(status, targetType) {
-  if (status === 'direct')    return { dot: 'bg-emerald-500', label: 'Direct match',  note: 'Published at this geography.' };
+// v7 #6: resolve the actual geography the data will land at, given the
+// dataset's status against the target type. This drives a per-row "at X level"
+// caption so the preview is tied to the target geo level instead of generic
+// tract-focused language.
+//
+//   place → enclosing county (fallback) / underlying counties (aggregate when custom)
+//   county → enclosing MSA (fallback)
+//   msa → underlying counties (aggregate)
+//   state → underlying counties (aggregate) or parent (fallback) — rare
+//   custom → underlying tracts (aggregate)
+function resolvedGeoLevel(dataset, targetType) {
+  const status = previewStatusFor(dataset, targetType);
+  if (status === 'na') return null;
+  if (status === 'direct') return targetType;
   if (status === 'fallback') {
-    const fb = (targetType === 'place' || targetType === 'custom') ? 'enclosing county'
-             : (targetType === 'county') ? 'metro area'
-             : 'parent geography';
-    return { dot: 'bg-amber-500', label: 'Fallback', note: 'Pulled from ' + fb + '.' };
+    if (targetType === 'place' || targetType === 'custom') return 'county';
+    if (targetType === 'county') return 'msa';
+    if (targetType === 'msa') return 'state';
+    return 'state';
   }
-  if (status === 'aggregate') return { dot: 'bg-amber-500', label: 'Aggregated', note: 'Built up from underlying tracts / counties.' };
-  if (status === 'na')        return { dot: 'bg-slate-300', label: 'Not available', note: 'Section will show text only or skip the chart.' };
+  if (status === 'aggregate') {
+    if (targetType === 'custom') return 'tract';
+    if (targetType === 'msa')    return 'county';   // LEHD-style roll-up
+    if (targetType === 'state')  return 'county';
+    if (targetType === 'place')  return 'block-group'; // EJScreen-style
+    return 'county';
+  }
+  return targetType;
+}
+
+const GEO_LEVEL_LABEL = {
+  nation: 'nation',
+  state: 'state',
+  msa: 'MSA',
+  county: 'county',
+  place: 'place',
+  custom: 'custom area',
+  tract: 'underlying tracts',
+  'block-group': 'underlying block groups',
+};
+
+function previewStatusMeta(status, targetType, dataset) {
+  const resolved = dataset ? resolvedGeoLevel(dataset, targetType) : null;
+  const atLevel = resolved ? GEO_LEVEL_LABEL[resolved] || resolved : null;
+  if (status === 'direct')    return { dot: 'bg-emerald-500', label: 'Direct',     note: atLevel ? `at ${atLevel} level` : 'at this geography' };
+  if (status === 'fallback')  return { dot: 'bg-amber-500',   label: 'Fallback',   note: atLevel ? `at ${atLevel} level (coarser than target)` : 'at coarser geography' };
+  if (status === 'aggregate') return { dot: 'bg-amber-500',   label: 'Aggregated', note: atLevel ? `summed from ${atLevel}` : 'summed from underlying geographies' };
+  if (status === 'na')        return { dot: 'bg-slate-300',   label: 'Not available', note: 'section will fall back to text only' };
   return { dot: 'bg-slate-300', label: '—', note: '' };
 }
 
@@ -1228,32 +1266,55 @@ function openTablesPreviewModal() {
     return sel && sel.selectedOptions[0] ? sel.selectedOptions[0].textContent.trim() : 'Existing Conditions Report';
   })();
 
-  // Context bar
+  // v7 #6: count statuses across all datasets so the context bar can summarize
+  // what'll happen at the user's geo level.
+  let direct = 0, fallback = 0, aggregate = 0, na = 0;
+  if (t) {
+    for (const section of PREVIEW_MANIFEST) {
+      for (const item of section.items) {
+        const s = previewStatusFor(item.dataset, t);
+        if (s === 'direct') direct++;
+        else if (s === 'fallback') fallback++;
+        else if (s === 'aggregate') aggregate++;
+        else if (s === 'na') na++;
+      }
+    }
+  }
+  const targetLevelLabel = t ? (GEO_LEVEL_LABEL[t] || t) : null;
+
+  // Context bar — summarizes the geo level all data will resolve to.
   const ctx = document.getElementById('tablesPreviewContext');
   if (ctx) {
     if (!t) {
       ctx.innerHTML = '<span class="text-amber-700">⚠ Pick a target geography first to see what data is available.</span>';
     } else {
+      const summary = [
+        direct    ? `<strong class="text-emerald-700">${direct}</strong> direct at ${escapeHtml(targetLevelLabel)} level` : null,
+        fallback  ? `<strong class="text-amber-700">${fallback}</strong> at coarser fallback` : null,
+        aggregate ? `<strong class="text-amber-700">${aggregate}</strong> aggregated up` : null,
+        na        ? `<strong class="text-slate-500">${na}</strong> not available` : null,
+      ].filter(Boolean).join(' · ');
       ctx.innerHTML =
-        '<span><strong>Target:</strong> ' + escapeHtml(targetName) + ' <span class="text-slate-400">(' + escapeHtml(t) + ')</span></span>' +
+        '<span><strong>Target:</strong> ' + escapeHtml(targetName) + ' <span class="text-slate-400">(' + escapeHtml(targetLevelLabel) + ')</span></span>' +
         '<span class="text-slate-300">·</span>' +
-        '<span><strong>Template:</strong> ' + escapeHtml(docTypeLabel) + '</span>';
+        '<span><strong>Template:</strong> ' + escapeHtml(docTypeLabel) + '</span>' +
+        '<div class="basis-full pt-1.5 mt-1.5 border-t border-slate-200 text-[11px]">' + summary + '</div>';
     }
   }
 
-  // Section/table list
+  // Section/table list — each row now shows the resolved geo level explicitly.
   const list = document.getElementById('tablesPreviewList');
   if (list) {
     const html = PREVIEW_MANIFEST.map(section => {
       const rows = section.items.map(item => {
         const status = t ? previewStatusFor(item.dataset, t) : 'direct';
-        const meta = previewStatusMeta(status, t);
+        const meta = previewStatusMeta(status, t, item.dataset);
         return (
           '<li class="flex items-start gap-2 py-1.5">' +
             '<span class="mt-1.5 inline-block w-2 h-2 rounded-full ' + meta.dot + ' flex-shrink-0"></span>' +
             '<div class="flex-1 min-w-0">' +
               '<div class="text-sm text-slate-800">' + escapeHtml(item.label) + '</div>' +
-              '<div class="text-xs text-slate-500">' + escapeHtml(meta.label) + (meta.note ? ' — ' + escapeHtml(meta.note) : '') + '</div>' +
+              '<div class="text-xs text-slate-500">' + escapeHtml(meta.label) + (meta.note ? ' · ' + escapeHtml(meta.note) : '') + '</div>' +
             '</div>' +
           '</li>'
         );
@@ -1271,12 +1332,13 @@ function openTablesPreviewModal() {
     list.innerHTML = html;
   }
 
-  // Subtitle nuance: warn if no target picked yet
+  // Subtitle — refers to the user's actual target level instead of generic
+  // "tract / coarser" language.
   const sub = document.getElementById('tablesPreviewSubtitle');
   if (sub) {
     sub.textContent = t
-      ? 'Tables and data that will be pulled for your target geography. Amber = pulled at a coarser level.'
-      : 'Pick a target geography first — availability indicators will update once you do.';
+      ? `Each data source resolved against your ${targetLevelLabel} target. Amber = served at a different geography than the target.`
+      : 'Pick a target geography first — availability and resolved level will update once you do.';
   }
 
   document.getElementById('tablesPreviewModal').classList.add('open');
@@ -4023,6 +4085,17 @@ function showOutput(show) {
   if (panel && chip) {
     if (show) { panel.style.display = 'none'; chip.style.display = ''; renderInputChip(); }
     else      { panel.style.display = '';     chip.style.display = 'none'; }
+  }
+  // v7: contextual page title — pre-Generate the user is creating a new
+  // report; post-Generate they're looking AT a generated report for a target.
+  const titleEl = document.getElementById('pageTitle');
+  if (titleEl) {
+    if (show) {
+      const targetLabel = (typeof TargetState !== 'undefined' && (TargetState.customName || TargetState.label)) || '';
+      titleEl.textContent = targetLabel ? `${targetLabel} — Existing Conditions` : 'Existing Conditions Report';
+    } else {
+      titleEl.textContent = 'New Existing Conditions Report';
+    }
   }
 }
 // v7 dropdown menu (Export / More)
