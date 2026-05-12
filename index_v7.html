@@ -293,6 +293,9 @@
   .section-gear-count { font-size: 10px; color: #94a3b8; margin-left: 4px; }
   .table-hidden { display: none !important; }
   .section-removed { display: none !important; }
+  /* v7 #6: brief outline + scroll target when hovering a table row in the
+     Customize modal — lets users peek at the table they're about to hide. */
+  .table-flash { outline: 2px solid #6366F1; outline-offset: 4px; border-radius: 4px; transition: outline-color 0.18s; }
   .table-grayout { opacity: 0.5; }
 
   .chart-edit-btn { font-size: 11px; color: #4f46e5; background: #eef2ff;
@@ -853,31 +856,45 @@
   </div>
 </div>
 
-<!-- Section tables picker modal (v4 UX exploration) -->
+<!-- Section tables picker modal — v7: defaults open by default; Add demoted
+     to a small top-right button; Remove section moved into an overflow menu. -->
 <div id="sectionTablesModal" class="modal-backdrop no-print" onclick="closeIfBackdrop(event, 'sectionTablesModal')">
-  <div class="modal-shell p-6" style="max-width: 720px;">
-    <div class="flex items-center justify-between mb-4">
-      <h3 class="text-base font-semibold text-gray-900">
-        Customize <span id="sectionTablesModalTitle" class="text-indigo-700">section</span> tables
-      </h3>
-      <button onclick="closeModal('sectionTablesModal')" class="text-gray-400 hover:text-gray-600">✕</button>
-    </div>
-    <p class="text-xs text-gray-500 mb-4">
-      Show or hide tables in this section. <strong>Required</strong> tables (HUD compliance) cannot be hidden.
-      <span id="sectionTablesModalCounter" class="text-indigo-700 font-medium"></span>
-    </p>
-    <div id="sectionTablesModalBody" class="max-h-[28rem] overflow-y-auto">
-      <!-- populated by openSectionTablesModal() — includes the Add CTA inline -->
-    </div>
-    <div class="flex items-center justify-between pt-4 mt-4 border-t border-gray-100">
-      <div class="flex flex-col gap-1.5">
-        <button onclick="resetSectionTables()" class="text-xs text-indigo-600 hover:underline text-left">
-          ↺ Reset to template defaults
-        </button>
-        <button onclick="removeCurrentSection()" class="text-xs text-red-600 hover:underline text-left">
-          🗑 Remove this whole section from the report
-        </button>
+  <div class="modal-shell p-6" style="max-width: 760px;">
+    <div class="flex items-start justify-between mb-2 gap-3">
+      <div class="flex-1 min-w-0">
+        <h3 class="text-base font-semibold text-gray-900">
+          Customize <span id="sectionTablesModalTitle" class="text-indigo-700">section</span> tables
+        </h3>
+        <p class="text-xs text-gray-500 mt-0.5">Show or hide tables in this section.</p>
       </div>
+      <div class="flex items-center gap-2 flex-shrink-0">
+        <button onclick="openSurveyPickerModal()"
+                class="px-3 py-1.5 text-xs font-medium border border-indigo-200 text-indigo-700 hover:bg-indigo-50 rounded">
+          + Add from a survey
+        </button>
+        <div class="v7-menu-wrap relative">
+          <button onclick="event.stopPropagation(); document.getElementById('sectionModalOverflow').classList.toggle('hidden')"
+                  aria-label="More actions" title="More actions"
+                  class="px-2 py-1 text-gray-500 hover:bg-gray-100 rounded">⋯</button>
+          <div id="sectionModalOverflow" class="hidden absolute right-0 top-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg py-1 z-10 text-xs" style="min-width:240px;">
+            <button onclick="document.getElementById('sectionModalOverflow').classList.add('hidden'); removeCurrentSection();"
+                    class="w-full text-left px-3 py-2 hover:bg-rose-50 text-rose-700">
+              Remove this section from report…
+            </button>
+          </div>
+        </div>
+        <button onclick="closeModal('sectionTablesModal')" class="text-gray-400 hover:text-gray-600 ml-1">✕</button>
+      </div>
+    </div>
+
+    <div id="sectionTablesModalBody" class="max-h-[28rem] overflow-y-auto">
+      <!-- populated by openSectionTablesModal() — defaults rendered open -->
+    </div>
+
+    <div class="flex items-center justify-between pt-4 mt-4 border-t border-gray-100">
+      <button onclick="resetSectionTables()" class="text-xs text-gray-500 hover:text-gray-900 hover:underline">
+        ↺ Reset to template defaults
+      </button>
       <div class="flex gap-2">
         <button onclick="closeModal('sectionTablesModal')" class="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
         <button onclick="applySectionTablesChanges()" class="px-4 py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Apply</button>
@@ -1812,51 +1829,64 @@ function openSectionTablesModal(sectionId, sectionTitle) {
     e.sectionId === sectionId || e.sectionId === 'cross_section'
   );
 
-  // Counter: just rendered + user-added. No suggestion / Sprint 3 framing.
-  document.getElementById('sectionTablesModalCounter').textContent =
-    `${visibleCount} of ${totalRendered} default tables shown` +
-    (libraryForSection.length ? ` · ${libraryForSection.length} added from surveys` : '');
-
   const body = document.getElementById('sectionTablesModalBody');
   const groupRendered = entries.filter(e => e.rendered);
 
   let html = '';
 
-  // 1. PRIMARY — Add tables from a survey. Top of modal so it's the first thing
-  //    the user sees. Empty-state shows the full pitch; populated state shows
-  //    a tight "+ Add more" button alongside the added-tables list.
-  if (libraryForSection.length) {
-    html += '<div class="flex items-center justify-between mb-2">';
-    html += '<div class="text-xs font-semibold text-indigo-600 uppercase tracking-wide">Your added tables · ' + libraryForSection.length + '</div>';
-    html += '<button onclick="openSurveyPickerModal()" class="text-xs text-indigo-700 hover:bg-indigo-50 border border-indigo-200 rounded px-3 py-1.5 font-medium">+ Add more</button>';
+  // v7: defaults rendered FIRST and OPEN — that's the actual content of the
+  // section, what the user came here to review. Add-from-library is a smaller
+  // affordance in the modal title bar, not a billboard.
+  if (groupRendered.length) {
+    const countLabel = visibleCount === totalRendered
+      ? `${totalRendered} ${totalRendered === 1 ? 'table' : 'tables'}`
+      : `${visibleCount} of ${totalRendered} shown`;
+    html += '<div class="flex items-center justify-between mb-2 px-1">';
+    html += '<div class="text-[11px] font-semibold text-gray-500 uppercase tracking-wide">In this section</div>';
+    html += '<div class="text-[11px] text-gray-500">' + countLabel + '</div>';
     html += '</div>';
-    html += libraryForSection.map(e => renderUserLibraryRow(e)).join('');
-  } else {
-    html += `
-      <div class="border-2 border-dashed border-indigo-200 rounded-lg p-6 text-center bg-indigo-50/30 mb-1">
-        <div class="text-3xl mb-2">📋</div>
-        <div class="text-sm font-medium text-gray-900 mb-1">Add tables from a survey</div>
-        <p class="text-xs text-gray-600 mb-3 max-w-xs mx-auto">Browse SE's curated planner-survey catalog and pull in whichever tables this section needs.</p>
-        <button onclick="openSurveyPickerModal()" class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700">
-          + Add tables from a survey
-        </button>
-      </div>`;
+    html += '<div class="mb-1">';
+    html += groupRendered.map((e, i) => renderTablePickerRow(e, i, false)).join('');
+    html += '</div>';
   }
 
-  // 2. SECONDARY — Default tables (what the system template renders). Below
-  //    the add affordance because customize is primarily about adding; defaults
-  //    are an occasional hide/show concern.
-  if (groupRendered.length) {
-    html += '<details class="mt-6">';
-    html += '<summary class="text-xs font-semibold text-gray-500 uppercase tracking-wide cursor-pointer hover:text-gray-700 select-none">' +
-            'Default tables · ' + visibleCount + ' of ' + totalRendered + ' shown ▾</summary>';
-    html += '<div class="mt-2">';
-    html += groupRendered.map((e, i) => renderTablePickerRow(e, i, false)).join('');
-    html += '</div></details>';
+  // v7: added-from-library tables shown after the defaults. Distinct chip
+  // group so users see what they\'ve added on top of the template.
+  if (libraryForSection.length) {
+    html += '<div class="flex items-center justify-between mb-2 mt-5 px-1">';
+    html += '<div class="text-[11px] font-semibold text-indigo-600 uppercase tracking-wide">Added by you</div>';
+    html += '<div class="text-[11px] text-gray-500">' + libraryForSection.length + (libraryForSection.length === 1 ? ' table' : ' tables') + '</div>';
+    html += '</div>';
+    html += libraryForSection.map(e => renderUserLibraryRow(e)).join('');
   }
 
   body.innerHTML = html;
   document.getElementById('sectionTablesModal').classList.add('open');
+  // v7 #6: wire hover-to-scroll on rows that have a rendered table to peek at.
+  hookTablePickerRowHover();
+}
+
+// v7 #6: hovering a table row in the modal flashes the matching rendered table
+// in the report behind, so users can see what they're hiding before they do it.
+function hookTablePickerRowHover() {
+  const rows = document.querySelectorAll('#sectionTablesModalBody [data-tp-rendered-id]');
+  rows.forEach(input => {
+    const renderedId = input.dataset.tpRenderedId;
+    if (!renderedId) return;
+    const row = input.closest('.table-picker-row');
+    if (!row || row.dataset.hoverHooked) return;
+    row.dataset.hoverHooked = '1';
+    row.addEventListener('mouseenter', () => {
+      const el = document.querySelector(`[data-table-id="${renderedId}"]`);
+      if (!el) return;
+      el.classList.add('table-flash');
+      el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    });
+    row.addEventListener('mouseleave', () => {
+      const el = document.querySelector(`[data-table-id="${renderedId}"]`);
+      if (el) setTimeout(() => el.classList.remove('table-flash'), 250);
+    });
+  });
 }
 
 // Render a single row from the user's table library — distinct visual treatment
@@ -4120,6 +4150,10 @@ function closeV7Menus() {
 }
 document.addEventListener('click', (e) => {
   if (!e.target.closest('.v7-menu-wrap')) closeV7Menus();
+  // v7 #5: also close the section-modal overflow on outside click
+  if (!e.target.closest('#sectionModalOverflow') && !e.target.closest('[aria-label="More actions"]')) {
+    document.getElementById('sectionModalOverflow')?.classList.add('hidden');
+  }
 });
 
 // v7: collapse/expand the input panel as a single element. The summary row
