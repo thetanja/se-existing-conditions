@@ -1661,6 +1661,16 @@ function applyCustomTarget() {
   document.getElementById('selectedGeoName').textContent = TargetState.customName;
   document.getElementById('selectedGeoType').textContent = `custom · ${TargetState.tractGeoids.length} tracts`;
   document.getElementById('selectedGeoFips').textContent = '';
+  // v7 update: when a custom selection is committed, the regular geo input
+  // should reflect the custom target — not the place name the user typed
+  // before. Clear it and replace with the custom-target label so the input
+  // panel shows what the report will actually be generated against.
+  const cityInp = document.getElementById('cityInput');
+  if (cityInp) {
+    cityInp.value = TargetState.customName;
+    cityInp.dataset.targetType = 'custom';
+    cityInp.title = `${TargetState.tractGeoids.length} tracts — click "+ Build custom area" to edit`;
+  }
   document.getElementById('coterminousSwap').classList.add('hidden');
   document.getElementById('customTargetMeta').classList.remove('hidden');
   document.getElementById('customTargetMeta').textContent = '📍 saved · re-runs on new ACS year';
@@ -1862,7 +1872,7 @@ function openSectionTablesModal(sectionId, sectionTitle) {
   // group so users see what they\'ve added on top of the template.
   if (libraryForSection.length) {
     html += '<div class="flex items-center justify-between mb-2 mt-5 px-1">';
-    html += '<div class="text-[11px] font-semibold text-indigo-600 uppercase tracking-wide">Added by you</div>';
+    html += '<div class="text-[11px] font-semibold text-indigo-600 uppercase tracking-wide">Added from surveys</div>';
     html += '<div class="text-[11px] text-gray-500">' + libraryForSection.length + (libraryForSection.length === 1 ? ' table' : ' tables') + '</div>';
     html += '</div>';
     html += libraryForSection.map(e => renderUserLibraryRow(e)).join('');
@@ -1897,7 +1907,7 @@ function renderUserLibraryRow(entry) {
     <div class="table-picker-row" style="background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 4px; margin-bottom: 4px;">
       <input type="checkbox" checked disabled class="mt-1" title="Library tables show by default; uncheck via 'Remove from library'">
       <div class="flex-1 min-w-0">
-        <div class="text-sm text-gray-900">${entry.title} <span class="tp-tag" style="background:#e0e7ff; color:#3730a3;">Yours</span></div>
+        <div class="text-sm text-gray-900">${entry.title}</div>
         <div class="text-xs text-gray-500 mt-0.5">
           <span class="font-mono">${entry.identifier}</span> · ${entry.surveyName} · added ${new Date(entry.addedAt).toLocaleDateString()}
         </div>
@@ -1915,9 +1925,9 @@ function removeFromTableLibrary(entryId) {
 }
 
 function renderTablePickerRow(entry, idx, isComing) {
-  const reqTag = entry.requirement === 'required'    ? '<span class="tp-tag tp-tag-required">Required</span>'
-              : entry.requirement === 'recommended' ? '<span class="tp-tag tp-tag-recommended">Recommended</span>'
-              :                                        '<span class="tp-tag tp-tag-optional">Optional</span>';
+  // v7 update: drop the per-row Required/Recommended/Optional tags. The
+  // required-ness is already conveyed by the disabled checkbox + the green
+  // is-required row tint; the recommended/optional distinction was noise.
   const comingTag = isComing ? '<span class="tp-tag tp-tag-coming">Sprint 3</span>' : '';
   const isRequired = entry.requirement === 'required';
   const checked = entry.rendered && !entry.isHidden;
@@ -1938,7 +1948,7 @@ function renderTablePickerRow(entry, idx, isComing) {
       <input type="checkbox" data-tp-id="${entry.id}" data-tp-rendered-id="${entry.renderedTableId || ''}"
              ${checked ? 'checked' : ''} ${disabled ? 'disabled' : ''} class="mt-1">
       <div class="flex-1 min-w-0">
-        <div class="text-sm text-gray-900">${entry.title} ${reqTag} ${comingTag}</div>
+        <div class="text-sm text-gray-900">${entry.title} ${comingTag}</div>
         <div class="text-xs text-gray-500 mt-0.5">${entry.note || ''}</div>
       </div>
       ${peekBtn}
@@ -4283,7 +4293,7 @@ function compareTable(rows, geos, opts = {}) {
         <div id="toolbar_${tid}" class="hidden items-center gap-1 text-xs">
           <span class="text-gray-500"><span data-sel-count>0</span> selected</span>
           <button onclick="chartSelectedRows('${tid}')" class="px-2 py-0.5 bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200 rounded">📊 Chart</button>
-          <button onclick="mapSelectedRows('${tid}')" class="px-2 py-0.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200 rounded">🗺️ Map</button>
+          <button data-map-btn onclick="mapSelectedRows('${tid}')" class="px-2 py-0.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200 rounded disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed">🗺️ Map</button>
           <button onclick="mergeSelectedRows('${tid}')" class="px-2 py-0.5 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 rounded">Merge</button>
           <button onclick="deleteSelectedRows('${tid}')" class="px-2 py-0.5 bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 rounded">Delete</button>
         </div>
@@ -4297,14 +4307,11 @@ function compareTable(rows, geos, opts = {}) {
   for (const c of cols) html += `<th contenteditable="true" spellcheck="false">${c.label}</th>`;
   html += `</tr></thead><tbody>`;
   for (const row of rows) {
-    // Per-row map deep-link button. Looked up by label; rows we don't have a
-    // mapping for show a muted icon with a tooltip explaining why.
-    const mapRef = lookupRowMap(row.label);
-    const safeLabel = (row.label || '').replace(/"/g, '&quot;');
-    const mapBtn = mapRef
-      ? `<a href="#" class="row-map-btn" data-row-label="${safeLabel}" onclick="event.stopPropagation();event.preventDefault();openRowInMap(this.dataset.rowLabel);return false;" title="Open this variable in SE Maps (new tab)">🗺️</a>`
-      : `<span class="row-map-btn disabled" title="Map deep-link not configured for this row in the prototype lookup">🗺️</span>`;
-    html += `<tr><td class="edit-col text-center"><input type="checkbox" class="row-select" onchange="updateToolbar('${tid}')"></td><td class="font-medium text-gray-700"><span contenteditable="true" spellcheck="false">${row.label}</span>${mapBtn}</td>`;
+    // v7 update: per-row map button removed. Map action moved to the
+    // selection toolbar (Chart / Map / Merge / Delete strip) and is gated by
+    // selection count — exactly 1 row → open in map; 2 rows → side-by-side
+    // (when endpoint lands); 3+ → disabled.
+    html += `<tr><td class="edit-col text-center"><input type="checkbox" class="row-select" onchange="updateToolbar('${tid}')"></td><td class="font-medium text-gray-700"><span contenteditable="true" spellcheck="false">${row.label}</span></td>`;
     for (const c of cols) {
       const v = row.values[c.key];
       const flag = row.flags ? (row.flags[c.key] || '') : '';
@@ -4331,21 +4338,48 @@ function methodologyBlock(text) {
 
 function narrativeBlock(text, citation) {
   const nid = 'narr_' + Math.random().toString(36).slice(2, 10);
+  // v7 update: drop the local-knowledge textarea (planners said it cluttered
+  // every section). Generated summary becomes editable in-place — click Edit
+  // to revise; click Save (or click outside) to commit. The edit persists in
+  // the DOM and rides along into Word export and Copy.
   return `
     <div class="narrative" id="${nid}">
       <div class="flex items-start justify-between gap-4">
         <div data-narr-body><strong>Summary</strong><br><br>${text}</div>
-        <button class="copy-btn" onclick="copyNarrative('${nid}')">⧉ Copy</button>
+        <div class="flex items-center gap-1 flex-shrink-0">
+          <button class="copy-btn" data-narr-edit-toggle onclick="toggleNarrativeEdit('${nid}')" title="Edit this summary">✎ Edit</button>
+          <button class="copy-btn" onclick="copyNarrative('${nid}')">⧉ Copy</button>
+        </div>
       </div>
       ${citation ? `<div class="citation mt-2">Source: ${citation}</div>` : ''}
-      <div class="mt-4 bg-indigo-50 border border-indigo-200 rounded-lg p-3">
-        <div class="flex items-center gap-2 mb-2">
-          <svg class="w-4 h-4 text-indigo-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-          <span class="text-xs font-semibold text-indigo-700 uppercase tracking-wide">Local Knowledge / Council Priorities</span>
-        </div>
-        <textarea data-local-input rows="2" placeholder="Add local context here — council-meeting priorities, field observations, qualitative overlays. This text ships with the narrative when you copy." class="w-full bg-white border border-indigo-200 rounded-md p-2.5 text-sm text-gray-700 placeholder-gray-400 focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 resize-y"></textarea>
-      </div>
     </div>`;
+}
+
+// v7 update: toggle in-place editing of a generated section summary.
+// Editable text persists in the DOM, so it rides along with Word export,
+// Copy, and the saved-analysis snapshot.
+function toggleNarrativeEdit(nid) {
+  const wrap = document.getElementById(nid);
+  if (!wrap) return;
+  const body = wrap.querySelector('[data-narr-body]');
+  const btn  = wrap.querySelector('[data-narr-edit-toggle]');
+  if (!body || !btn) return;
+  const editing = body.getAttribute('contenteditable') === 'true';
+  if (editing) {
+    body.setAttribute('contenteditable', 'false');
+    body.style.outline = '';
+    body.style.background = '';
+    btn.textContent = '✎ Edit';
+    btn.title = 'Edit this summary';
+  } else {
+    body.setAttribute('contenteditable', 'true');
+    body.style.outline = '2px solid #6366F1';
+    body.style.outlineOffset = '4px';
+    body.style.background = '#FFFFFF';
+    btn.textContent = '✓ Save';
+    btn.title = 'Save edits';
+    body.focus();
+  }
 }
 
 function placeholderCard(title, body, meta) {
@@ -4399,6 +4433,23 @@ function updateToolbar(tid) {
   tb.querySelector('[data-sel-count]').textContent = count;
   if (count > 0) { tb.classList.remove('hidden'); tb.classList.add('flex'); }
   else { tb.classList.add('hidden'); tb.classList.remove('flex'); }
+  // v7 update: Map action is gated by selection count.
+  //   1 row  → enabled (opens that variable in SE Maps)
+  //   2 rows → disabled with "Side-by-side maps coming soon" tooltip
+  //   3+     → disabled with "Map up to 2 variables at a time"
+  const mapBtn = tb.querySelector('[data-map-btn]');
+  if (mapBtn) {
+    if (count === 1) {
+      mapBtn.disabled = false;
+      mapBtn.title = 'Open this variable in SE Maps';
+    } else if (count === 2) {
+      mapBtn.disabled = true;
+      mapBtn.title = 'Side-by-side maps coming soon — for now, select one variable';
+    } else {
+      mapBtn.disabled = true;
+      mapBtn.title = 'Select one variable to map (up to two when side-by-side ships)';
+    }
+  }
 }
 function deleteSelectedRows(tid) {
   const t = document.getElementById(tid); if (!t) return;
@@ -4621,11 +4672,7 @@ function copyNarrative(nid) {
   const n = document.getElementById(nid); if (!n) return;
   const body = n.querySelector('[data-narr-body]');
   const citation = n.querySelector('.citation');
-  const local = n.querySelector('[data-local-input]');
-  let out = (body ? body.innerText : n.innerText).replace(/⧉ Copy/g, '').trim();
-  if (local && local.value.trim()) {
-    out += '\n\nLocal knowledge / council priorities:\n' + local.value.trim();
-  }
+  let out = (body ? body.innerText : n.innerText).replace(/⧉ Copy/g, '').replace(/✎ Edit|✓ Save/g, '').trim();
   if (citation) out += '\n\n' + citation.innerText.trim();
   navigator.clipboard.writeText(out);
 }
@@ -5002,72 +5049,24 @@ function openRowInMap(label) {
 // primary layer; summarizes the rest as additional layers the user can add
 // from the SE Maps layer panel. Rows without a known map ref are excluded
 // and surfaced in the summary.
+// v7 update: simplified — only the single-row case is wired (toolbar Map button
+// is disabled at 2+ selected rows). Side-by-side maps will land when the endpoint
+// supports it; the disabled-state tooltip surfaces the plan to the user.
 function mapSelectedRows(tid) {
   const t = document.getElementById(tid); if (!t) return;
   const checked = Array.from(t.querySelectorAll('tbody input.row-select:checked'));
-  if (checked.length === 0) return;
-
-  // Resolve each selected row's label → map ref
-  const resolved = [];
-  const unresolved = [];
-  checked.forEach(cb => {
-    const tr = cb.closest('tr');
-    const label = tr?.cells[1]?.querySelector('span')?.innerText?.trim()
-               || tr?.cells[1]?.innerText?.trim()
-               || '';
-    const ref = lookupRowMap(label);
-    if (ref) resolved.push({ label, ref });
-    else unresolved.push(label);
-  });
-
-  if (resolved.length === 0) {
-    alert(`None of the selected rows have a configured map deep-link in the prototype lookup.\n\nUnresolved: ${unresolved.join(', ')}\n\nIn production every row carries its own tableRef.`);
+  if (checked.length !== 1) return;
+  const tr = checked[0].closest('tr');
+  const label = tr?.cells[1]?.querySelector('span')?.innerText?.trim()
+             || tr?.cells[1]?.innerText?.trim()
+             || '';
+  const ref = lookupRowMap(label);
+  if (!ref) {
+    alert(`"${label}" has no configured map deep-link in the prototype lookup.\n\nIn production every row carries its own tableRef.`);
     return;
   }
-
-  // Group resolved rows by (survey, table) so we can tell the user how many
-  // distinct map layers they'd end up with in SE Maps.
-  const distinctLayers = new Map();
-  for (const r of resolved) {
-    const key = `${r.ref.surveyName}|${r.ref.tableName}`;
-    if (!distinctLayers.has(key)) distinctLayers.set(key, { ref: r.ref, labels: [] });
-    distinctLayers.get(key).labels.push(r.label);
-  }
-
-  // Open the first distinct layer in SE Maps. If there are more, summarize them
-  // in a follow-up alert so the planner knows what to add manually in SE Maps.
-  const layers = Array.from(distinctLayers.values());
-  const primary = layers[0];
   const geoLevel = getDefaultMapGeoLevel();
-  window.open(seMapDeepLink({ ...primary.ref, geoLevel }), '_blank');
-
-  if (layers.length === 1 && unresolved.length === 0 && !geoLevel) {
-    // Clean case — single layer, all rows resolved, no geo-level hint. Just open and return.
-    return;
-  }
-
-  // Build a summary message for the multi-layer / mixed case
-  const lines = [];
-  lines.push(`Opened SE Maps with primary layer: ${primary.ref.surveyName} · ${primary.ref.tableName}`);
-  lines.push(`Primary variable${primary.labels.length > 1 ? 's' : ''}: ${primary.labels.join(', ')}`);
-  if (geoLevel) {
-    lines.push(`Render geography: ${geoLevelHumanLabel(geoLevel)} (one level below your target). If SE Maps opens at a different level, switch it in the layer panel.`);
-  }
-  if (layers.length > 1) {
-    lines.push('');
-    lines.push(`Additional layers you can add from the SE Maps layer panel:`);
-    for (let i = 1; i < layers.length; i++) {
-      const L = layers[i];
-      lines.push(`  • ${L.ref.surveyName} · ${L.ref.tableName} — ${L.labels.join(', ')}`);
-    }
-  }
-  if (unresolved.length > 0) {
-    lines.push('');
-    lines.push(`Not mapped (no SE table configured): ${unresolved.join(', ')}`);
-  }
-  // Prototype affordance — in production this could be a non-blocking toast
-  // or a pre-populated layer queue that the SE Maps deep-link consumes.
-  setTimeout(() => alert(lines.join('\n')), 200);
+  window.open(seMapDeepLink({ ...ref, geoLevel }), '_blank');
 }
 
 // Render a "deep-link" map card: title + indicator description + color legend +
