@@ -159,6 +159,24 @@ jobs:
           mkdir -p _site/v7
           cp _staticrypt_v7_dash_out/index_v7.html _site/v7/index_v7.html
 
+      - name: Encrypt index_v8.html with StatiCrypt (v8 embedded-maps preview at /v8/)
+        env:
+          STATICRYPT_PASSWORD: ${{ secrets.STATICRYPT_PASSWORD }}
+        run: |
+          npx --yes staticrypt index_v8.html \
+            -p "$STATICRYPT_PASSWORD" \
+            --template login_template.html \
+            --template-color-primary '#4F46E5' \
+            --template-color-secondary '#F8FAFC' \
+            --template-title 'Existing Conditions (v8 — embedded maps preview)' \
+            --template-instructions 'Enter your access password to view the v8 embedded-maps preview.' \
+            --template-button 'Unlock dashboard' \
+            --template-placeholder 'Access password' \
+            --template-error 'Incorrect password — please try again.' \
+            -d _staticrypt_v8_out
+          mkdir -p _site/v8
+          cp _staticrypt_v8_out/index_v8.html _site/v8/index.html
+
       - name: Stage static assets
         run: |
           cp .nojekyll _site/.nojekyll
