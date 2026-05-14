@@ -317,6 +317,11 @@
   .chart-edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .chart-edit-actions { display: flex; gap: 6px; justify-content: space-between;
     align-items: center; margin-top: 12px; padding-top: 8px; border-top: 1px solid #e2e8f0; }
+  .palette-swatches { display: flex; align-items: center; gap: 6px; margin-top: 6px;
+    padding: 6px 8px; background: white; border: 1px solid #e2e8f0; border-radius: 4px; }
+  .palette-swatches .swatch { width: 18px; height: 18px; border-radius: 50%;
+    border: 1px solid rgba(15,23,42,0.08); flex-shrink: 0; }
+  .palette-swatches .swatch-label { font-size: 11px; color: #64748b; margin-left: 4px; }
 
   .table-picker-row { display: flex; align-items: flex-start; gap: 10px;
     padding: 8px 10px; border-radius: 4px; }
@@ -633,7 +638,6 @@
           <div class="inline-flex items-center gap-1 p-1 bg-gray-100 rounded-lg">
             <span class="input-mode-tab active" data-mode="paste"  onclick="setInputMode('paste')">Paste FIPS</span>
             <span class="input-mode-tab"        data-mode="upload" onclick="setInputMode('upload')">Upload CSV</span>
-            <span class="input-mode-tab"        data-mode="map"    onclick="setInputMode('map')">Pick on map</span>
           </div>
         </div>
 
@@ -657,13 +661,6 @@
           </label>
         </div>
 
-        <!-- Map mode -->
-        <div id="modeMap" class="input-mode-panel hidden">
-          <div class="border border-gray-200 rounded-lg h-64 bg-gray-50 flex items-center justify-center text-sm text-gray-400">
-            Tract picker map — Sprint 3
-          </div>
-          <p class="text-xs text-gray-500 mt-2">Click tracts to toggle. Shift-drag to box-select.</p>
-        </div>
       </div>
 
       <!-- RIGHT: selected + availability -->
@@ -1507,7 +1504,7 @@ function loadSavedSet(i) {
 
 // ---------- Custom target — input modes ----------
 function setInputMode(mode) {
-  ['paste', 'upload', 'map'].forEach(m => {
+  ['paste', 'upload'].forEach(m => {
     const panel = document.getElementById('mode' + m[0].toUpperCase() + m.slice(1));
     if (panel) panel.classList.toggle('hidden', m !== mode);
     const tab = document.querySelector(`.input-mode-tab[data-mode="${m}"]`);
@@ -2566,14 +2563,18 @@ function toggleChartEditPanel(chartId) {
       </div>
     </div>
     <div class="chart-edit-row">
-      <label>Color palette</label>
-      <select data-field="palette">
-        <option value="default" ${currentPalette === 'default' ? 'selected' : ''}>Default (SE indigo)</option>
+      <label>Theme</label>
+      <select data-field="palette" onchange="updatePaletteSwatches('${chartId}', this.value)">
+        <option value="default" ${currentPalette === 'default' ? 'selected' : ''}>Social Explorer (default)</option>
         <option value="blue"    ${currentPalette === 'blue'    ? 'selected' : ''}>Blue tones</option>
         <option value="earth"   ${currentPalette === 'earth'   ? 'selected' : ''}>Earth tones</option>
         <option value="grey"    ${currentPalette === 'grey'    ? 'selected' : ''}>Greyscale (print-friendly)</option>
         <option value="diverging" ${currentPalette === 'diverging' ? 'selected' : ''}>Diverging (red↔green)</option>
       </select>
+      <div class="palette-swatches" data-palette-preview="${chartId}">
+        ${PALETTES[currentPalette].map((c, i) => `<span class="swatch" title="Accent ${i+1} — ${c}" style="background:${c}"></span>`).join('')}
+        <span class="swatch-label">Accent 1 – ${PALETTES[currentPalette].length}</span>
+      </div>
     </div>
     <div class="chart-edit-row">
       <label>Series visibility</label>
@@ -2605,6 +2606,15 @@ const PALETTES = {
   grey:      ['#1f2937', '#4b5563', '#6b7280', '#9ca3af', '#d1d5db', '#e5e7eb'],
   diverging: ['#dc2626', '#f87171', '#fcd34d', '#86efac', '#22c55e', '#15803d'],
 };
+
+function updatePaletteSwatches(chartId, paletteKey) {
+  const preview = document.querySelector(`[data-palette-preview="${chartId}"]`);
+  if (!preview) return;
+  const palette = PALETTES[paletteKey] || PALETTES.default;
+  preview.innerHTML = palette.map((c, i) =>
+    `<span class="swatch" title="Accent ${i+1} — ${c}" style="background:${c}"></span>`
+  ).join('') + `<span class="swatch-label">Accent 1 – ${palette.length}</span>`;
+}
 
 function applyChartEdits(chartId) {
   const chart = chartRegistry[chartId]; if (!chart) return;
