@@ -1057,7 +1057,7 @@
          the brief focused on title + actions; the transparency info is one tap away. -->
     <details class="v7-sources">
       <summary>
-        <span><strong>Data sources</strong> · 8 live, 3 planned · earliest-year + tract-change advisories</span>
+        <span><strong>Data sources</strong> · 10 live, 1 planned · earliest-year + tract-change advisories</span>
       </summary>
       <div class="v7-sources-body">
         <div class="flex flex-wrap gap-2 text-xs mb-3">
@@ -1069,8 +1069,8 @@
           <span class="badge badge-moderate">LAUS (state)</span>
           <span class="badge badge-moderate">LEHD 2022</span>
           <span class="badge badge-moderate">SE Crime Index (dev)</span>
-          <span class="badge badge-planned">CDC SVI · planned</span>
-          <span class="badge badge-planned">EPA EJScreen · planned</span>
+          <span class="badge badge-moderate">CDC SVI 2022 (county)</span>
+          <span class="badge badge-moderate">EPA EJScreen 2025 (dev)</span>
           <span class="badge badge-planned">CoStar · planned</span>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
@@ -1765,7 +1765,7 @@ const SECTION_TEMPLATE_TABLES = {
     { id: 'eq_svi_county',     title: 'CDC SVI raw indicators (county)',          rendered: true,  requirement: 'optional',    note: 'CDC SVI 2022 v2 endpoint' },
     { id: 'eq_svi_tract',      title: 'CDC SVI at tract (custom areas)',           rendered: false, requirement: 'optional',    note: 'CDC SVI 2022 SL140 — Sprint 3' },
     { id: 'eq_affh_recap',     title: 'AFFH R/ECAP designation',                  rendered: false, requirement: 'optional',    note: 'HUD AFFH — Phase 1+' },
-    { id: 'eq_ejscreen',       title: 'EPA EJScreen indicators',                  rendered: false, requirement: 'optional',    note: 'EJScreen — Phase 1' },
+    { id: 'eq_ejscreen',       title: 'EPA EJScreen indicators',                  rendered: true,  requirement: 'optional',    note: 'EJScreen 2025 — rendered in Section 8 (Environmental Justice & Cumulative Burden)' },
   ],
   public_safety: [
     { id: 'safety_crime',          title: 'SE Crime Index (10 categories)',         rendered: true,  requirement: 'required',    note: 'SE_CRIME_INDEX — place / county / state' },
@@ -3601,6 +3601,7 @@ const SURVEYS = {
   cbp: 'CBP2023',
   lehd: 'LEHD2022',
   crime: 'SE_CRIME_INDEX',
+  ejscreen: 'EJSCREEN2025', // EPA Environmental Justice Screening Tool — currently dev-only
 };
 
 // Key: SE's llm_api needs TABLE GUIDs (not names) for LAUS, CBP, LEHD.
@@ -4246,7 +4247,7 @@ function createSection(parent, num, title, status, isOpen = false) {
   const statusBadge = status === 'live'
     ? '<span class="badge badge-moderate ml-2">Live data</span>'
     : status === 'partial'
-      ? '<span class="badge badge-high ml-2">Partial — Phase 1 pending</span>'
+      ? '<span class="badge badge-high ml-2">Partial — additional sources pending</span>'
       : '<span class="badge badge-planned ml-2">Planned — data pending</span>';
 
   // v4: section ID derived from title (lowercased, alphanumeric only) for use by table-picker
@@ -5195,29 +5196,163 @@ function sviCuts(palette) {
 // (The Dingo iframe embed in mountDingoMap() is kept for the day this dashboard is served from
 // inside the SE Academic shell; it can't render on a non-SE origin because Dingo redirects to
 // /embed?unsupported=true when the parent isn't authenticated.)
-// v7: the four hardcoded MVP maps were retired in favor of the
-// "open any variable in map" pattern — every row in every data table now
-// has its own per-row map button that deep-links to SE Maps with that
-// variable preselected, so template-level fixed maps add noise without
-// adding capability. EJScreen stays as the Phase 1 placeholder because
-// it represents a whole data source we haven't ingested yet.
+// Section 8 — Environmental Justice & Cumulative Burden.
+//
+// Replaces the v7 EJScreen placeholder card with live EPA EJScreen 2025 data
+// from the EJIndexes table (county-level via dev endpoint today).
+//
+// The EJIndexes table is EPA's canonical AFFH-relevant view: each of the 13
+// environmental burden indicators is paired with a national-percentile EJ Index
+// that combines the burden with population-vulnerability weights. Communities
+// at or above the 75th percentile on any EJ Index are flagged for cumulative-
+// burden review under EPA + HUD AFFH 2024 guidance.
+//
+// Per-row map + chart icons in the data tables above already replace the
+// retired dedicated maps section — this section is now about environment, not
+// about navigation. The retained intro paragraph reinforces the per-row pattern.
+const EJSCREEN_INDICATORS = [
+  // [cell key prefix, planner-facing label, EPA short description]
+  ['PM25',       'PM2.5 (fine particulate matter)',  'Annual mean ambient PM2.5 concentration'],
+  ['Ozone',      'Ozone (ground-level O₃)',          'Summer-season peak 8-hour O₃'],
+  ['NO2',        'Nitrogen dioxide (NO₂)',           'Annual mean NO₂'],
+  ['DieselPM',   'Diesel particulate matter',        'Modeled diesel PM concentration'],
+  ['ToxicAir',   'Toxic releases to air',            'EPA RSEI toxics-release-to-air score'],
+  ['Traffic',    'Traffic proximity and volume',     'Daily traffic count weighted by distance to road'],
+  ['LeadPaint',  'Lead paint indicator',             '% pre-1960 housing'],
+  ['Superfund',  'Superfund proximity',              'Count of nearby NPL sites weighted by distance'],
+  ['RMP',        'RMP facility proximity',           'Risk Management Plan facilities (chemical accident risk)'],
+  ['HazWaste',   'Hazardous waste proximity',        'TSDF + LQG facilities weighted by distance'],
+  ['UST',        'Underground storage tanks',        'Active + leaking UST count weighted by distance'],
+  ['Wastewater', 'Wastewater discharge',             'EPA RSEI wastewater-toxics score'],
+  ['DrinkWater', 'Drinking water non-compliance',    'Days under EPA drinking-water violation'],
+];
 function renderMaps(parent, geos, D) {
-  const body = createSection(parent, 8, 'Maps', 'partial', false);
+  const body = createSection(parent, 8, 'Environmental Justice & Cumulative Burden', 'live', false);
 
+  // Per-row map intro stays — explains the v7 "explore any variable" pattern.
   body.insertAdjacentHTML('beforeend', `
-    <p class="text-sm text-gray-600 mb-3 leading-relaxed">
-      Maps are now opened per-variable: click the map icon next to any row in
-      any data table above to view that indicator as a choropleth in the
-      Social Explorer explore-maps tool. The section below tracks data
-      sources still planned for ingest.
+    <p class="text-sm text-gray-600 mb-4 leading-relaxed">
+      Maps are opened per-variable: click the map icon next to any row in any
+      data table above to view that indicator as a choropleth in Social
+      Explorer's explore-maps tool. The data below is the environmental layer
+      that drives the AFFH-required cumulative-burden disclosure.
     </p>
   `);
 
-  body.insertAdjacentHTML('beforeend', placeholderCard(
-    'EPA EJScreen Environmental Justice Indicators (Phase 1)',
-    'EJScreen environmental burden indicators (PM2.5, ozone, lead paint, traffic proximity, hazardous-waste proximity) at block-group resolution. ' +
-    'Per MVP_Sprint_Plan.md, EJScreen is deferred from Phase 0 to Phase 1 — needs ~27-32 engineering days for ingest + cross-walk to the SE Data Delivery survey schema.'
-  ));
+  const ej = (D && D.ejscreenCounty) || {};
+  if (!Object.keys(ej).length) {
+    body.insertAdjacentHTML('beforeend', `
+      <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+        EPA EJScreen 2025 unavailable for this geography. EJScreen is published at
+        block group / tract / county only — place and MSA fall back to the
+        enclosing county. For custom areas, the production resolver will pull
+        EJScreen at SL140 across the selected tracts.
+      </div>
+    `);
+    return;
+  }
+
+  // Determine which indicators have data + flag any at ≥75th-percentile cumulative burden.
+  const countyLabel = geos.county?.label || 'enclosing county';
+  let flagged = 0;
+  const rows = EJSCREEN_INDICATORS.map(([key, label, desc]) => {
+    const ejIdx  = ej[`ORG_EJ_${key}`];
+    const ejPct  = ej[`ORG_EJ_${key}_PCT`];
+    const isHigh = ejPct != null && ejPct >= 75;
+    if (isHigh) flagged++;
+    return { key, label, desc, ejIdx, ejPct, isHigh };
+  }).filter(r => r.ejIdx != null || r.ejPct != null);
+
+  const fmtPct = v => (v == null ? '—' : `${(+v).toFixed(1)}`);
+  const burdenRows = rows.map(r => `
+    <tr class="${r.isHigh ? 'bg-red-50' : ''}">
+      <td class="font-medium">${r.label}</td>
+      <td class="text-xs text-gray-500">${r.desc}</td>
+      <td class="text-right tabular-nums">${fmtPct(r.ejIdx)}</td>
+      <td class="text-right tabular-nums ${r.isHigh ? 'text-red-700 font-semibold' : ''}">${fmtPct(r.ejPct)}</td>
+    </tr>
+  `).join('');
+
+  body.insertAdjacentHTML('beforeend', `
+    <h4 class="text-sm font-semibold text-gray-700 mt-2 mb-1">EPA EJ Indexes — ${countyLabel}</h4>
+    <p class="text-xs text-gray-500 italic mb-3">
+      The EJ Index combines each environmental burden indicator with the
+      surrounding population's vulnerability (low-income share, minority share,
+      etc.). National percentile ranks contextualize burden against all US
+      block groups. Values at or above the 75th percentile (highlighted) are
+      flagged for cumulative-burden review per EPA + HUD AFFH Rule 2024 guidance.
+    </p>
+    <table class="data-table w-full text-sm">
+      <thead>
+        <tr>
+          <th class="text-left">Indicator</th>
+          <th class="text-left">EPA description</th>
+          <th class="text-right">EJ Index value</th>
+          <th class="text-right">National percentile</th>
+        </tr>
+      </thead>
+      <tbody>${burdenRows}</tbody>
+      <tfoot>
+        <tr class="border-t-2 border-gray-300">
+          <td colspan="3" class="text-xs text-gray-600 pt-2">Indicators flagged at ≥75th percentile</td>
+          <td class="text-right font-semibold ${flagged ? 'text-red-700' : 'text-gray-600'} pt-2">${flagged} of ${rows.length}</td>
+        </tr>
+      </tfoot>
+    </table>
+  `);
+
+  // Demographic / socioeconomic context block (from same EJIndexes table).
+  const demoIdx     = ej.ORG_DEMO_IDX;
+  const demoIdxPct  = ej.ORG_DEMO_IDX_PCT;
+  const suppIdx     = ej.ORG_SUPP_IDX;
+  const suppIdxPct  = ej.ORG_SUPP_IDX_PCT;
+  const pctPOC      = ej.ORG_PCT_POC;
+  const pctLowInc   = ej.ORG_PCT_LOWINC;
+  const pctUnemp    = ej.ORG_PCT_UNEMP;
+  const pctLmtEng   = ej.ORG_PCT_LMTENG;
+  const pctLTHS     = ej.ORG_PCT_LTHS;
+  const pctUnder5   = ej.ORG_PCT_UNDER5;
+  const pctOver64   = ej.ORG_PCT_OVER64;
+  const pctDisab    = ej.ORG_PCT_DISAB;
+  const pctLowLE    = ej.ORG_PCT_LOWLE;
+
+  if (demoIdx != null || pctPOC != null) {
+    body.insertAdjacentHTML('beforeend', `
+      <h4 class="text-sm font-semibold text-gray-700 mt-6 mb-1">EPA Demographic Index — ${countyLabel}</h4>
+      <p class="text-xs text-gray-500 italic mb-3">
+        Population-vulnerability context used to weight the EJ Indexes above. The Demographic Index is the average of % people of color and % low-income. The Supplemental Demographic Index adds unemployment, limited-English, less-than-HS, and low-life-expectancy.
+      </p>
+      <table class="data-table w-full text-sm">
+        <thead><tr><th class="text-left">Indicator</th><th class="text-right">Value</th><th class="text-right">National percentile</th></tr></thead>
+        <tbody>
+          <tr class="bg-indigo-50"><td class="font-medium">Demographic Index (composite)</td><td class="text-right tabular-nums">${fmtPct(demoIdx)}</td><td class="text-right tabular-nums">${fmtPct(demoIdxPct)}</td></tr>
+          <tr class="bg-indigo-50"><td class="font-medium">Supplemental Demographic Index</td><td class="text-right tabular-nums">${fmtPct(suppIdx)}</td><td class="text-right tabular-nums">${fmtPct(suppIdxPct)}</td></tr>
+          <tr><td>% People of color</td><td class="text-right tabular-nums">${fmtPct(pctPOC)}%</td><td class="text-right tabular-nums">${fmtPct(ej.ORG_POC_PCTILE)}</td></tr>
+          <tr><td>% Low-income</td><td class="text-right tabular-nums">${fmtPct(pctLowInc)}%</td><td class="text-right tabular-nums">${fmtPct(ej.ORG_LOWINC_PCTILE)}</td></tr>
+          <tr><td>% Unemployed</td><td class="text-right tabular-nums">${fmtPct(pctUnemp)}%</td><td class="text-right tabular-nums">${fmtPct(ej.ORG_UNEMP_PCTILE)}</td></tr>
+          <tr><td>% Limited English-speaking</td><td class="text-right tabular-nums">${fmtPct(pctLmtEng)}%</td><td class="text-right tabular-nums">${fmtPct(ej.ORG_LMTENG_PCTILE)}</td></tr>
+          <tr><td>% Less than high school</td><td class="text-right tabular-nums">${fmtPct(pctLTHS)}%</td><td class="text-right tabular-nums">${fmtPct(ej.ORG_LTHS_PCTILE)}</td></tr>
+          <tr><td>% Under 5 years old</td><td class="text-right tabular-nums">${fmtPct(pctUnder5)}%</td><td class="text-right tabular-nums">${fmtPct(ej.ORG_UNDER5_PCTILE)}</td></tr>
+          <tr><td>% Over 64 years old</td><td class="text-right tabular-nums">${fmtPct(pctOver64)}%</td><td class="text-right tabular-nums">${fmtPct(ej.ORG_OVER64_PCTILE)}</td></tr>
+          <tr><td>% With a disability</td><td class="text-right tabular-nums">${fmtPct(pctDisab)}%</td><td class="text-right tabular-nums">${fmtPct(ej.ORG_DISAB_PCTILE)}</td></tr>
+          <tr><td>% Below-average life expectancy</td><td class="text-right tabular-nums">${fmtPct(pctLowLE)}%</td><td class="text-right tabular-nums">${fmtPct(ej.ORG_LOWLE_PCTILE)}</td></tr>
+        </tbody>
+      </table>
+    `);
+  }
+
+  body.insertAdjacentHTML('beforeend', `
+    <div class="mt-4 p-3 rounded-md bg-slate-50 border border-slate-200 text-xs text-slate-600 leading-relaxed">
+      <strong>Methodology.</strong> EPA EJScreen 2025 publishes 13 environmental
+      burden indicators and 13 paired EJ Indexes (burden × vulnerability) at
+      block-group resolution. EC currently surfaces the county-level
+      aggregation; production will add tract-level overlay for custom areas.
+      Percentile ranks are against all US block groups, calculated by EPA. The
+      75th-percentile threshold for "cumulative-burden" flagging follows EPA
+      EJScreen guidance and HUD AFFH Rule 2024 disclosure expectations.
+      Source: EPA EJScreen 2025 (via SE dev endpoint).
+    </div>
+  `);
 }
 
 function hcBar(parent, title, categories, seriesData, opts = {}) {
@@ -5440,6 +5575,12 @@ async function generateBriefForCustomTarget() {
     { Name: 'PctDriveAlone',     Label: '% Drive alone',   Formula: 'SE_A09005_001 > 0 ? (SE_A09005_002 / SE_A09005_001) * 100 : 0' },
     { Name: 'PctOwnerCostBurdened', Label: '% Owner 30%+', Formula: 'ORG_B25091001 > 0 ? ((ORG_B25091008 + ORG_B25091009 + ORG_B25091010 + ORG_B25091011 + ORG_B25091012 + ORG_B25091019 + ORG_B25091020 + ORG_B25091021 + ORG_B25091022 + ORG_B25091023) / ORG_B25091001) * 100 : 0' },
     { Name: 'PctOwnerSevereBurden', Label: '% Owner 50%+', Formula: 'ORG_B25091001 > 0 ? ((ORG_B25091011 + ORG_B25091022) / ORG_B25091001) * 100 : 0' },
+    // Mortgage-status breakout. Universe for "with a mortgage" is _002; for "without a mortgage" is _013.
+    // Each is the burden RATE within that mortgage-status group, not its share of all owner HHs.
+    { Name: 'PctOwnerWithMort30', Label: '% Owner (w/ mortgage) 30%+', Formula: 'ORG_B25091002 > 0 ? ((ORG_B25091008 + ORG_B25091009 + ORG_B25091010 + ORG_B25091011 + ORG_B25091012) / ORG_B25091002) * 100 : 0' },
+    { Name: 'PctOwnerWithMort50', Label: '% Owner (w/ mortgage) 50%+', Formula: 'ORG_B25091002 > 0 ? (ORG_B25091011 / ORG_B25091002) * 100 : 0' },
+    { Name: 'PctOwnerNoMort30',   Label: '% Owner (no mortgage) 30%+', Formula: 'ORG_B25091013 > 0 ? ((ORG_B25091019 + ORG_B25091020 + ORG_B25091021 + ORG_B25091022 + ORG_B25091023) / ORG_B25091013) * 100 : 0' },
+    { Name: 'PctOwnerNoMort50',   Label: '% Owner (no mortgage) 50%+', Formula: 'ORG_B25091013 > 0 ? (ORG_B25091022 / ORG_B25091013) * 100 : 0' },
   ];
   const histTablesTarget = [TABLES.population.id, TABLES.medianIncome.id, TABLES.medianRent.id, TABLES.homeValue.id, TABLES.tenure.id, TABLES.vacancy.id, TABLES.rentBurden.id, TABLES.povertyRatio.id, TABLES.unemployment.id, TABLES.commute.id, TABLES.educAttain.id, TABLES.raceEth.id, TABLES.age.id, TABLES.householdType.id];
   const histTablesPeers  = [TABLES.population.id, TABLES.medianIncome.id, TABLES.medianRent.id, TABLES.tenure.id, TABLES.vacancy.id, TABLES.rentBurden.id, TABLES.povertyRatio.id, TABLES.unemployment.id, TABLES.commute.id, TABLES.educAttain.id];
@@ -5512,6 +5653,7 @@ async function generateBriefForCustomTarget() {
     lehdCounty: {}, lehdState: {},
     sviCounty: {},
     crimeTarget: {}, crimeCounty: {}, crimeState: {},
+    ejscreenCounty: {},
     _isCustom: true,
     _customLabel: customLabel,
     // Per-dataset fallback metadata. Renderers read this and emit fallbackBanner()
@@ -5521,7 +5663,7 @@ async function generateBriefForCustomTarget() {
         ? { sourceLevel: 'county', sourceLabel: countyName, datasetLabel: 'HUD CHAS 2018-2022 (cost burden by AMI)' }
         : null,
     },
-    _fallbacks: ['MSA-level data (FMR, AMI, EASI MSA)', 'SE Crime Index', 'CBP', 'LEHD', 'CDC SVI', 'LAUS'],
+    _fallbacks: ['MSA-level data (FMR, AMI, EASI MSA)', 'SE Crime Index', 'CBP', 'LEHD', 'CDC SVI', 'EJScreen', 'LAUS'],
   };
 
   setLoading('Rendering package…');
@@ -5606,13 +5748,18 @@ async function generateBrief() {
       // Owner cost burden (B25091): 30%+ = with-mortgage 30%+ (008-012) + without-mortgage 30%+ (019-023) / total (001)
       { Name: 'PctOwnerCostBurdened', Label: '% Owner 30%+', Formula: 'ORG_B25091001 > 0 ? ((ORG_B25091008 + ORG_B25091009 + ORG_B25091010 + ORG_B25091011 + ORG_B25091012 + ORG_B25091019 + ORG_B25091020 + ORG_B25091021 + ORG_B25091022 + ORG_B25091023) / ORG_B25091001) * 100 : 0' },
       { Name: 'PctOwnerSevereBurden', Label: '% Owner 50%+', Formula: 'ORG_B25091001 > 0 ? ((ORG_B25091011 + ORG_B25091022) / ORG_B25091001) * 100 : 0' },
+      // Mortgage-status breakout. Burden rate within each mortgage-status group.
+      { Name: 'PctOwnerWithMort30', Label: '% Owner (w/ mortgage) 30%+', Formula: 'ORG_B25091002 > 0 ? ((ORG_B25091008 + ORG_B25091009 + ORG_B25091010 + ORG_B25091011 + ORG_B25091012) / ORG_B25091002) * 100 : 0' },
+      { Name: 'PctOwnerWithMort50', Label: '% Owner (w/ mortgage) 50%+', Formula: 'ORG_B25091002 > 0 ? (ORG_B25091011 / ORG_B25091002) * 100 : 0' },
+      { Name: 'PctOwnerNoMort30',   Label: '% Owner (no mortgage) 30%+', Formula: 'ORG_B25091013 > 0 ? ((ORG_B25091019 + ORG_B25091020 + ORG_B25091021 + ORG_B25091022 + ORG_B25091023) / ORG_B25091013) * 100 : 0' },
+      { Name: 'PctOwnerNoMort50',   Label: '% Owner (no mortgage) 50%+', Formula: 'ORG_B25091013 > 0 ? (ORG_B25091022 / ORG_B25091013) * 100 : 0' },
     ];
 
     setLoading('Fetching ACS + LAUS + CBP + LEHD + EASI + Crime across target · MSA · county · state...');
     const crimeAllGuids = [GUIDS.crime_total, GUIDS.crime_violent, GUIDS.crime_property,
       GUIDS.crime_murder, GUIDS.crime_rsa, GUIDS.crime_robbery, GUIDS.crime_assault,
       GUIDS.crime_burglary, GUIDS.crime_larceny, GUIDS.crime_gla];
-    const [curTarget, curMsa, curCounty, curState, histTarget, histMsa, histCounty, histState, histOwnerTarget, histOwnerMsa, histOwnerCounty, histOwnerState, chasT7, chasT9, chasT7County, chasT7State, fmr, easiTarget, easiMsa, easiCounty, easiState, lausTarget, lausCounty, lausMsa, lausState, cbpCounty, cbpMsa, cbpState, lehdCounty, lehdState, sviCounty, crimeTarget, crimeCounty, crimeState] = await Promise.all([
+    const [curTarget, curMsa, curCounty, curState, histTarget, histMsa, histCounty, histState, histOwnerTarget, histOwnerMsa, histOwnerCounty, histOwnerState, chasT7, chasT9, chasT7County, chasT7State, fmr, easiTarget, easiMsa, easiCounty, easiState, lausTarget, lausCounty, lausMsa, lausState, cbpCounty, cbpMsa, cbpState, lehdCounty, lehdState, sviCounty, crimeTarget, crimeCounty, crimeState, ejscreenCounty] = await Promise.all([
       fetchComputed(SURVEYS.current, mainTableIds, geos.target.sl, [geos.target.fips], computed),
       fetchComputed(SURVEYS.current, mainTableIds, geos.msa.sl,    [geos.msa.fips],    computed),
       fetchComputed(SURVEYS.current, mainTableIds, geos.county.sl, [geos.county.fips], computed),
@@ -5655,6 +5802,13 @@ async function generateBrief() {
       fetchDataDev(SURVEYS.crime, crimeAllGuids, 'SL160', [geos.target.fips]).catch(() => null),
       fetchDataDev(SURVEYS.crime, crimeAllGuids, 'SL050', [geos.county.fips]).catch(() => null),
       fetchDataDev(SURVEYS.crime, crimeAllGuids, 'SL040', [geos.state.fips]).catch(() => null),
+      // EPA EJScreen 2025 — environmental burden (EJ Index per pollutant) +
+      // population vulnerability (Demographic Index, % POC, % low-income, etc.).
+      // EJIndexes has the 13 EJ Indexes per environmental factor; Socioeconomic
+      // has the population-vulnerability cells used to weight + contextualize.
+      // Dev endpoint today (EJSCREEN2025 not on prod yet). Published at block
+      // group / tract / county; NOT at place. SL050 county = brief-level summary.
+      fetchDataDev(SURVEYS.ejscreen, ['EJIndexes', 'Socioeconomic'], 'SL050', [geos.county.fips]).catch(() => null),
     ]);
 
     setLoading('Computing signals and rendering package...');
@@ -5690,6 +5844,7 @@ async function generateBrief() {
       crimeTarget: crimeTarget ? (extractRecords(crimeTarget).records[geos.target.fips] || {}) : {},
       crimeCounty: crimeCounty ? (extractRecords(crimeCounty).records[geos.county.fips] || {}) : {},
       crimeState:  crimeState  ? (extractRecords(crimeState).records[geos.state.fips]   || {}) : {},
+      ejscreenCounty: ejscreenCounty ? (extractRecords(ejscreenCounty).records[geos.county.fips] || {}) : {},
     };
     if (!Object.keys(D.target).length) throw new Error('No data returned for ' + geos.target.fips);
 
@@ -6410,7 +6565,7 @@ function appendTrendBlock(body, geos, label, rateFn, D, title) {
 }
 
 // ============================================================
-// SECTION 2 — ECONOMIC CONDITIONS (PARTIAL: ACS only; BLS planned)
+// SECTION 2 — ECONOMIC CONDITIONS (LIVE: ACS + BLS LAUS monthly + BLS CBP 2-digit NAICS)
 // ============================================================
 function renderEconomic(parent, geos, D) {
   const body = createSection(parent, 2, 'Economic Conditions', 'live');
@@ -6646,17 +6801,34 @@ function renderHousing(parent, geos, D) {
     if (maxCv > 0.30) return ' <span title="Moderate margin of error (CV > 30%)" class="moe-flag">†</span>';
     return '';
   };
-  const ob30Vars = ['ORG_B25091008','ORG_B25091009','ORG_B25091010','ORG_B25091011','ORG_B25091012','ORG_B25091019','ORG_B25091020','ORG_B25091021','ORG_B25091022','ORG_B25091023'];
-  const ob50Vars = ['ORG_B25091011','ORG_B25091022'];
+  const ob30Vars       = ['ORG_B25091008','ORG_B25091009','ORG_B25091010','ORG_B25091011','ORG_B25091012','ORG_B25091019','ORG_B25091020','ORG_B25091021','ORG_B25091022','ORG_B25091023'];
+  const ob50Vars       = ['ORG_B25091011','ORG_B25091022'];
+  // Mortgage-status MOE flag groups — match the corresponding computed-column formulas.
+  const ob30WMVars     = ['ORG_B25091008','ORG_B25091009','ORG_B25091010','ORG_B25091011','ORG_B25091012'];
+  const ob50WMVars     = ['ORG_B25091011'];
+  const ob30NMVars     = ['ORG_B25091019','ORG_B25091020','ORG_B25091021','ORG_B25091022','ORG_B25091023'];
+  const ob50NMVars     = ['ORG_B25091022'];
   const ownerBurden = [
     { label: 'Owner households 30%+ cost-burdened (%)', format: 'pct',
       values: { target: t.PctOwnerCostBurdened, msa: D.msa.PctOwnerCostBurdened, county: D.county.PctOwnerCostBurdened, state: D.state.PctOwnerCostBurdened },
       flags: { target: moeB25091(t, ob30Vars), msa: moeB25091(D.msa, ob30Vars), county: moeB25091(D.county, ob30Vars), state: moeB25091(D.state, ob30Vars) }},
+    { label: '    ↳ with a mortgage', format: 'pct',
+      values: { target: t.PctOwnerWithMort30, msa: D.msa.PctOwnerWithMort30, county: D.county.PctOwnerWithMort30, state: D.state.PctOwnerWithMort30 },
+      flags: { target: moeB25091(t, ob30WMVars), msa: moeB25091(D.msa, ob30WMVars), county: moeB25091(D.county, ob30WMVars), state: moeB25091(D.state, ob30WMVars) }},
+    { label: '    ↳ without a mortgage', format: 'pct',
+      values: { target: t.PctOwnerNoMort30, msa: D.msa.PctOwnerNoMort30, county: D.county.PctOwnerNoMort30, state: D.state.PctOwnerNoMort30 },
+      flags: { target: moeB25091(t, ob30NMVars), msa: moeB25091(D.msa, ob30NMVars), county: moeB25091(D.county, ob30NMVars), state: moeB25091(D.state, ob30NMVars) }},
     { label: 'Owner households 50%+ severely cost-burdened (%)', format: 'pct',
       values: { target: t.PctOwnerSevereBurden, msa: D.msa.PctOwnerSevereBurden, county: D.county.PctOwnerSevereBurden, state: D.state.PctOwnerSevereBurden },
       flags: { target: moeB25091(t, ob50Vars), msa: moeB25091(D.msa, ob50Vars), county: moeB25091(D.county, ob50Vars), state: moeB25091(D.state, ob50Vars) }},
+    { label: '    ↳ with a mortgage', format: 'pct',
+      values: { target: t.PctOwnerWithMort50, msa: D.msa.PctOwnerWithMort50, county: D.county.PctOwnerWithMort50, state: D.state.PctOwnerWithMort50 },
+      flags: { target: moeB25091(t, ob50WMVars), msa: moeB25091(D.msa, ob50WMVars), county: moeB25091(D.county, ob50WMVars), state: moeB25091(D.state, ob50WMVars) }},
+    { label: '    ↳ without a mortgage', format: 'pct',
+      values: { target: t.PctOwnerNoMort50, msa: D.msa.PctOwnerNoMort50, county: D.county.PctOwnerNoMort50, state: D.state.PctOwnerNoMort50 },
+      flags: { target: moeB25091(t, ob50NMVars), msa: moeB25091(D.msa, ob50NMVars), county: moeB25091(D.county, ob50NMVars), state: moeB25091(D.state, ob50NMVars) }},
   ];
-  body.innerHTML += compareTable(ownerBurden, geos, { title: 'Owner Cost Burden (ACS)' });
+  body.innerHTML += compareTable(ownerBurden, geos, { title: 'Owner Cost Burden (ACS) — combined and by mortgage status' });
 
   // 10-year trends — Owner 30%+ and 50%+ cost burden across 4 geos.
   // Current vintage (ACS2024_5yr via fetchComputed) prefixes fields ORG_B25091xxx.
@@ -6741,14 +6913,51 @@ function renderHousing(parent, geos, D) {
   ];
   body.innerHTML += compareTable(crowdRows, geos, { title: 'Overcrowding (ACS — Occupants per Room)' });
 
-  // Fair Market Rent
-  const fmrP = 'ILFMR2025_FMR';
+  // Fair Market Rent + AMI Income Limits (HUD FY2025).
+  // Cells follow the standard SE_<TableID>_<cell> pattern (confirmed against
+  // data-delivery.socialexplorer.com 2026-05-25):
+  //   SE_T002_001  = Area Median Family Income (AMFI), single value
+  //   SE_T003_001..008 = 80% AMI Low-Income Limits by 1-8 person HH
+  //   SE_T004_001..008 = 50% AMI Very-Low-Income Limits by 1-8 person HH
+  //   SE_T005_001..008 = 30% AMI Extremely-Low-Income Limits by 1-8 person HH
+  //   SE_T006_001..005 = FMR by Studio/1-BR/2-BR/3-BR/4-BR
+  // All published at MSA (SL320) only — the 4-geo compare-table pattern doesn't
+  // apply, so render as a single MSA-scoped affordability block.
   const fmr = D.fmr;
-  if (Object.keys(fmr).length) {
-    const fmrRows = ['Studio', '1-BR', '2-BR', '3-BR', '4-BR'].map((lbl, i) => ({
-      label: `FMR ${lbl} (MSA)`, format: 'dollar', values: { target: val(fmr, `${fmrP}_${String(i+1).padStart(3, '0')}`), msa: val(fmr, `${fmrP}_${String(i+1).padStart(3, '0')}`), county: null, state: null },
-    }));
-    body.innerHTML += compareTable(fmrRows, geos, { title: 'Fair Market Rent by Bedroom (HUD FY2025, MSA)' });
+  if (Object.keys(fmr).length && val(fmr, 'SE_T006_001') != null) {
+    const fmrLabel = geos.msa?.label || 'MSA';
+    const v = (k) => val(fmr, k);
+    const dollar = (n) => n == null ? '—' : '$' + Math.round(n).toLocaleString();
+    // FMR by bedroom — single row, 5 columns
+    body.innerHTML += `
+      <div class="mt-4">
+        <h4 class="text-sm font-semibold text-gray-700 mb-1">HUD Fair Market Rent + Income Limits (FY2025) — ${fmrLabel}</h4>
+        <p class="text-xs text-gray-500 italic mb-2">Published at MSA only. Burlington VT is a New England city — for non-New-England targets, FMR/AMI fall back to the enclosing MSA.</p>
+        <table class="data-table w-full text-sm mb-3">
+          <thead><tr><th class="text-left">Fair Market Rent by bedroom</th><th>Studio</th><th>1-BR</th><th>2-BR</th><th>3-BR</th><th>4-BR</th></tr></thead>
+          <tbody><tr>
+            <td class="text-gray-600">Monthly rent</td>
+            <td class="text-right tabular-nums">${dollar(v('SE_T006_001'))}</td>
+            <td class="text-right tabular-nums">${dollar(v('SE_T006_002'))}</td>
+            <td class="text-right tabular-nums">${dollar(v('SE_T006_003'))}</td>
+            <td class="text-right tabular-nums">${dollar(v('SE_T006_004'))}</td>
+            <td class="text-right tabular-nums">${dollar(v('SE_T006_005'))}</td>
+          </tr></tbody>
+        </table>
+        <table class="data-table w-full text-sm">
+          <thead>
+            <tr><th class="text-left">HUD Income Limits — household size</th><th>1p</th><th>2p</th><th>3p</th><th>4p</th><th>5p</th><th>6p</th><th>7p</th><th>8p</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="font-medium">Area Median Family Income (AMFI)</td><td class="text-right tabular-nums" colspan="8">${dollar(v('SE_T002_001'))} <span class="text-xs text-gray-500">(single value across HH sizes)</span></td></tr>
+            <tr><td>80% AMI — Low Income</td>${[1,2,3,4,5,6,7,8].map(i => `<td class="text-right tabular-nums">${dollar(v(`SE_T003_${String(i).padStart(3,'0')}`))}</td>`).join('')}</tr>
+            <tr><td>50% AMI — Very Low Income</td>${[1,2,3,4,5,6,7,8].map(i => `<td class="text-right tabular-nums">${dollar(v(`SE_T004_${String(i).padStart(3,'0')}`))}</td>`).join('')}</tr>
+            <tr class="bg-amber-50"><td class="font-medium">30% AMI — Extremely Low Income</td>${[1,2,3,4,5,6,7,8].map(i => `<td class="text-right tabular-nums">${dollar(v(`SE_T005_${String(i).padStart(3,'0')}`))}</td>`).join('')}</tr>
+          </tbody>
+        </table>
+        <p class="text-xs text-gray-500 italic mt-1">Source: HUD FY2025 Fair Market Rents + Income Limits (ILFMR2025). The 4-person HH AMI tier is the canonical reference used in most ConPlan / HOME / CDBG narratives.</p>
+      </div>
+    `;
 
     // Redfin real-time market snapshot — user-triggered action (GitHub Actions refreshes the JSON weekly)
     const redfinId = 'redfin-' + Math.random().toString(36).slice(2, 10);
@@ -6953,7 +7162,7 @@ function renderEquity(parent, geos, D) {
     { name: geos.target.label, data: [D.target.PctDisabled, D.target.PctNonEnglishHome, D.target.PctLEP, D.target.PctNoVehicle, D.target.PctRenterNoVehicle].map(v => +(v?.toFixed(1) || 0)) },
     { name: geos.state.label, data: [D.state.PctDisabled, D.state.PctNonEnglishHome, D.state.PctLEP, D.state.PctNoVehicle, D.state.PctRenterNoVehicle].map(v => +(v?.toFixed(1) || 0)) },
   ], { yFormat: '{value}%', source: 'ACS 2020-2024 5-Year Estimates, Tables B18101, C16001, B25044' });
-  body.innerHTML += methodologyBlock('ACS 2020-2024 5-Year Estimates at all four geographies. Disability: B18101 "Sex by Age by Disability Status" — with-a-disability share summed across both sexes and all age cohorts over the civilian noninstitutionalized population. Language at home: C16001 "Language Spoken at Home by Ability to Speak English" (condensed — published at place level; detailed B16001 is disclosure-suppressed below state). "% Non-English at home" = (Total − Speaks only English) / Total. "% LEP (strict)" = federal "Speaks English less than very well" = Spanish LEP + Other Indo-European LEP + Asian/Pacific Island LEP + Other-language LEP, all over population 5+. No-vehicle: B25044 "Tenure by Vehicles Available" — owner + renter no-vehicle households / total occupied housing units; renter-only no-vehicle computed from the renter-occupied subset. CDC SVI raw indicators now available at county level (see below). EPA EJScreen remains Phase 1.');
+  body.innerHTML += methodologyBlock('ACS 2020-2024 5-Year Estimates at all four geographies. Disability: B18101 "Sex by Age by Disability Status" — with-a-disability share summed across both sexes and all age cohorts over the civilian noninstitutionalized population. Language at home: C16001 "Language Spoken at Home by Ability to Speak English" (condensed — published at place level; detailed B16001 is disclosure-suppressed below state). "% Non-English at home" = (Total − Speaks only English) / Total. "% LEP (strict)" = federal "Speaks English less than very well" = Spanish LEP + Other Indo-European LEP + Asian/Pacific Island LEP + Other-language LEP, all over population 5+. No-vehicle: B25044 "Tenure by Vehicles Available" — owner + renter no-vehicle households / total occupied housing units; renter-only no-vehicle computed from the renter-occupied subset. CDC SVI raw indicators available at county level (see below). EPA EJScreen environmental + cumulative-burden indicators are rendered in the Environmental Justice & Cumulative Burden section below.');
 
   // CDC SVI 2022 — county level (SL050). Raw indicator counts; percentile rankings not available on SE API.
   const svi = D.sviCounty || {};
@@ -6985,11 +7194,8 @@ function renderEquity(parent, geos, D) {
       'CDC SVI · no data'
     );
   }
-  body.innerHTML += placeholderCard(
-    'EPA EJScreen Environmental Justice Indicators',
-    'EJScreen combines 13 environmental indicators (PM2.5, ozone, diesel PM, cancer risk, traffic proximity, lead paint, Superfund, hazardous waste, underground tanks, wastewater, RMP sites) with demographic indicators. Required for AFFH, Justice40, and most federal grant applications.',
-    'EPA EJScreen · Phase 1'
-  );
+  // EPA EJScreen now rendered live in Section 8 (Environmental Justice & Cumulative Burden).
+  // Placeholder card removed 2026-05-25 when EJSCREEN2025 came online on dev.
   // Synthesize vulnerability profile with planning implications
   const disAboveState = D.target.PctDisabled > D.state.PctDisabled;
   const lepHigh = D.target.PctLEP > 5;
@@ -7002,7 +7208,7 @@ function renderEquity(parent, geos, D) {
     `${disAboveState ? `Disability prevalence is <strong>${fmt(D.target.PctDisabled, 'pct')}</strong> vs. ${fmt(D.state.PctDisabled, 'pct')} statewide <span class="cite">(ACS Table B18101)</span>. ADA compliance obligations attach to specific facilities/services regardless of disability prevalence; this descriptive figure is the screening signal commonly cited when prioritizing accessibility investments — not itself a determination of need. ` : `Disability rate is ${fmt(D.target.PctDisabled, 'pct')} <span class="cite">(ACS Table B18101)</span>. `}` +
     `${lepHigh ? `Limited English Proficient share is <strong>${fmt(D.target.PctLEP, 'pct')}</strong> <span class="cite">(ACS Table C16001)</span>, above the 5% descriptive threshold typically referenced in language-access-plan guidance under Executive Order 13166. The applicable obligation depends on each agency's safe-harbor analysis, not on this number alone. ` : `LEP rate is ${fmt(D.target.PctLEP, 'pct')} <span class="cite">(ACS Table C16001)</span> (below the 5% threshold commonly referenced in language-access-plan guidance). `}` +
     `${noVehHigh ? `<strong>${fmt(D.target.PctNoVehicle, 'pct')}</strong> of households report no vehicle (rising to <strong>${fmt(D.target.PctRenterNoVehicle, 'pct')}</strong> among renters) <span class="cite">(ACS Table B25044)</span>. No-vehicle share is correlated with transit dependency and combined housing-plus-transportation cost burden in cross-sectional studies; whether transit investment closes that gap depends on service quality, frequency, and destination access this section does not measure. ` : `Vehicle access: ${fmt(D.target.PctNoVehicle, 'pct')} of households report no vehicle <span class="cite">(ACS Table B25044)</span>. `}` +
-    `Together these are the descriptive baseline planners cite in AFFH analysis, Justice40 screening, and the equity framework for federal grant applications. Composite SVI score and EJScreen environmental-justice overlays are planned for Phase 1 and will add the disparity-and-environmental-burden layer this section currently lacks. The caveats below apply to every cross-group comparison shown above.`,
+    `Together these are the descriptive baseline planners cite in AFFH analysis, Justice40 screening, and the equity framework for federal grant applications. CDC SVI raw indicators at the county level appear below; EPA EJScreen environmental + cumulative-burden indicators are rendered in the Environmental Justice & Cumulative Burden section. The caveats below apply to every cross-group comparison shown above.`,
     'ACS 2020-2024 5-Year Estimates (B18101, C16001, B25044, A13004, A18002). Claim-strength: descriptive cross-sectional shares with sampling MOE; cross-group differences describe patterns, not causes.'
   );
 
@@ -7061,12 +7267,23 @@ function renderSafety(parent, geos, D) {
     ];
     body.innerHTML += compareTable(detailRows, geos, { title: 'Crime Subcategory Indices (100 = National Median)' });
 
-    // Chart: Crime subcategories — horizontal bar with 100 baseline
+    // Chart: Crime subcategories — horizontal bar with 100 baseline.
+    // marginTop: 36 reserves headroom above the plot so the "National median"
+    // plotLine label can sit ABOVE all bars without being clipped by the chart
+    // container. Label is positioned with y: -14 to sit cleanly inside that headroom.
     hcChart(body, {
-      chart: { type: 'bar', height: 340 },
+      chart: { type: 'bar', height: 380, marginTop: 36 },
       title: { text: 'Crime Index by Subcategory (100 = National Median)' },
       xAxis: { categories: detailRows.map(r => r.label), labels: { style: { fontSize: '11px' } } },
-      yAxis: { title: { text: null }, plotLines: [{ value: 100, color: '#ef4444', width: 2, dashStyle: 'Dash', label: { text: 'Median', style: { color: '#ef4444', fontSize: '11px' } } }] },
+      yAxis: { title: { text: null }, plotLines: [{
+        value: 100, color: '#ef4444', width: 2, dashStyle: 'Dash', zIndex: 5,
+        label: {
+          text: 'National median (100)',
+          align: 'center', verticalAlign: 'top', textAlign: 'center',
+          rotation: 0, y: -14, x: 0,
+          style: { color: '#ef4444', fontSize: '11px', fontWeight: '600' },
+        },
+      }] },
       series: [
         { name: geos.target.label, data: detailRows.map(r => +(r.values.target || 0)), color: '#818CF8' },
         { name: geos.county.label, data: detailRows.map(r => +(r.values.county || 0)), color: '#A5B4FC' },
@@ -7124,7 +7341,7 @@ function renderSafety(parent, geos, D) {
 }
 
 // ============================================================
-// SECTION 6 — MOBILITY (LIVE: ACS only; LODES planned)
+// SECTION 6 — MOBILITY (LIVE: ACS + LEHD LODES residence-area characteristics; OD flows still pending)
 // ============================================================
 function renderMobility(parent, geos, D) {
   const body = createSection(parent, 6, 'Mobility', 'live');
