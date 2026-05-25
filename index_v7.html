@@ -929,7 +929,7 @@
       <!-- populated by openSurveyPickerModal() -->
     </div>
     <div class="flex items-center justify-between pt-4 mt-4 border-t border-gray-100">
-      <a href="#" onclick="alert('Curated-list management — Phase 2. For now, the 10 surveys are fixed.'); return false;" class="text-xs text-indigo-600 hover:underline">⚙ Manage curated list</a>
+      <a href="#" onclick="alert('Curated-list management is coming soon. For now, the 11 surveys are fixed.'); return false;" class="text-xs text-indigo-600 hover:underline">⚙ Manage curated list</a>
       <button onclick="closeModal('surveyPickerModal')" class="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
     </div>
   </div>
@@ -1011,8 +1011,8 @@
         <div class="v7-menu" id="exportMenu" role="menu">
           <button onclick="window.print(); closeV7Menus();">Print / PDF</button>
           <button onclick="showOnePager(); closeV7Menus();">Council One-Pager</button>
-          <button onclick="alert('Word export coming in Sprint 2 — will generate a formatted .docx with cover page, tables, narratives, and signal summary.'); closeV7Menus();">Download Word</button>
-          <button onclick="alert('Google Doc export coming in Sprint 2 — same content as the Word export, opened directly in your Google Drive so your team can edit collaboratively.'); closeV7Menus();">Open in Google Doc</button>
+          <button onclick="alert('Word export coming soon — will generate a formatted .docx with cover page, tables, narratives, and signal summary.'); closeV7Menus();">Download Word</button>
+          <button onclick="alert('Google Doc export coming soon — same content as the Word export, opened directly in your Google Drive so your team can edit collaboratively.'); closeV7Menus();">Open in Google Doc</button>
           <div class="v7-menu-divider"></div>
           <div class="v7-menu-label">Number rounding</div>
           <button onclick="setRoundTo(''); closeV7Menus();">No rounding</button>
@@ -1475,7 +1475,7 @@ function applyComparisonChanges() {
 }
 function quickAddPreset(kind) {
   // Stub — real impl queries SE API for size/income/adjacency-similar peers.
-  alert(`Quick-add preset "${kind}" — wires up to peer-set query in Sprint 2.`);
+  alert(`Quick-add preset "${kind}" — peer-set algorithm coming soon. For now, add comparisons one at a time via the search.`);
 }
 function saveComparisonSet() {
   const name = prompt('Name this comparison set:');
@@ -1696,7 +1696,7 @@ function openMethodologyPage(e) {
     '• HUD CHAS: not published below place. Falls back to the enclosing place.\n' +
     '• HUD FMR / AMI: published only at MSA. Falls back to the enclosing MSA.\n' +
     '• SE Crime Index: published only at place / county / state. Not available for sub-place custom areas.\n\n' +
-    'A public methodology page (replacing this dialog) ships in Sprint 2.'
+    'A public methodology page (replacing this dialog) is coming soon.'
   );
 }
 
@@ -1727,8 +1727,8 @@ const SECTION_TEMPLATE_TABLES = {
     { id: 'pop_hh_type',     title: 'Household type',                            rendered: true,  requirement: 'recommended', note: 'ACS A11001' },
     { id: 'pop_educ',        title: 'Educational attainment',                    rendered: true,  requirement: 'recommended', note: 'ACS A12002' },
     { id: 'pop_hh_size',     title: 'Average household size',                    rendered: true,  requirement: 'optional',    note: 'ACS B25010 (ORG)' },
-    { id: 'pop_nativity',    title: 'Nativity + foreign-born',                   rendered: false, requirement: 'optional',    note: 'ACS B05002 — Sprint 3' },
-    { id: 'pop_language',    title: 'Language at home (detailed)',               rendered: false, requirement: 'optional',    note: 'ACS B16001 — Sprint 3' },
+    { id: 'pop_nativity',    title: 'Nativity + foreign-born',                   rendered: false, requirement: 'optional',    note: 'ACS B05002' },
+    { id: 'pop_language',    title: 'Language at home (detailed)',               rendered: false, requirement: 'optional',    note: 'ACS B16001' },
   ],
   economic_conditions: [
     { id: 'econ_income',     title: 'Median household income (real $ trend)',    rendered: true,  requirement: 'required',    note: 'ACS A14006 + CPI-U' },
@@ -1737,9 +1737,9 @@ const SECTION_TEMPLATE_TABLES = {
     { id: 'econ_poverty',    title: 'Poverty status',                            rendered: true,  requirement: 'required',    note: 'ACS A13004' },
     { id: 'econ_unemp',      title: 'Unemployment (ACS + LAUS)',                  rendered: true,  requirement: 'required',    note: 'ACS A17005 + LAUS ORGU' },
     { id: 'econ_naics2',     title: 'Employment by NAICS 2-digit (CBP)',          rendered: true,  requirement: 'recommended', note: 'CBP T011 + T001' },
-    { id: 'econ_naics4',     title: 'Employment by NAICS 4-digit',                rendered: false, requirement: 'optional',    note: 'CBP detail — Sprint 3' },
-    { id: 'econ_occupation', title: 'Occupational composition',                   rendered: false, requirement: 'optional',    note: 'ACS C24010 — Sprint 3' },
-    { id: 'econ_lf_demo',    title: 'Labor force by demographic',                 rendered: false, requirement: 'optional',    note: 'ACS B23001 — Sprint 3' },
+    { id: 'econ_naics4',     title: 'Employment by NAICS 4-digit',                rendered: false, requirement: 'optional',    note: 'CBP detail' },
+    { id: 'econ_occupation', title: 'Occupational composition',                   rendered: false, requirement: 'optional',    note: 'ACS C24010' },
+    { id: 'econ_lf_demo',    title: 'Labor force by demographic',                 rendered: false, requirement: 'optional',    note: 'ACS B23001' },
   ],
   housing: [
     { id: 'hsg_market',          title: 'Housing market indicators',              rendered: true,  requirement: 'required',    note: 'ACS A10036/A18009/A10047 etc.' },
@@ -1752,9 +1752,9 @@ const SECTION_TEMPLATE_TABLES = {
     { id: 'hsg_fmr',             title: 'HUD FMR by bedroom (MSA)',               rendered: true,  requirement: 'recommended', note: 'HUD FMR T006' },
     { id: 'hsg_ami',             title: 'HUD AMI / Income Limits',                rendered: true,  requirement: 'recommended', note: 'HUD T002–T005' },
     { id: 'hsg_redfin',          title: 'Real-time market (Redfin)',              rendered: true,  requirement: 'optional',    note: 'Redfin weekly snapshot' },
-    { id: 'hsg_chas_t9',         title: 'Cost burden by race (CHAS T9)',          rendered: false, requirement: 'recommended', note: 'CHAS T9_est — Sprint 3' },
-    { id: 'hsg_chas_t11',        title: 'Housing problems by income (CHAS T11)',  rendered: false, requirement: 'optional',    note: 'CHAS T11_est — Sprint 3' },
-    { id: 'hsg_chas_t12',        title: 'Year built × cost burden (CHAS T12)',    rendered: false, requirement: 'optional',    note: 'CHAS T12_est — Sprint 3' },
+    { id: 'hsg_chas_t9',         title: 'Cost burden by race (CHAS T9)',          rendered: false, requirement: 'recommended', note: 'CHAS T9_est' },
+    { id: 'hsg_chas_t11',        title: 'Housing problems by income (CHAS T11)',  rendered: false, requirement: 'optional',    note: 'CHAS T11_est' },
+    { id: 'hsg_chas_t12',        title: 'Year built × cost burden (CHAS T12)',    rendered: false, requirement: 'optional',    note: 'CHAS T12_est' },
     { id: 'hsg_chas_t18a',       title: 'Affordable+available, owner w/mortgage', rendered: false, requirement: 'optional',    note: 'CHAS T18A_est — HNA gap analysis' },
     { id: 'hsg_chas_t18b',       title: 'Affordable+available, owner w/o mortgage',rendered: false, requirement: 'optional',    note: 'CHAS T18B_est — HNA gap analysis' },
     { id: 'hsg_chas_t18c',       title: 'Affordable+available, renter',           rendered: false, requirement: 'optional',    note: 'CHAS T18C_est — HNA gap (Susan Au)' },
@@ -1764,26 +1764,26 @@ const SECTION_TEMPLATE_TABLES = {
     { id: 'eq_lep',            title: 'Limited English Proficiency',              rendered: true,  requirement: 'recommended', note: 'ACS C16001 (ORG)' },
     { id: 'eq_no_vehicle',     title: 'Households without a vehicle',             rendered: true,  requirement: 'optional',    note: 'ACS B25044 (ORG)' },
     { id: 'eq_svi_county',     title: 'CDC SVI raw indicators (county)',          rendered: true,  requirement: 'optional',    note: 'CDC SVI 2022 v2 endpoint' },
-    { id: 'eq_svi_tract',      title: 'CDC SVI at tract (custom areas)',           rendered: false, requirement: 'optional',    note: 'CDC SVI 2022 SL140 — Sprint 3' },
-    { id: 'eq_affh_recap',     title: 'AFFH R/ECAP designation',                  rendered: false, requirement: 'optional',    note: 'HUD AFFH — Phase 1+' },
+    { id: 'eq_svi_tract',      title: 'CDC SVI at tract (custom areas)',           rendered: false, requirement: 'optional',    note: 'CDC SVI 2022 SL140' },
+    { id: 'eq_affh_recap',     title: 'AFFH R/ECAP designation',                  rendered: false, requirement: 'optional',    note: 'HUD AFFH' },
     { id: 'eq_ejscreen',       title: 'EPA EJScreen indicators',                  rendered: true,  requirement: 'optional',    note: 'EJScreen 2025 — rendered in Section 8 (Environmental Justice & Cumulative Burden)' },
   ],
   public_safety: [
     { id: 'safety_crime',          title: 'SE Crime Index (10 categories)',         rendered: true,  requirement: 'required',    note: 'SE_CRIME_INDEX — place / county / state' },
-    { id: 'safety_crash',          title: 'Crash safety data',                      rendered: false, requirement: 'optional',    note: 'State DOT / FARS — Phase 1' },
-    { id: 'safety_crime_bg',       title: 'Block-group crime (top-100 cities)',     rendered: false, requirement: 'optional',    note: 'Sub-place crime — Sprint 3' },
+    { id: 'safety_crash',          title: 'Crash safety data',                      rendered: false, requirement: 'optional',    note: 'State DOT / FARS' },
+    { id: 'safety_crime_bg',       title: 'Block-group crime (top-100 cities)',     rendered: false, requirement: 'optional',    note: 'Sub-place crime' },
   ],
   mobility: [
     { id: 'mob_commute',           title: 'Means of transport (drive-alone, etc.)', rendered: true,  requirement: 'required',    note: 'ACS A09005' },
     { id: 'mob_travel_time',       title: 'Travel time distribution',                rendered: true,  requirement: 'recommended', note: 'ACS A09001 + A09003' },
     { id: 'mob_lehd_naics',        title: 'Jobs by NAICS sector (LEHD residence)',  rendered: true,  requirement: 'recommended', note: 'LEHD ORGRACN' },
-    { id: 'mob_lehd_od',           title: 'LEHD origin-destination flows',          rendered: false, requirement: 'optional',    note: 'LEHD OD tables — Sprint 3' },
+    { id: 'mob_lehd_od',           title: 'LEHD origin-destination flows',          rendered: false, requirement: 'optional',    note: 'LEHD OD tables' },
   ],
   market_land_use: [
     { id: 'market_easi',           title: 'Consumer expenditure (EASI)',            rendered: true,  requirement: 'recommended', note: 'EASI MPD_113' },
     { id: 'market_costar',         title: 'Commercial vacancy + rents (CoStar)',    rendered: false, requirement: 'optional',    note: 'CoStar — Phase 2' },
     { id: 'market_lightcast',      title: 'Sub-county employment (Lightcast)',      rendered: false, requirement: 'optional',    note: 'Lightcast — Phase 2' },
-    { id: 'market_pipeline',       title: 'Development pipeline (ConstructConnect)', rendered: false, requirement: 'optional',    note: 'ConstructConnect — Phase 1+' },
+    { id: 'market_pipeline',       title: 'Development pipeline (ConstructConnect)', rendered: false, requirement: 'optional',    note: 'ConstructConnect' },
   ],
 };
 
@@ -1926,7 +1926,7 @@ function renderTablePickerRow(entry, idx, isComing) {
   // v7 update: drop the per-row Required/Recommended/Optional tags. The
   // required-ness is already conveyed by the disabled checkbox + the green
   // is-required row tint; the recommended/optional distinction was noise.
-  const comingTag = isComing ? '<span class="tp-tag tp-tag-coming">Sprint 3</span>' : '';
+  const comingTag = isComing ? '<span class="tp-tag tp-tag-coming">Coming soon</span>' : '';
   const isRequired = entry.requirement === 'required';
   const checked = entry.rendered && !entry.isHidden;
   const disabled = isRequired || isComing;
@@ -5570,7 +5570,7 @@ async function generateBriefForCustomTarget() {
   const customLabel = TargetState.customName || `Custom area (${tracts.length} tracts)`;
   const geos = {
     target: { fips: 'CUSTOM_' + tracts.length, sl: 'SL140', name: customLabel, label: customLabel, isCustom: true, tractGeoids: tracts },
-    msa:    { fips: '', sl: 'SL310', name: '— MSA fallback (Sprint 3)', label: '— MSA' },
+    msa:    { fips: '', sl: 'SL310', name: '— MSA fallback (coming soon)', label: '— MSA' },
     county: { fips: countyFips, sl: 'SL050', name: countyName, label: countyName.replace(/, .*/, '').trim() },
     state:  { fips: stateFips,  sl: 'SL040', name: stateName,  label: stateName },
     fmrGeo: null,
@@ -5720,8 +5720,8 @@ function insertCustomTargetBanner(missing, customLabel, tractCount) {
       are aggregated directly from the selected tracts (counts summed; rates and medians as
       population-weighted means). The following sources aren't yet wired for custom targets
       and are omitted from this report: <strong>${missing.join(', ')}</strong>.
-      Sprint 3 wires CHAS / FMR / AMI / Crime fallbacks to the enclosing county and MSA with
-      explicit ⚠ flags on the affected rows.
+      Production will wire CHAS / FMR / AMI / Crime fallbacks to the enclosing county
+      and MSA with explicit ⚠ flags on the affected rows.
     </p>
   `;
   sections.prepend(banner);
@@ -7138,13 +7138,13 @@ function renderHousing(parent, geos, D) {
   body.innerHTML += placeholderCard(
     'Quarterly Residential Vacancy (HUD USPS)',
     'HUD USPS postal-tract quarterly vacancy rates provide a more current and more spatially granular complement to the ACS 5-yr vacancy figure above. Useful for tight-market and distressed-market detection.',
-    'HUD USPS · Phase 1'
+    'HUD USPS · coming soon'
   );
 
   body.innerHTML += narrativeBlock(
     `ACS reports renter cost burden in ${geos.target.name} at <strong>${fmt(t.PctCostBurdened, 'pct')}</strong> of renter households paying 30%+ of income on housing, and <strong>${fmt(t.PctSevereBurden, 'pct')}</strong> at 50%+ <span class="cite">(ACS 2020-2024, Table A18002)</span>. Owner cost burden is <strong>${fmt(t.PctOwnerCostBurdened, 'pct')}</strong> at 30%+ <span class="cite">(ACS Table B25091)</span>. These descriptive shares are commonly associated with displacement risk and unmet-need pressure in tracts with limited new construction, though administrative data alone cannot establish causation — push factors (rent growth, eviction filings) and pull factors (in-migration) are not separated in this view. ` +
     `Median gross rent is <strong>${fmt(rentNew, 'dollar')}</strong> <span class="cite">(ACS Table A18009)</span>, a <strong>${arrow(rentPctReal)}</strong> change in real (2024$) terms over the past decade <span class="cite">(CPI-U adjusted, BLS CUUR0000SA0)</span>, alongside real median household income change of <strong>${arrow(incPctReal)}</strong> <span class="cite">(ACS Table A14006)</span>. The gap between the two trend lines is the descriptive evidence cited in housing-cost narratives; whether it has compressed available units, shifted tenure, or driven out-migration is a separate empirical question that ACS averages do not resolve. ` +
-    `Vacancy is ${fmt(D.target.VacancyRate, 'pct')} <span class="cite">(ACS Tables A10060/A10047)</span>; ACS vacancy is averaged over five years and tends to lag real-time market tightness — HUD USPS quarterly vacancy is the more timely complement and is on the Phase 1 roadmap. <strong>${fmt(D.target.PctPre1960, 'pct')}</strong> of housing stock predates 1960, the EPA lead-paint cohort threshold <span class="cite">(ACS Table A10055)</span>; pre-1960 share is correlated with elevated lead-hazard prevalence in housing built before federal residential lead-paint bans, and is the screening figure HUD/EPA programs use as a starting point. ` +
+    `Vacancy is ${fmt(D.target.VacancyRate, 'pct')} <span class="cite">(ACS Tables A10060/A10047)</span>; ACS vacancy is averaged over five years and tends to lag real-time market tightness — HUD USPS quarterly vacancy is the more timely complement and is on the roadmap. <strong>${fmt(D.target.PctPre1960, 'pct')}</strong> of housing stock predates 1960, the EPA lead-paint cohort threshold <span class="cite">(ACS Table A10055)</span>; pre-1960 share is correlated with elevated lead-hazard prevalence in housing built before federal residential lead-paint bans, and is the screening figure HUD/EPA programs use as a starting point. ` +
     `These descriptive metrics are the data layer planners cite in ConPlan NA-10, housing-element needs assessments, and AFFH submissions. Federal eligibility and unmet-need determinations require program-specific calculations against HUD-published thresholds (FMR, AMI, low/mod limits) — not these raw values alone.`,
     `ACS 2020-2024 & 2010-2014 5-Year Estimates; HUD CHAS 2018-2022; HUD Fair Market Rent FY2025. Inflation: BLS CPI-U (CUUR0000SA0), 2014→2024 scale ≈ ${CPI_2014_TO_2024.toFixed(4)}. Claim-strength: descriptive cross-sectional ACS averages; trend comparisons are correlational, not causal.`
   );
