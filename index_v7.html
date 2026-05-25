@@ -3703,6 +3703,26 @@ const COMPARISON_GEOS = {
   },
 };
 
+// Shorten geography names returned by the SE API into planner-friendly labels
+// for the comparison chips + comparison editor checklist. Mirrors the format
+// used by the hardcoded COMPARISON_GEOS labels.
+//   MSA:    "Burlington-South Burlington, VT MSA" -> "Burlington MSA"
+//   County: "Chittenden County, VT"               -> "Chittenden Co."
+//   State:  "Vermont"                             -> "Vermont"
+function shortenGeoLabel(type, fullName) {
+  if (!fullName) return type.toUpperCase();
+  if (type === 'msa') {
+    // Take the first city segment (split on hyphen or comma), append " MSA"
+    const first = String(fullName).split(/[-,]/)[0].trim();
+    return first ? first + ' MSA' : 'MSA';
+  }
+  if (type === 'county') {
+    // Drop the state suffix and abbreviate "County" -> "Co."
+    return String(fullName).replace(/,.*$/, '').replace(/ County$/i, ' Co.').trim();
+  }
+  return String(fullName).trim();
+}
+
 function resolveComparisonGeos(targetFips) {
   // TODO: auto-resolve via Census delineation files (Phase 1).
   return COMPARISON_GEOS[targetFips] || null;
@@ -3972,13 +3992,17 @@ async function selectGeo(name, lat, lon) {
     } else {
       swap.classList.add('hidden');
     }
-    // Auto-resolve comparison geos and pump them into ComparisonState
+    // Auto-resolve comparison geos and pump them into ComparisonState.
+    // Chips use the same planner-friendly short labels the hardcoded COMPARISON_GEOS
+    // uses ("Burlington MSA", "Chittenden Co.") — the API-returned long names like
+    // "Burlington-South Burlington, VT MSA" get clipped in narrow chip / column
+    // contexts. shortenGeoLabel() takes the first city segment + a short type tag.
     const resolved = await resolveComparisonGeosAuto(match.fips, stateFips, stateAbbr);
     if (resolved) {
       ComparisonState.geos = [
-        resolved.msa.fips    ? { type: 'msa',    fips: resolved.msa.fips,    label: resolved.msa.name } : null,
-        resolved.county.fips ? { type: 'county', fips: resolved.county.fips, label: resolved.county.name } : null,
-        resolved.state.fips  ? { type: 'state',  fips: resolved.state.fips,  label: resolved.state.name } : null,
+        resolved.msa.fips    ? { type: 'msa',    fips: resolved.msa.fips,    label: shortenGeoLabel('msa',    resolved.msa.name) } : null,
+        resolved.county.fips ? { type: 'county', fips: resolved.county.fips, label: shortenGeoLabel('county', resolved.county.name) } : null,
+        resolved.state.fips  ? { type: 'state',  fips: resolved.state.fips,  label: shortenGeoLabel('state',  resolved.state.name) } : null,
       ].filter(Boolean);
       renderComparisonChips();
     }
