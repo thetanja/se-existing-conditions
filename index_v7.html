@@ -3731,21 +3731,23 @@ function resolveComparisonGeos(targetFips) {
 
 // ============================================================
 // CPI-U (BLS, annual avg, CUUR0000SA0). Used to convert historical
-// dollar values to 2022$ for real-dollar comparison with ACS 2020-2024.
-// ACS 5-yr period center years: 2010-2014 → 2012; 2020-2024 → 2022.
+// dollar values to 2024$ for real-dollar comparison with ACS 2020-2024.
+// Census ACS 5-yr estimates are inflation-adjusted to the LAST YEAR of
+// the 5-yr window: ACS 2010-2014 publishes in 2014$, ACS 2020-2024
+// publishes in 2024$. So the real-dollar 10-yr trend converts 2014→2024.
 // ============================================================
 const CPI_U_ANNUAL = {
   2012: 229.594,
   2014: 236.736,
   2019: 255.657,
   2022: 292.655,
-  2024: 313.689, // preliminary / annualized
+  2024: 313.689, // BLS annual avg
 };
-// Scale factor: ACS 2010-2014 dollars → 2022$
-const CPI_2012_TO_2022 = CPI_U_ANNUAL[2022] / CPI_U_ANNUAL[2012]; // ≈ 1.2746
-function toReal2022(nominal) {
+// Scale factor: ACS 2010-2014 dollars → 2024$
+const CPI_2014_TO_2024 = CPI_U_ANNUAL[2024] / CPI_U_ANNUAL[2014]; // ≈ 1.325
+function toReal2024(nominal) {
   if (nominal == null || isNaN(nominal)) return null;
-  return nominal * CPI_2012_TO_2022;
+  return nominal * CPI_2014_TO_2024;
 }
 
 // ============================================================
@@ -6003,11 +6005,11 @@ function computeOnePagerFacts(D, geos) {
   const medianAge = val(t, 'SE_A01004_001');
   const medInc    = val(t, 'SE_A14006_001');
   const incOld    = val(h, 'SE_A14006_001');
-  const incOldReal = toReal2022(incOld);
+  const incOldReal = toReal2024(incOld);
   const incPctReal = (incOldReal && medInc) ? ((medInc - incOldReal) / incOldReal) * 100 : null;
   const rentNew  = val(t, 'SE_A18009_001');
   const rentOld  = val(h, 'SE_A18009_001');
-  const rentOldReal = toReal2022(rentOld);
+  const rentOldReal = toReal2024(rentOld);
   const rentPctReal = (rentOldReal && rentNew) ? ((rentNew - rentOldReal) / rentOldReal) * 100 : null;
   const rentIncSpread = (rentPctReal != null && incPctReal != null) ? rentPctReal - incPctReal : null;
   const bachOver = (() => {
@@ -6100,9 +6102,9 @@ function onePagerNarrative(f, geos) {
   const incCompare = f.incState != null && f.medInc != null ?
     ` — ${f.medInc > f.incState ? 'above' : 'below'} the <strong>${fmt(f.incState, 'dollar')}</strong> state median` : '';
   const incFrame = f.incPctReal == null ? '' :
-    f.incPctReal >= 5 ? ` In real (2022$) terms, household incomes rose <strong>${f.incPctReal.toFixed(1)}%</strong> over the decade — outpacing inflation.`
-    : f.incPctReal >= 0 ? ` In real (2022$) terms, household incomes rose <strong>${f.incPctReal.toFixed(1)}%</strong> — essentially treading water against inflation.`
-    : ` In real (2022$) terms, household incomes fell <strong>${Math.abs(f.incPctReal).toFixed(1)}%</strong>, eroding purchasing power before housing costs.`;
+    f.incPctReal >= 5 ? ` In real (2024$) terms, household incomes rose <strong>${f.incPctReal.toFixed(1)}%</strong> over the decade — outpacing inflation.`
+    : f.incPctReal >= 0 ? ` In real (2024$) terms, household incomes rose <strong>${f.incPctReal.toFixed(1)}%</strong> — essentially treading water against inflation.`
+    : ` In real (2024$) terms, household incomes fell <strong>${Math.abs(f.incPctReal).toFixed(1)}%</strong>, eroding purchasing power before housing costs.`;
   const bachFrame = f.bachOver == null ? '' :
     f.bachStateOver != null
       ? ` <strong>${f.bachOver.toFixed(1)}%</strong> of adults hold a bachelor's degree or higher, ${vsState(f.bachOver, f.bachStateOver)}.`
@@ -6209,13 +6211,13 @@ function buildOnePagerTiles(f) {
   tiles.push(tile('Median age', f.medianAge == null ? '—' : Math.round(f.medianAge), 'years'));
   // CONTEXT (4)
   tiles.push(tile('Median HH income', fmt(f.medInc, 'dollar'), 'ACS A14006'));
-  tiles.push(tile('Real income Δ (10-yr)', signed(f.incPctReal), 'CPI-U 2022$'));
+  tiles.push(tile('Real income Δ (10-yr)', signed(f.incPctReal), 'CPI-U 2024$'));
   tiles.push(tile("Bachelor's +", f.bachOver == null ? '—' : f.bachOver.toFixed(1) + '%', 'ACS A12002'));
   tiles.push(tile('Unemployment', fmt(f.unemp, 'pct'), 'ACS A17005'));
   // EVIDENCE (5)
   tiles.push(tile('% Renter', fmt(f.pctRenter, 'pct'), 'Tenure'));
   tiles.push(tile('Median gross rent', fmt(f.rentNew, 'dollar'), 'ACS A18009'));
-  tiles.push(tile('Real rent Δ (10-yr)', signed(f.rentPctReal), 'CPI-U 2022$'));
+  tiles.push(tile('Real rent Δ (10-yr)', signed(f.rentPctReal), 'CPI-U 2024$'));
   tiles.push(tile('Severe renter burden', fmt(f.sevBurden, 'pct'), '50%+ of income'));
   tiles.push(tile('Owner 30%+ burden', fmt(f.ownerBurden, 'pct'), 'ACS B25091'));
   // MEANING (3) — CDBG 20% is federal, fixed
@@ -6258,7 +6260,7 @@ function showOnePager() {
       </ul>`;
   }
   document.getElementById('opFooter').innerHTML =
-    `Sources: ACS 5-yr 2020–2024 (current) &amp; 2010–2014 (decade baseline) · HUD Fair Market Rent FY2025 · BLS LAUS · CPI-U BLS CUUR0000SA0 (2012→2022 scale ≈ ${CPI_2012_TO_2022.toFixed(3)}). ` +
+    `Sources: ACS 5-yr 2020–2024 (current) &amp; 2010–2014 (decade baseline) · HUD Fair Market Rent FY2025 · BLS LAUS · CPI-U BLS CUUR0000SA0 (2014→2024 scale ≈ ${CPI_2014_TO_2024.toFixed(3)}). ` +
     `Generated ${new Date().toLocaleDateString()} · Social Explorer Community Intelligence Platform.`;
 
   document.body.classList.add('onepager-open');
@@ -7076,26 +7078,26 @@ function renderHousing(parent, geos, D) {
     }
     body.innerHTML += compareTable(chasRows, geos, { title: 'Cost Burden by AMI Tier (HUD CHAS 2018-2022 — household counts)' });
   }
-  body.innerHTML += methodologyBlock(`ACS tables A10036/A10037/A10047/A10055/A10060/A18002/A18009/B25024/B25014/B25091 at all four geographies (ACS 2020-2024 5-yr). HUD Fair Market Rent + Income Limits FY2025 at MSA. HUD CHAS 2018-2022 5-yr Table T7 (tenure × AMI × cost burden) at target, county, and state (CHAS not published at MSA). CPI-U (BLS CUUR0000SA0): 2012 avg ${CPI_U_ANNUAL[2012]}, 2022 avg ${CPI_U_ANNUAL[2022]}; scale ≈ ${CPI_2012_TO_2022.toFixed(4)}.`);
+  body.innerHTML += methodologyBlock(`ACS tables A10036/A10037/A10047/A10055/A10060/A18002/A18009/B25024/B25014/B25091 at all four geographies (ACS 2020-2024 5-yr). HUD Fair Market Rent + Income Limits FY2025 at MSA. HUD CHAS 2018-2022 5-yr Table T7 (tenure × AMI × cost burden) at target, county, and state (CHAS not published at MSA). CPI-U (BLS CUUR0000SA0): 2014 avg ${CPI_U_ANNUAL[2014]}, 2024 avg ${CPI_U_ANNUAL[2024]}; scale ≈ ${CPI_2014_TO_2024.toFixed(4)}.`);
 
-  // 10-yr trend (target only) — nominal + CPI-adjusted (2022$) columns
+  // 10-yr trend (target only) — nominal + CPI-adjusted (2024$) columns
   const rentOld = val(h, `${mr}_001`), rentNew = val(D.target, `${mr}_001`);
   const incOld  = val(h, `${TABLES.medianIncome.prefix}_001`), incNew = val(D.target, `${TABLES.medianIncome.prefix}_001`);
   const rentPctNom = rentOld && rentNew ? ((rentNew - rentOld) / rentOld) * 100 : null;
   const incPctNom  = incOld && incNew ? ((incNew - incOld) / incOld) * 100 : null;
-  const rentOldReal = toReal2022(rentOld);
-  const incOldReal  = toReal2022(incOld);
+  const rentOldReal = toReal2024(rentOld);
+  const incOldReal  = toReal2024(incOld);
   const rentPctReal = rentOldReal && rentNew ? ((rentNew - rentOldReal) / rentOldReal) * 100 : null;
   const incPctReal  = incOldReal && incNew ? ((incNew - incOldReal) / incOldReal) * 100 : null;
   const arrow = (v) => v == null ? '—' : (v > 0 ? '+' : '') + v.toFixed(1) + '%';
   body.innerHTML += `<div class="mt-6 mb-2 flex items-center justify-between flex-wrap gap-2">
-    <h4 class="text-sm font-semibold text-gray-700">10-Year Trend — target only, CPI-U adjusted to 2022$</h4>
-    <span class="text-xs text-gray-500">CPI-U 2012→2022 scale factor ≈ ${CPI_2012_TO_2022.toFixed(4)}</span>
+    <h4 class="text-sm font-semibold text-gray-700">10-Year Trend — target only, CPI-U adjusted to 2024$</h4>
+    <span class="text-xs text-gray-500">CPI-U 2014→2024 scale factor ≈ ${CPI_2014_TO_2024.toFixed(4)}</span>
   </div>`;
   body.innerHTML += `<table class="data-table w-full text-sm"><thead><tr>
     <th>Indicator</th>
     <th>2010-14 (nominal)</th>
-    <th>2010-14 (2022$)</th>
+    <th>2010-14 (2024$)</th>
     <th>2020-24</th>
     <th>Nominal Δ</th>
     <th>Real Δ</th>
@@ -7122,8 +7124,8 @@ function renderHousing(parent, geos, D) {
   if (rentOldReal && rentNew && incOldReal && incNew) {
     hcChart(body, {
       chart: { type: 'line', height: 320 },
-      title: { text: 'Rent vs. Income — 10-Year Trend (CPI-Adjusted to 2022$)' },
-      xAxis: { categories: ['2010-2014 (2022$)', '2020-2024'], crosshair: { width: 1, color: '#D2D5DA', dashStyle: 'Dot' } },
+      title: { text: 'Rent vs. Income — 10-Year Trend (CPI-Adjusted to 2024$)' },
+      xAxis: { categories: ['2010-2014 (2024$)', '2020-2024'], crosshair: { width: 1, color: '#D2D5DA', dashStyle: 'Dot' } },
       yAxis: { title: { text: null }, labels: { format: '${value:,.0f}' } },
       tooltip: { shared: true, valuePrefix: '$', valueDecimals: 0 },
       series: [
@@ -7141,10 +7143,10 @@ function renderHousing(parent, geos, D) {
 
   body.innerHTML += narrativeBlock(
     `ACS reports renter cost burden in ${geos.target.name} at <strong>${fmt(t.PctCostBurdened, 'pct')}</strong> of renter households paying 30%+ of income on housing, and <strong>${fmt(t.PctSevereBurden, 'pct')}</strong> at 50%+ <span class="cite">(ACS 2020-2024, Table A18002)</span>. Owner cost burden is <strong>${fmt(t.PctOwnerCostBurdened, 'pct')}</strong> at 30%+ <span class="cite">(ACS Table B25091)</span>. These descriptive shares are commonly associated with displacement risk and unmet-need pressure in tracts with limited new construction, though administrative data alone cannot establish causation — push factors (rent growth, eviction filings) and pull factors (in-migration) are not separated in this view. ` +
-    `Median gross rent is <strong>${fmt(rentNew, 'dollar')}</strong> <span class="cite">(ACS Table A18009)</span>, a <strong>${arrow(rentPctReal)}</strong> change in real (2022$) terms over the past decade <span class="cite">(CPI-U adjusted, BLS CUUR0000SA0)</span>, alongside real median household income change of <strong>${arrow(incPctReal)}</strong> <span class="cite">(ACS Table A14006)</span>. The gap between the two trend lines is the descriptive evidence cited in housing-cost narratives; whether it has compressed available units, shifted tenure, or driven out-migration is a separate empirical question that ACS averages do not resolve. ` +
+    `Median gross rent is <strong>${fmt(rentNew, 'dollar')}</strong> <span class="cite">(ACS Table A18009)</span>, a <strong>${arrow(rentPctReal)}</strong> change in real (2024$) terms over the past decade <span class="cite">(CPI-U adjusted, BLS CUUR0000SA0)</span>, alongside real median household income change of <strong>${arrow(incPctReal)}</strong> <span class="cite">(ACS Table A14006)</span>. The gap between the two trend lines is the descriptive evidence cited in housing-cost narratives; whether it has compressed available units, shifted tenure, or driven out-migration is a separate empirical question that ACS averages do not resolve. ` +
     `Vacancy is ${fmt(D.target.VacancyRate, 'pct')} <span class="cite">(ACS Tables A10060/A10047)</span>; ACS vacancy is averaged over five years and tends to lag real-time market tightness — HUD USPS quarterly vacancy is the more timely complement and is on the Phase 1 roadmap. <strong>${fmt(D.target.PctPre1960, 'pct')}</strong> of housing stock predates 1960, the EPA lead-paint cohort threshold <span class="cite">(ACS Table A10055)</span>; pre-1960 share is correlated with elevated lead-hazard prevalence in housing built before federal residential lead-paint bans, and is the screening figure HUD/EPA programs use as a starting point. ` +
     `These descriptive metrics are the data layer planners cite in ConPlan NA-10, housing-element needs assessments, and AFFH submissions. Federal eligibility and unmet-need determinations require program-specific calculations against HUD-published thresholds (FMR, AMI, low/mod limits) — not these raw values alone.`,
-    `ACS 2020-2024 & 2010-2014 5-Year Estimates; HUD CHAS 2018-2022; HUD Fair Market Rent FY2025. Inflation: BLS CPI-U (CUUR0000SA0), 2012→2022 scale ≈ ${CPI_2012_TO_2022.toFixed(4)}. Claim-strength: descriptive cross-sectional ACS averages; trend comparisons are correlational, not causal.`
+    `ACS 2020-2024 & 2010-2014 5-Year Estimates; HUD CHAS 2018-2022; HUD Fair Market Rent FY2025. Inflation: BLS CPI-U (CUUR0000SA0), 2014→2024 scale ≈ ${CPI_2014_TO_2024.toFixed(4)}. Claim-strength: descriptive cross-sectional ACS averages; trend comparisons are correlational, not causal.`
   );
 }
 
