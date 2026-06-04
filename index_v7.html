@@ -4232,6 +4232,13 @@ function createSection(parent, num, title, status, isOpen = false) {
 
 // Build a 4-column comparison table: Target | MSA | County | State
 // rows: [{ label, values: {target, msa, county, state}, format }]
+// MOE display switch. Decision (Beveridge/Tanja, 2026-06-04): MOE is NOT shown
+// in EC/Studio — "the number is the number." The ± compute helpers (pm/pmShare/
+// moeShareRow/…) and row.moe data are KEPT as the basis for the future small-
+// geography reliability guardrail, but nothing renders while this is false.
+// Defensibility is carried by source-provenance citations, not by ±.
+const SHOW_MOE = false;
+
 function compareTable(rows, geos, opts = {}) {
   const title = opts.title || '';
   const tid = 'tbl_' + Math.random().toString(36).slice(2, 10);
@@ -4285,7 +4292,7 @@ function compareTable(rows, geos, opts = {}) {
     html += `<tr${isDelta ? ' class="delta-row"' : ''}><td class="edit-col text-center"><input type="checkbox" class="row-select" onchange="updateToolbar('${tid}')"></td><td class="font-medium text-gray-700"><span contenteditable="true" spellcheck="false">${row.label}</span>${uni}</td>`;
     for (const c of cols) {
       const v = row.values[c.key];
-      const moeStr = (moeAllowed && row.moe) ? (row.moe[c.key] || '') : '';
+      const moeStr = (SHOW_MOE && moeAllowed && row.moe) ? (row.moe[c.key] || '') : '';
       const moeEl = moeStr ? `<span class="moe-val">${moeStr}</span>` : '';
       // Change/shift cells: signed +/− value (direction only — no green/red, since
       // "good" direction is indicator-specific, e.g. falling poverty is good).
@@ -4361,7 +4368,7 @@ function changeTable(rows, opts = {}) {
     // level MOE yet, so this stays inert unless row.moe is supplied.
     const moeAllowed = (row.format === 'number' || row.format === 'dollar' || row.format === 'decimal');
     const levelCell = (v, side) => {
-      const moeStr = (moeAllowed && row.moe) ? (row.moe[side] || '') : '';
+      const moeStr = (SHOW_MOE && moeAllowed && row.moe) ? (row.moe[side] || '') : '';
       const moeEl = moeStr ? `<span class="moe-val">${moeStr}</span>` : '';
       return `<td class="text-gray-600" data-fmt="${row.format}" data-raw="${v == null ? '' : v}" contenteditable="true" spellcheck="false"><span class="cell-val">${fmt(v, row.format)}</span>${moeEl}</td>`;
     };
@@ -6353,7 +6360,11 @@ function renderBrief(geos, D) {
   }
   renderSignals(D, geos);
 
-  // MOE warning for small populations (Sprint 2.4)
+  // Small-geography reliability guardrail (prose caution only — never a ± value).
+  // This is the surviving form of the MOE decision: at small populations where ACS
+  // sampling error is large, surface an "interpret with caution" advisory; the
+  // estimates themselves stay clean (no ± shown). CV-based suppression is the
+  // post-MVP elaboration of this same guardrail.
   const targetPop = val(D.target, 'SE_A00001_001');
   const moeWarning = document.getElementById('moeWarning');
   if (moeWarning) moeWarning.remove();
@@ -6364,8 +6375,8 @@ function renderBrief(geos, D) {
     warn.innerHTML = `<div class="flex items-start gap-3">
       <span class="text-amber-500 text-lg">⚠️</span>
       <div>
-        <p class="text-sm font-semibold text-amber-800">Margin of Error Advisory - Small Population (${fmt(targetPop)})</p>
-        <p class="text-sm text-amber-700 mt-1">ACS 5-Year Estimates for places under 20,000 population carry significant margins of error. Point estimates - particularly percentages derived from small denominators (e.g., poverty rate, cost burden, disability rate) - should be interpreted with caution and verified against supplementary data sources before use in planning documents or grant applications.</p>
+        <p class="text-sm font-semibold text-amber-800">Small-Population Reliability Advisory (${fmt(targetPop)})</p>
+        <p class="text-sm text-amber-700 mt-1">ACS 5-Year Estimates for places under 20,000 population carry larger sampling error. Point estimates - particularly percentages derived from small denominators (e.g., poverty rate, cost burden, disability rate) - should be interpreted with caution and verified against supplementary sources before use in planning documents or grant applications.</p>
       </div>
     </div>`;
     document.getElementById('signalSummary').after(warn);
@@ -6373,7 +6384,7 @@ function renderBrief(geos, D) {
     const note = document.createElement('div');
     note.id = 'moeWarning';
     note.className = 'bg-indigo-50 border border-indigo-200 rounded-xl p-3 mb-4';
-    note.innerHTML = `<p class="text-xs text-indigo-700"><strong>Note:</strong> ACS 5-Year Estimates for ${geos.target.name} (pop. ${fmt(targetPop)}) have moderate margins of error. Percentages based on small subpopulations should be interpreted as estimates, not precise values. Concrete ± margins of error are shown beside each estimate where the survey publishes them.</p>`;
+    note.innerHTML = `<p class="text-xs text-indigo-700"><strong>Note:</strong> ACS 5-Year Estimates for ${geos.target.name} (pop. ${fmt(targetPop)}) carry moderate sampling error. Percentages based on small subpopulations should be read as estimates, not precise values.</p>`;
     document.getElementById('signalSummary').after(note);
   }
 
