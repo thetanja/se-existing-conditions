@@ -4294,6 +4294,90 @@ function compareTable(rows, geos, opts = {}) {
   return html;
 }
 
+// Signed display for a change cell. delta/reldelta already carry their own sign
+// (+/− and pp/% suffix via fmt); number/dollar changes get an explicit sign here
+// so an absolute count/dollar change reads as e.g. "+1,240" or "−$85".
+function fmtChange(v, f) {
+  if (v == null) return '-';
+  if (f === 'delta' || f === 'reldelta') return fmt(v, f);
+  return (v >= 0 ? '+' : '−') + fmt(Math.abs(v), f);
+}
+
+// Compact change table (Layout B) — the EC default for change/over-time output.
+// One indicator per ROW; columns are the two time points + the change. Single
+// geography (the report subject / target). This is the planner-native convention
+// (HUD ConPlan "Base Year | Most Recent Year | % Change", comp-plan summary tables,
+// Census ACS Comparison Profiles). Multi-geography change comparison is the
+// separate Layout A (geographies-as-columns) view rendered by compareTable.
+//
+// Each row: { label, universe?, start, end, format ('pct'|'number'|'dollar'),
+//   change, changeFormat ('delta'|'number'|'dollar'), pctChange? }
+// The "% Change" column renders only when at least one row supplies pctChange
+// (i.e. count/dollar tables); rate/share tables show pp change in the Change
+// column and omit % Change entirely.
+function changeTable(rows, opts = {}) {
+  const title = opts.title || '';
+  const startLabel = opts.startLabel || '2010-2014';
+  const endLabel = opts.endLabel || '2020-2024';
+  const tid = 'tbl_' + Math.random().toString(36).slice(2, 10);
+  const hasPct = rows.some(r => r.pctChange != null);
+
+  let html = `<div class="rendered-table" data-table-id="${tid}" data-table-title="${(title || 'Untitled table').replace(/"/g, '&quot;')}">`;
+  if (title) {
+    html += `<div class="flex items-center justify-between mt-4 mb-2 flex-wrap gap-2">
+      <h4 class="text-sm font-semibold text-gray-700" contenteditable="true" spellcheck="false">${title}</h4>
+      <div class="flex items-center gap-2">
+        <div id="toolbar_${tid}" class="hidden items-center gap-1 text-xs">
+          <span class="text-gray-500"><span data-sel-count>0</span> selected</span>
+          <button onclick="chartSelectedRows('${tid}')" class="px-2 py-0.5 bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200 rounded">📊 Chart</button>
+          <button data-map-btn onclick="mapSelectedRows('${tid}')" class="px-2 py-0.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200 rounded disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed">🗺️ Map</button>
+          <button onclick="deleteSelectedRows('${tid}')" class="px-2 py-0.5 bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 rounded">Delete</button>
+        </div>
+        <button class="copy-btn" onclick="copyTable('${tid}')">⧉ Copy</button>
+      </div>
+    </div>`;
+  }
+  if (opts.universe) {
+    html += `<div class="uni-caption"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg><span><b>Universe:</b> ${opts.universe}</span></div>`;
+  }
+  html += `<table id="${tid}" class="data-table editable-table w-full text-sm"><thead><tr>
+    <th class="edit-col w-8 text-center"><input type="checkbox" onchange="toggleAllRows('${tid}', this.checked)" title="Select all"></th>
+    <th class="text-left" contenteditable="true" spellcheck="false">Indicator</th>
+    <th contenteditable="true" spellcheck="false">${startLabel}</th>
+    <th contenteditable="true" spellcheck="false">${endLabel}</th>
+    <th contenteditable="true" spellcheck="false">Change</th>`;
+  if (hasPct) html += `<th contenteditable="true" spellcheck="false">% Change</th>`;
+  html += `</tr></thead><tbody>`;
+  for (const row of rows) {
+    const uni = row.universe ? `<span class="uni-inline">${row.universe}</span>` : '';
+    // ± MOE rides the level cells (start/end) only — never the delta — and only
+    // for count/dollar/decimal levels (no derived-% MOE). MVP rows don't carry
+    // level MOE yet, so this stays inert unless row.moe is supplied.
+    const moeAllowed = (row.format === 'number' || row.format === 'dollar' || row.format === 'decimal');
+    const levelCell = (v, side) => {
+      const moeStr = (moeAllowed && row.moe) ? (row.moe[side] || '') : '';
+      const moeEl = moeStr ? `<span class="moe-val">${moeStr}</span>` : '';
+      return `<td class="text-gray-600" data-fmt="${row.format}" data-raw="${v == null ? '' : v}" contenteditable="true" spellcheck="false"><span class="cell-val">${fmt(v, row.format)}</span>${moeEl}</td>`;
+    };
+    html += `<tr class="delta-row"><td class="edit-col text-center"><input type="checkbox" class="row-select" onchange="updateToolbar('${tid}')"></td>`;
+    html += `<td class="font-medium text-gray-700"><span contenteditable="true" spellcheck="false">${row.label}</span>${uni}</td>`;
+    html += levelCell(row.start, 'start');
+    html += levelCell(row.end, 'end');
+    // Change cell: neutral signed value (no green/red — "good" direction is
+    // indicator-specific). data-fmt="change" so applyRoundingToDom skips it and
+    // the sign/precision survive rounding of the level columns.
+    html += `<td class="text-gray-700" data-fmt="change"><span class="delta">${fmtChange(row.change, row.changeFormat || 'delta')}</span></td>`;
+    if (hasPct) {
+      const pc = row.pctChange;
+      html += `<td class="text-gray-700" data-fmt="change">${pc != null ? `<span class="delta">${fmt(pc, 'reldelta')}</span>` : '<span class="text-gray-400">-</span>'}</td>`;
+    }
+    html += '</tr>';
+  }
+  html += '</tbody></table>';
+  html += '</div>';
+  return html;
+}
+
 function methodologyBlock(text) {
   const id = 'meth_' + Math.random().toString(36).slice(2, 10);
   return `
@@ -6368,10 +6452,6 @@ function renderPopulation(parent, geos, D) {
   const popNew = val(t, `${p}_001`);
   const popPct = popOld && popNew ? ((popNew - popOld) / popOld) * 100 : null;
 
-  const trendChange = (oldV, newV) => {
-    if (oldV == null || newV == null || oldV === 0) return null;
-    return ((newV - oldV) / oldV) * 100;
-  };
   const trendArrow = (v) => v == null ? '-' : `<span class="${v > 0 ? 'text-green-700' : v < 0 ? 'text-red-700' : 'text-gray-600'}">${v > 0 ? '+' : ''}${v.toFixed(1)}%</span>`;
 
   // Race/ethnicity shares (old vs new) - A04001: _003=White NH, _004=Black NH, _006=Asian NH, _010=Hispanic
@@ -6398,38 +6478,30 @@ function renderPopulation(parent, geos, D) {
   const hM = D.histMsa, hC = D.histCounty, hS = D.histState;
   // Each indicator renders three rows - latest (2024), baseline (2014), and the
   // relative %Δ - matching the trend-block layout (current first, baseline, change).
-  const mkChgRows = (name, fmtType, acc, uni) => {
-    const now = { target: acc(t), msa: acc(m), county: acc(c), state: acc(s) };
-    const old = { target: acc(h), msa: acc(hM), county: acc(hC), state: acc(hS) };
-    const chg = {};
-    for (const k of ['target','msa','county','state']) chg[k] = trendChange(old[k], now[k]);
-    return [
-      { label: `${name} (2020-2024)`, format: fmtType, universe: uni, values: now },
-      { label: `${name} (2010-2014)`, format: fmtType, universe: uni, values: old },
-      { label: `${name} - Change (%Δ)`, format: 'reldelta', values: chg },
-    ];
-  };
+  // 10-Year Change — Compact layout (Layout B, target geography). One indicator
+  // per row; columns = start / end / absolute Change / % Change. Mixed table, so
+  // universe rides each row.
   const popChgRows = [
-    ...mkChgRows('Population', 'number', (g) => val(g, `${p}_001`), 'total population · ACS A00001'),
-    ...mkChgRows('Median HH income (nominal)', 'dollar', (g) => val(g, `${TABLES.medianIncome.prefix}_001`), 'all households · ACS A14006'),
-    ...mkChgRows('Median rent (nominal)', 'dollar', (g) => val(g, `${TABLES.medianRent.prefix}_001`), 'renter-occupied units paying cash rent · ACS A18009'),
+    changeRowVal('Population', 'number', (g) => val(g, `${p}_001`), D, 'total population · ACS A00001'),
+    changeRowVal('Median HH income (nominal)', 'dollar', (g) => val(g, `${TABLES.medianIncome.prefix}_001`), D, 'all households · ACS A14006'),
+    changeRowVal('Median rent (nominal)', 'dollar', (g) => val(g, `${TABLES.medianRent.prefix}_001`), D, 'renter-occupied units paying cash rent · ACS A18009'),
   ];
-  body.innerHTML += compareTable(popChgRows, geos, { title: '10-Year Change - All Geographies (ACS 2010-2014 vs. 2020-2024)' });
-  body.innerHTML += `<p class="text-xs text-gray-500 italic mt-1 px-1">%Δ = relative change in a value (e.g., population grew 5.5% of its 2014 level). Use percentage points (pp) when comparing two rates directly.</p>`;
+  body.innerHTML += changeTable(popChgRows, { title: '10-Year Change (ACS 2010-2014 vs. 2020-2024)' });
+  body.innerHTML += `<p class="text-xs text-gray-500 italic mt-1 px-1">% Change = relative change in a value (e.g., population grew 5.5% of its 2014 level). For multi-geography comparison of the same change, switch to the geographies-as-columns view.</p>`;
 
-  // 10-Year Composition Shifts — dynamic grid layout (geos as columns, latest /
-  // baseline / ppΔ rows), via the shared trendRows + compareTable path.
+  // 10-Year Composition Shifts — Compact layout (Layout B, target geography). One
+  // share indicator per row; Change column = percentage-point shift.
   const ageShare = (sfx) => (geo) => { const tot = val(geo, `${ag}_001`); if (!tot) return null; return sfx.reduce((a, s) => a + (val(geo, `${ag}${s}`) || 0), 0) / tot * 100; };
   const raceShare = (s) => (geo) => pct(val(geo, `${re}${s}`), val(geo, `${re}_001`));
   const compRows = [
-    ...trendRows('% Under 18', ageShare(['_002','_003','_004','_005']), D),
-    ...trendRows('% Age 65+',  ageShare(['_011','_012','_013']), D),
-    ...trendRows('% White NH', raceShare('_003'), D),
-    ...trendRows('% Black',    raceShare('_004'), D),
-    ...trendRows('% Hispanic', raceShare('_010'), D),
-    ...trendRows('% Asian',    raceShare('_006'), D),
+    changeRowRate('% Under 18', ageShare(['_002','_003','_004','_005']), D),
+    changeRowRate('% Age 65+',  ageShare(['_011','_012','_013']), D),
+    changeRowRate('% White NH', raceShare('_003'), D),
+    changeRowRate('% Black',    raceShare('_004'), D),
+    changeRowRate('% Hispanic', raceShare('_010'), D),
+    changeRowRate('% Asian',    raceShare('_006'), D),
   ];
-  body.innerHTML += compareTable(compRows, geos, { title: '10-Year Composition Shifts (All Geographies)', universe: 'total population · ACS A01001 (age), A04001 (race)' });
+  body.innerHTML += changeTable(compRows, { title: '10-Year Composition Shifts', universe: 'total population · ACS A01001 (age), A04001 (race)' });
 
   // Chart: Population 10-year trend line
   if (popOld && popNew) {
@@ -6558,14 +6630,34 @@ function trendRows(label, rateFn, D) {
   ];
 }
 
-// Helper to append both a trend table and the ppΔ footnote in one call.
+// Compact change ROW for a rate/share indicator (target geography only).
+// Change is the percentage-point delta (the natural difference for a rate); no
+// % Change column for rates (relative % of a rate misleads).
+function changeRowRate(label, rateFn, D, uni) {
+  const o = rateFn(D.hist), n = rateFn(D.target);
+  return { label, universe: uni || null, start: o, end: n, format: 'pct',
+           change: (o != null && n != null) ? n - o : null, changeFormat: 'delta', pctChange: null };
+}
+
+// Compact change ROW for a count/dollar indicator (target geography only).
+// Change is the absolute (signed) difference; % Change is the relative change.
+function changeRowVal(label, fmtType, acc, D, uni) {
+  const o = acc(D.hist), n = acc(D.target);
+  return { label, universe: uni || null, start: o, end: n, format: fmtType,
+           change: (o != null && n != null) ? n - o : null, changeFormat: fmtType,
+           pctChange: (o != null && n != null && o !== 0) ? ((n - o) / o) * 100 : null };
+}
+
+// Helper to append a single-indicator trend as a Compact change table (Layout B,
+// target geography) plus the ppΔ footnote. The "(All Geographies)" suffix from
+// the multi-geo era is stripped — these now show the report subject only.
 function appendTrendBlock(body, geos, label, rateFn, D, title, universe) {
-  const rows = trendRows(label, rateFn, D);
-  // Only render if at least one of the 2014 values exists
-  if (rows[0].values.target == null && rows[0].values.state == null) return;
-  // Single-indicator trend → one shared universe stated once as a caption.
-  body.innerHTML += compareTable(rows, geos, { title, universe });
-  body.innerHTML += `<p class="text-xs text-gray-500 italic mt-1 px-1"><strong>ppΔ</strong> = absolute change in the rate (percentage points) between 2014 and 2024.</p>`;
+  const row = changeRowRate(label, rateFn, D, null);
+  // Only render if at least one endpoint exists
+  if (row.start == null && row.end == null) return;
+  const cleanTitle = title.replace(/\s*\((?:ACS,\s*)?All Geographies\)/, '');
+  body.innerHTML += changeTable([row], { title: cleanTitle, universe });
+  body.innerHTML += `<p class="text-xs text-gray-500 italic mt-1 px-1"><strong>Change</strong> here is the absolute shift in the rate (percentage points) between the 2010-2014 and 2020-2024 ACS 5-year periods.</p>`;
 }
 
 // ============================================================
@@ -7029,17 +7121,22 @@ function renderHousing(parent, geos, D) {
     return { now, base, dlt };
   };
   const rentC = realChg(mr), incC = realChg(TABLES.medianIncome.prefix);
-  const gap = {}; for (const k of ['target','msa','county','state']) gap[k] = (rentC.dlt[k] != null && incC.dlt[k] != null) ? rentC.dlt[k] - incC.dlt[k] : null;
+  const gapT = (rentC.dlt.target != null && incC.dlt.target != null) ? rentC.dlt.target - incC.dlt.target : null;
+  // 10-Year Change in Real $ — Compact layout (Layout B, target geography).
+  // Baseline column is the 2010-2014 figure expressed in 2024$; Change is the
+  // real (inflation-adjusted) absolute dollar shift; % Change is the real %.
+  const realChangeRow = (label, c) => ({
+    label, start: c.base.target, end: c.now.target, format: 'dollar',
+    change: (c.base.target != null && c.now.target != null) ? c.now.target - c.base.target : null,
+    changeFormat: 'dollar', pctChange: c.dlt.target,
+  });
   const cpiRows = [
-    { label: 'Median gross rent (2020-2024)',          format: 'dollar',   values: rentC.now },
-    { label: 'Median gross rent (2010-2014, 2024$)',     format: 'dollar',   values: rentC.base },
-    { label: 'Median gross rent - Real Δ',               format: 'reldelta', values: rentC.dlt },
-    { label: 'Median household income (2020-2024)',      format: 'dollar',   values: incC.now },
-    { label: 'Median household income (2010-2014, 2024$)', format: 'dollar', values: incC.base },
-    { label: 'Median household income - Real Δ',         format: 'reldelta', values: incC.dlt },
-    { label: 'Rent-vs-income real growth gap (pp)',      format: 'delta',    values: gap },
+    realChangeRow('Median gross rent', rentC),
+    realChangeRow('Median household income', incC),
+    { label: 'Rent-vs-income real growth gap', start: null, end: null, format: 'dollar',
+      change: gapT, changeFormat: 'delta', pctChange: null },
   ];
-  body.innerHTML += compareTable(cpiRows, geos, { title: '10-Year Change in Real $ (CPI-adjusted to 2024$)', universe: `real $ (CPI-U adjusted to 2024$, scale ≈ ${CPI_2014_TO_2024.toFixed(3)}) · ACS A18009 (rent), A14006 (income)` });
+  body.innerHTML += changeTable(cpiRows, { title: '10-Year Change in Real $ (CPI-adjusted to 2024$)', startLabel: '2010-2014 (2024$)', endLabel: '2020-2024', universe: `real $ (CPI-U adjusted to 2024$, scale ≈ ${CPI_2014_TO_2024.toFixed(3)}) · ACS A18009 (rent), A14006 (income)` });
 
   // Chart: Rent vs Income 10-year dual trend line (CPI-adjusted)
   if (rentOldReal && rentNew && incOldReal && incNew) {
