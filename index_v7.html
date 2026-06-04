@@ -5832,7 +5832,7 @@ async function generateBrief() {
       // Equity
       { Name: 'PctDisabled',       Label: '% With a disability', Formula: 'ORG_B18101001 > 0 ? ((ORG_B18101004 + ORG_B18101007 + ORG_B18101010 + ORG_B18101013 + ORG_B18101016 + ORG_B18101019 + ORG_B18101023 + ORG_B18101026 + ORG_B18101029 + ORG_B18101032 + ORG_B18101035 + ORG_B18101038) / ORG_B18101001) * 100 : 0' },
       { Name: 'PctNonEnglishHome', Label: '% Non-English at home', Formula: 'ORG_C16001001 > 0 ? ((ORG_C16001001 - ORG_C16001002) / ORG_C16001001) * 100 : 0' },
-      { Name: 'PctLEP',            Label: '% Limited English (strict)', Formula: 'ORG_C16001001 > 0 ? ((ORG_C16001005 + ORG_C16001008 + ORG_C16001011 + ORG_C16001014) / ORG_C16001001) * 100 : 0' },
+      { Name: 'PctLEP',            Label: '% Limited English (strict)', Formula: 'ORG_C16001001 > 0 ? ((ORG_C16001005 + ORG_C16001008 + ORG_C16001011 + ORG_C16001014 + ORG_C16001017 + ORG_C16001020 + ORG_C16001023 + ORG_C16001026 + ORG_C16001029 + ORG_C16001032 + ORG_C16001035 + ORG_C16001038) / ORG_C16001001) * 100 : 0' },
       { Name: 'PctNoVehicle',      Label: '% Households with no vehicle', Formula: 'ORG_B25044001 > 0 ? ((ORG_B25044003 + ORG_B25044010) / ORG_B25044001) * 100 : 0' },
       { Name: 'PctRenterNoVehicle',Label: '% Renter households no vehicle', Formula: 'ORG_B25044009 > 0 ? (ORG_B25044010 / ORG_B25044009) * 100 : 0' },
       // Owner cost burden (B25091): 30%+ = with-mortgage 30%+ (008-011) + without-mortgage 30%+ (019-022) / total (001). _012/_023 are "Not Computed" - excluded (verified vs API 2026-06-03).
@@ -7060,10 +7060,13 @@ function renderHousing(parent, geos, D) {
 
   // Overcrowding (B25014 - occupants per room)
   const crowdTotal = (geo) => val(geo, 'ORG_B25014001') || 1;
-  const crowdOver1 = (geo) => ((val(geo, 'ORG_B25014005') || 0) + (val(geo, 'ORG_B25014006') || 0) + (val(geo, 'ORG_B25014011') || 0) + (val(geo, 'ORG_B25014012') || 0));
-  const crowdOver15 = (geo) => ((val(geo, 'ORG_B25014006') || 0) + (val(geo, 'ORG_B25014012') || 0));
-  const over1Vars  = ['ORG_B25014005','ORG_B25014006','ORG_B25014011','ORG_B25014012'];
-  const over15Vars = ['ORG_B25014006','ORG_B25014012'];
+  // >1.0/room = owner 1.01-1.50 (_005) + 1.51-2.00 (_006) + 2.01+ (_007) and renter
+  // 1.01-1.50 (_011) + 1.51-2.00 (_012) + 2.01+ (_013). >1.5/room = the 1.51-2.00 and
+  // 2.01+ cells only. (Earlier code omitted the 2.01+ cells _007/_013 — undercount.)
+  const crowdOver1 = (geo) => ((val(geo, 'ORG_B25014005') || 0) + (val(geo, 'ORG_B25014006') || 0) + (val(geo, 'ORG_B25014007') || 0) + (val(geo, 'ORG_B25014011') || 0) + (val(geo, 'ORG_B25014012') || 0) + (val(geo, 'ORG_B25014013') || 0));
+  const crowdOver15 = (geo) => ((val(geo, 'ORG_B25014006') || 0) + (val(geo, 'ORG_B25014007') || 0) + (val(geo, 'ORG_B25014012') || 0) + (val(geo, 'ORG_B25014013') || 0));
+  const over1Vars  = ['ORG_B25014005','ORG_B25014006','ORG_B25014007','ORG_B25014011','ORG_B25014012','ORG_B25014013'];
+  const over15Vars = ['ORG_B25014006','ORG_B25014007','ORG_B25014012','ORG_B25014013'];
   const crowdMoe = (vars) => ({ target: pmShare(D.target, vars, 'ORG_B25014001'), msa: pmShare(D.msa, vars, 'ORG_B25014001'), county: pmShare(D.county, vars, 'ORG_B25014001'), state: pmShare(D.state, vars, 'ORG_B25014001') });
   const crowdRows = [
     { label: 'Overcrowded (>1.0 occupants/room)', format: 'pct', values: {
@@ -7520,17 +7523,20 @@ function renderMobility(parent, geos, D) {
 
   // Travel time distribution (from A09001)
   const tt = TABLES.travelTime.prefix;
+  // Denominator = A09001_002 "Did Not Work At Home" (= commuters), NOT _001 (all
+  // workers incl. work-from-home _010), to match the universe "workers who commute,
+  // excl. work-from-home". The minute buckets _003–_009 are children of _002.
   const travelDistRows = [
-    { label: 'Less than 10 min',  format: 'pct', values: shareRow(tt, '_003', '_001', D) },
-    { label: '10–19 min',         format: 'pct', values: shareRow(tt, '_004', '_001', D) },
-    { label: '20–29 min',         format: 'pct', values: shareRow(tt, '_005', '_001', D) },
-    { label: '30–39 min',         format: 'pct', values: shareRow(tt, '_006', '_001', D) },
-    { label: '40–59 min',         format: 'pct', values: shareRow(tt, '_007', '_001', D) },
+    { label: 'Less than 10 min',  format: 'pct', values: shareRow(tt, '_003', '_002', D) },
+    { label: '10–19 min',         format: 'pct', values: shareRow(tt, '_004', '_002', D) },
+    { label: '20–29 min',         format: 'pct', values: shareRow(tt, '_005', '_002', D) },
+    { label: '30–39 min',         format: 'pct', values: shareRow(tt, '_006', '_002', D) },
+    { label: '40–59 min',         format: 'pct', values: shareRow(tt, '_007', '_002', D) },
     { label: '60+ min',           format: 'pct', values: {
-      target: pct((val(D.target, `${tt}_008`) || 0) + (val(D.target, `${tt}_009`) || 0), val(D.target, `${tt}_001`)),
-      msa:    pct((val(D.msa,    `${tt}_008`) || 0) + (val(D.msa,    `${tt}_009`) || 0), val(D.msa,    `${tt}_001`)),
-      county: pct((val(D.county, `${tt}_008`) || 0) + (val(D.county, `${tt}_009`) || 0), val(D.county, `${tt}_001`)),
-      state:  pct((val(D.state,  `${tt}_008`) || 0) + (val(D.state,  `${tt}_009`) || 0), val(D.state,  `${tt}_001`)),
+      target: pct((val(D.target, `${tt}_008`) || 0) + (val(D.target, `${tt}_009`) || 0), val(D.target, `${tt}_002`)),
+      msa:    pct((val(D.msa,    `${tt}_008`) || 0) + (val(D.msa,    `${tt}_009`) || 0), val(D.msa,    `${tt}_002`)),
+      county: pct((val(D.county, `${tt}_008`) || 0) + (val(D.county, `${tt}_009`) || 0), val(D.county, `${tt}_002`)),
+      state:  pct((val(D.state,  `${tt}_008`) || 0) + (val(D.state,  `${tt}_009`) || 0), val(D.state,  `${tt}_002`)),
     }},
   ];
   body.innerHTML += compareTable(travelDistRows, geos, { title: 'Travel Time Distribution (% of workers, excludes work-from-home)', universe: 'workers who commute, excl. work-from-home · ACS A09001' });
