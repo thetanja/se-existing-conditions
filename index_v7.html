@@ -7096,24 +7096,21 @@ function renderHousing(parent, geos, D) {
     const medFamInc = val(fmr, 'SE_T002_001');
     if (medFamInc) {
       const hhSizes = ['1-Person', '2-Person', '3-Person', '4-Person', '5-Person', '6-Person', '7-Person', '8-Person'];
-      let ilHtml = `<div class="flex items-center justify-between mt-4 mb-2">
-        <h4 class="text-sm font-semibold text-gray-700">HUD Income Limits by AMI Tier & Household Size (FY2025, MSA)</h4>
-        <button class="copy-btn" onclick="copyTable('tbl_il')">⧉ Copy table</button>
-      </div>`;
-      ilHtml += `<table id="tbl_il" class="data-table w-full text-sm"><thead><tr><th class="text-left">HH Size</th><th>30% AMI (Extremely Low)</th><th>50% AMI (Very Low)</th><th>80% AMI (Low)</th></tr></thead><tbody>`;
-      for (let i = 0; i < hhSizes.length; i++) {
+      // Read-only matrix (HH size × AMI tier) — a genuine matrix; geography (MSA)
+      // is a selector, not a comparison-column axis. Matches the spec [readonly matrix].
+      const ilRows = hhSizes.map((hh, i) => {
         const suffix = `_${String(i + 1).padStart(3, '0')}`;
-        const eli = val(fmr, `SE_T005${suffix}`);
-        const vli = val(fmr, `SE_T004${suffix}`);
-        const li  = val(fmr, `SE_T003${suffix}`);
-        ilHtml += `<tr><td class="font-medium text-gray-700">${hhSizes[i]}</td>
-          <td class="text-gray-600">${fmt(eli, 'dollar')}</td>
-          <td class="text-gray-600">${fmt(vli, 'dollar')}</td>
-          <td class="text-gray-600">${fmt(li, 'dollar')}</td></tr>`;
-      }
-      ilHtml += `</tbody></table>`;
-      ilHtml += `<p class="text-xs text-gray-500 mt-2">Area Median Family Income: <strong>${fmt(medFamInc, 'dollar')}</strong> (HUD FY2025, ${geos.msa.label}). Income limits define eligibility for HUD-assisted housing programs (CDBG, HOME, LIHTC, Housing Choice Vouchers). The 4-person 80% AMI threshold (<strong>${fmt(val(fmr, 'SE_T003_004'), 'dollar')}</strong>) is the standard "low-income" cutoff used in most federal program regulations.</p>`;
-      body.innerHTML += ilHtml;
+        return { label: hh, cells: [val(fmr, `SE_T005${suffix}`), val(fmr, `SE_T004${suffix}`), val(fmr, `SE_T003${suffix}`)] };
+      });
+      body.innerHTML += readonlyMatrix({
+        title: 'HUD Income Limits by AMI Tier & Household Size (FY2025)',
+        geoLabel: geos.msa.label,
+        universe: 'income limits for HUD-assisted housing eligibility · HUD FY2025 (published at the MSA)',
+        colHeaders: ['HH Size', '30% AMI (Extremely Low)', '50% AMI (Very Low)', '80% AMI (Low)'],
+        rowGroups: [{ groupLabel: '', rows: ilRows }],
+        numFormat: 'dollar',
+      });
+      body.innerHTML += `<p class="text-xs text-gray-500 mt-2">Area Median Family Income: <strong>${fmt(medFamInc, 'dollar')}</strong> (HUD FY2025, ${geos.msa.label}). Income limits define eligibility for HUD-assisted housing programs (CDBG, HOME, LIHTC, Housing Choice Vouchers). The 4-person 80% AMI threshold (<strong>${fmt(val(fmr, 'SE_T003_004'), 'dollar')}</strong>) is the standard "low-income" cutoff used in most federal program regulations.</p>`;
     }
   }
 
