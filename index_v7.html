@@ -240,6 +240,12 @@
   .delta { font-variant-numeric: tabular-nums; font-weight: 600; color: #374151; white-space: nowrap; }
   .data-table tr.delta-row > td { background: #fafafa; }
   .data-table tr.delta-row > td:nth-child(2) { color: #6b7280; font-weight: 500; font-size: 12px; }
+  /* Read-only block (render mode 2): HUD-prescribed matrix; no edit affordances. */
+  .ro-badge { display: inline-block; font-size: 10px; font-weight: 600; color: #6b7280; background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 4px; padding: 1px 6px; margin-left: 6px; vertical-align: middle; letter-spacing: .02em; text-transform: uppercase; }
+  .ro-table tr.ro-group > td { background: #f3f4f6; font-weight: 600; color: #4b5563; font-size: 12px; }
+  .ro-table td.ro-rowlabel { font-weight: 500; color: #4b5563; padding-left: 18px; }
+  .ro-table td.ro-num { text-align: right; font-variant-numeric: tabular-nums; color: #374151; }
+  .ro-table tr.ro-total > td { font-weight: 600; background: #fafafa; }
   /* Universe: per-row (mixed tables) and once-under-title (homogeneous tables) */
   .uni-inline { display: block; font-size: 11px; font-weight: 400; color: #6b7280; margin-top: 2px; }
   .uni-caption { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: #6b7280; margin: 2px 0 8px; }
@@ -4378,6 +4384,40 @@ function changeTable(rows, opts = {}) {
   return html;
 }
 
+// Read-only block (render mode 2) — a genuine matrix with two non-geo axes.
+// No row selection / inline edit / lens: geography is a SELECTOR (here the report
+// target), shown in the caption, not a comparison-column axis. Used for
+// HUD-prescribed cross-tabs (CHAS housing problems / cost burden) where the axes
+// themselves are the convention. opts:
+//   { title, geoLabel, universe, colHeaders:[rowAxisLabel, ...valueCols],
+//     rowGroups:[{ groupLabel, rows:[{ label, cells:[num,...], total?:bool }] }],
+//     numFormat (default 'number') }
+function readonlyMatrix(opts = {}) {
+  const { title = '', geoLabel = '', universe = '', colHeaders = [], rowGroups = [], numFormat = 'number' } = opts;
+  const tid = 'tbl_' + Math.random().toString(36).slice(2, 10);
+  let html = `<div class="rendered-table" data-table-id="${tid}" data-table-title="${title.replace(/"/g, '&quot;')}" data-readonly="true">`;
+  html += `<div class="flex items-center justify-between mt-4 mb-2 flex-wrap gap-2">
+    <h4 class="text-sm font-semibold text-gray-700">${title}<span class="ro-badge">read-only · HUD format</span></h4>
+    <button class="copy-btn" onclick="copyTable('${tid}')">⧉ Copy</button>
+  </div>`;
+  if (geoLabel) html += `<div class="uni-caption"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg><span><b>Geography:</b> ${geoLabel} <span class="text-gray-400">· change via the geography selector</span></span></div>`;
+  if (universe) html += `<div class="uni-caption"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg><span><b>Universe:</b> ${universe}</span></div>`;
+  html += `<table id="${tid}" class="data-table w-full text-sm ro-table"><thead><tr>`;
+  colHeaders.forEach((h, i) => html += `<th class="${i === 0 ? 'text-left' : 'text-right'}">${h}</th>`);
+  html += `</tr></thead><tbody>`;
+  const ncol = colHeaders.length;
+  for (const g of rowGroups) {
+    if (g.groupLabel) html += `<tr class="ro-group"><td colspan="${ncol}">${g.groupLabel}</td></tr>`;
+    for (const r of g.rows) {
+      html += `<tr${r.total ? ' class="ro-total"' : ''}><td class="ro-rowlabel">${r.label}</td>`;
+      r.cells.forEach(v => html += `<td class="ro-num" data-fmt="${numFormat}" data-raw="${v == null ? '' : v}">${fmt(v, numFormat)}</td>`);
+      html += '</tr>';
+    }
+  }
+  html += '</tbody></table></div>';
+  return html;
+}
+
 function methodologyBlock(text) {
   const id = 'meth_' + Math.random().toString(36).slice(2, 10);
   return `
@@ -6807,6 +6847,22 @@ function renderEconomic(parent, geos, D) {
     });
     body.innerHTML += compareTable(lqRows, geos, { title: 'Location Quotient - Employment Concentration (top 10 sectors by county employment)', universe: `location quotient relative to ${geos.state.label || 'state'}; 1.00 = same concentration as the state · Census CBP` });
     body.innerHTML += methodologyBlock(`Employees by 2-digit NAICS sector: County Business Patterns 2023 (CBP2023), Tables Simplified dataset, T001 (employees) + T011 (establishments), via GUID. Geography: county (SL050), MSA (SL310), state (SL040); CBP does not publish at place (SL160), so the target column is blank. Location quotient = (geography's sector share of its total) / (state's sector share of state total); state = 1.00 by definition. As a screening heuristic, LQ > 1.25 suggests local concentration and < 0.75 underrepresentation. 4-digit drill-down requires QCEW or Lightcast.`);
+
+    // Companion LQ bar chart — horizontal bars with a 1.00 parity reference line
+    // (the expected LQ rendering; a flat grid loses the above/below-1.0 signal).
+    // Bars above parity (specialized) = indigo; below (underrepresented) = gray.
+    const lqData = lqRows
+      .filter(r => r.values.county != null)
+      .map(r => ({ name: r.label.replace(/NAICS \d+-?\d* - /, ''), y: +r.values.county.toFixed(2), color: r.values.county >= 1 ? '#4F46E5' : '#CBD5E1' }));
+    if (lqData.length) hcChart(body, {
+      chart: { type: 'bar', height: 360 },
+      title: { text: 'Location Quotient by Sector (county, 1.00 = state parity)' },
+      xAxis: { type: 'category' },
+      yAxis: { title: { text: 'Location quotient' }, plotLines: [{ value: 1, color: '#6B7280', width: 2, dashStyle: 'Dash', zIndex: 5, label: { text: 'state parity (1.00)', align: 'right', style: { color: '#6B7280', fontSize: '10px' } } }] },
+      legend: { enabled: false },
+      plotOptions: { bar: { borderRadius: 3, dataLabels: { enabled: true, format: '{point.y:.2f}', style: { fontSize: '10px', fontWeight: '500' } } } },
+      series: [{ name: 'LQ vs state', data: lqData }],
+    }, 'CBP 2023 (T001) — LQ = county sector share ÷ state sector share; 1.00 = state parity.');
   }
 
   body.innerHTML += placeholderCard(
@@ -7061,44 +7117,67 @@ function renderHousing(parent, geos, D) {
     }
   }
 
-  // CHAS cost burden by AMI (signature cross-dataset output) - now with county + state comparison
-  // Variable naming: ORG_T7_est{N} (no zero-padding, ORG prefix)
-  // T7 structure: est1=total, est2-8=renter by AMI (≤30,>30-50,>50-80,>80-100,>100), est9-16=owner by AMI
-  // Within each AMI tier: est{N}=total, est{N+1}=cost burden ≤30%, est{N+2}=30-50%, est{N+3}=50%+
-  // ≤30% AMI renter 30%+ cost-burdened = est11 (30-50%) + est13 (50%+) [wait - need to verify exact layout]
+  // HUD CHAS Table 7 — Tenure × Household Income (HAMFI) × Household Type × Cost
+  // Burden. Cell layout VERIFIED against the SE metadata API (2026-06-04): each
+  // (tenure, HAMFI band) block is 21 vars — band-total at +0, then 5 household
+  // types at offsets +1/+5/+9/+13/+17, each [hhtype-total, burden≤30 (+1),
+  // burden 30-50 (+2), burden >50 (+3)]. Band-start offsets:
+  const T7_BANDS = {
+    owner:  { '≤30%': 3,   '>30-50%': 24,  '>50-80%': 45,  '>80-100%': 66,  '>100%': 87 },
+    renter: { '≤30%': 109, '>30-50%': 130, '>50-80%': 151, '>80-100%': 172, '>100%': 193 },
+  };
+  const t7v = (rec, n) => val(rec, `ORG_T7_est${n}`) || 0;
+  // Sum a burden category across the 5 household types within a band. Each band's
+  // 3 computed-burden tiers don't fully reconcile to the band total — the gap is
+  // the CHAS "cost burden not computed" bucket (zero/negative-income households),
+  // a standard HUD category, surfaced as its own column so each row sums to total.
+  const t7burden = (rec, base) => {
+    const le30   = [2,6,10,14,18].reduce((a,o) => a + t7v(rec, base+o), 0);
+    const b30_50 = [3,7,11,15,19].reduce((a,o) => a + t7v(rec, base+o), 0);
+    const gt50   = [4,8,12,16,20].reduce((a,o) => a + t7v(rec, base+o), 0);
+    const total  = t7v(rec, base);
+    return { le30, b30_50, gt50, total, notComputed: Math.max(0, total - le30 - b30_50 - gt50) };
+  };
+  // 30%+ cost-burdened in a band & geo = both tenures' (30-50% + >50%) sums.
+  const burden30plus = (rec, band) => {
+    const o = t7burden(rec, T7_BANDS.owner[band]), r = t7burden(rec, T7_BANDS.renter[band]);
+    return o.b30_50 + o.gt50 + r.b30_50 + r.gt50;
+  };
   const ch = D.chasT7, chC = D.chasT7County, chS = D.chasT7State;
-  const chasSum = (rec, ...vars) => vars.reduce((sum, v) => sum + (val(rec, v) || 0), 0);
   if (Object.keys(ch).length) {
-    // T7 layout: rows are AMI tiers × tenure. Key vars for cost burden 30%+:
-    // ≤30% AMI: est10=not burdened, est11=30-50%, est12=50%+, est13=not computed → 30%+ = est11+est12
-    // >30-50% AMI: est18=not burdened, est19=30-50%, est20=50%+ → 30%+ = est19+est20
-    // >50-80% AMI: est26=not burdened, est27=30-50%, est28=50%+ → 30%+ = est27+est28
-    const chasRows = [
-      { label: '≤30% AMI, 30%+ cost-burdened', format: 'number', values: {
-        target: chasSum(ch, 'ORG_T7_est11', 'ORG_T7_est12'),
-        msa: null,
-        county: chasSum(chC, 'ORG_T7_est11', 'ORG_T7_est12') || null,
-        state:  chasSum(chS, 'ORG_T7_est11', 'ORG_T7_est12') || null,
-      }},
-      { label: '>30-50% AMI, 30%+ cost-burdened', format: 'number', values: {
-        target: chasSum(ch, 'ORG_T7_est19', 'ORG_T7_est20'),
-        msa: null,
-        county: chasSum(chC, 'ORG_T7_est19', 'ORG_T7_est20') || null,
-        state:  chasSum(chS, 'ORG_T7_est19', 'ORG_T7_est20') || null,
-      }},
-      { label: '>50-80% AMI, 30%+ cost-burdened', format: 'number', values: {
-        target: chasSum(ch, 'ORG_T7_est27', 'ORG_T7_est28'),
-        msa: null,
-        county: chasSum(chC, 'ORG_T7_est27', 'ORG_T7_est28') || null,
-        state:  chasSum(chS, 'ORG_T7_est27', 'ORG_T7_est28') || null,
-      }},
-    ];
     // Custom-target fallback disclosure (see docs/EC_Geography_Spec.md §8).
     if (D._fallbackInfo && D._fallbackInfo.chas) {
       const fb = D._fallbackInfo.chas;
       body.innerHTML += fallbackBanner(fb.datasetLabel, fb.sourceLabel, fb.sourceLevel);
     }
-    body.innerHTML += compareTable(chasRows, geos, { title: 'Cost Burden by AMI Tier (HUD CHAS 2018-2022 - household counts)', universe: 'households · HUD CHAS (ACS-derived special tabulation)' });
+    // (1) Headline cross-geo summary grid — households 30%+ cost-burdened per
+    // HAMFI band, target vs. county vs. state (geos = columns).
+    const mkBand = (band) => ({ label: `${band} HAMFI, 30%+ cost-burdened`, format: 'number', values: {
+      target: burden30plus(ch, band), msa: null,
+      county: Object.keys(chC).length ? burden30plus(chC, band) : null,
+      state:  Object.keys(chS).length ? burden30plus(chS, band) : null,
+    }});
+    const chasRows = ['≤30%','>30-50%','>50-80%'].map(mkBand);
+    body.innerHTML += compareTable(chasRows, geos, { title: 'Cost Burden by AMI Tier (HUD CHAS 2018-2022 - headline summary)', universe: 'households · HUD CHAS (ACS-derived special tabulation)' });
+
+    // (2) HUD-prescribed cross-tab as a READ-ONLY matrix (the eCon Planning Suite
+    // format ConPlan grantees submit): Renter/Owner row-groups × HAMFI bands,
+    // columns = cost-burden severity. Geography = target (selector); not customizable.
+    const bands = ['≤30%','>30-50%','>50-80%','>80-100%','>100%'];
+    const bandRows = (tenure) => bands.map(b => {
+      const x = t7burden(ch, T7_BANDS[tenure][b]);
+      return { label: `${b} HAMFI`, cells: [x.le30, x.b30_50, x.gt50, x.notComputed, x.total] };
+    });
+    body.innerHTML += readonlyMatrix({
+      title: 'Housing Cost Burden by Tenure, Income & Severity (HUD CHAS)',
+      geoLabel: geos.target.label,
+      universe: 'households · HUD CHAS 2018-2022 (Table 7; ACS-derived special tabulation). "Not computed" = households with zero/negative income (cost burden cannot be calculated).',
+      colHeaders: ['Income (HAMFI)', 'Not burdened (≤30%)', 'Cost-burdened (30-50%)', 'Severely burdened (>50%)', 'Not computed', 'Total'],
+      rowGroups: [
+        { groupLabel: 'Renter-occupied', rows: bandRows('renter') },
+        { groupLabel: 'Owner-occupied',  rows: bandRows('owner') },
+      ],
+    });
   }
   body.innerHTML += methodologyBlock(`ACS tables A10036/A10037/A10047/A10055/A10060/A18002/A18009/B25024/B25014/B25091 at all four geographies (ACS 2020-2024 5-yr). HUD Fair Market Rent + Income Limits FY2025 at MSA. HUD CHAS 2018-2022 5-yr Table T7 (tenure × AMI × cost burden) at target, county, and state (CHAS not published at MSA). CPI-U (BLS CUUR0000SA0): 2014 avg ${CPI_U_ANNUAL[2014]}, 2024 avg ${CPI_U_ANNUAL[2024]}; scale ≈ ${CPI_2014_TO_2024.toFixed(4)}.`);
 
