@@ -2385,13 +2385,16 @@ const VARIABLES_BY_TABLE = {
     { code: 'A17005_003', label: 'Unemployed' },
   ],
   A09005: [
-    { code: 'A09005_001', label: 'Total workers' },
-    { code: 'A09005_002', label: 'Drove alone' },
-    { code: 'A09005_003', label: 'Carpooled' },
-    { code: 'A09005_004', label: 'Public transit' },
-    { code: 'A09005_005', label: 'Walked' },
-    { code: 'A09005_006', label: 'Other means (bike, taxi, motorcycle)' },
-    { code: 'A09005_007', label: 'Worked from home' },
+    { code: 'A09005_001', label: 'Total workers 16+' },
+    { code: 'A09005_002', label: 'Car, truck, or van (drove alone + carpool)' },
+    { code: 'A09005_009', label: 'Drove alone' },
+    { code: 'A09005_010', label: 'Carpooled' },
+    { code: 'A09005_003', label: 'Public transportation' },
+    { code: 'A09005_004', label: 'Motorcycle' },
+    { code: 'A09005_005', label: 'Bicycle' },
+    { code: 'A09005_006', label: 'Walked' },
+    { code: 'A09005_007', label: 'Other means' },
+    { code: 'A09005_008', label: 'Worked from home' },
   ],
   A09003: [{ code: 'A09003_001', label: 'Mean travel time to work (minutes)' }],
   A12001: [
@@ -5659,7 +5662,7 @@ async function generateBriefForCustomTarget() {
     { Name: 'UnempRate',         Label: 'Unemployment %',  Formula: 'SE_A17005_001 > 0 ? (SE_A17005_003 / SE_A17005_001) * 100 : 0' },
     { Name: 'VacancyRate',       Label: 'Vacancy %',       Formula: '(SE_A10060_001 + SE_A10047_001) > 0 ? (SE_A10047_001 / (SE_A10060_001 + SE_A10047_001)) * 100 : 0' },
     { Name: 'PctPre1960',        Label: '% Pre-1960',      Formula: 'SE_A10055_001 > 0 ? ((SE_A10055_009 + SE_A10055_010 + SE_A10055_011) / SE_A10055_001) * 100 : 0' },
-    { Name: 'PctDriveAlone',     Label: '% Drive alone',   Formula: 'SE_A09005_001 > 0 ? (SE_A09005_002 / SE_A09005_001) * 100 : 0' },
+    { Name: 'PctDriveAlone',     Label: '% Drive alone',   Formula: 'SE_A09005_001 > 0 ? (SE_A09005_009 / SE_A09005_001) * 100 : 0' },
     { Name: 'PctOwnerCostBurdened', Label: '% Owner 30%+', Formula: 'ORG_B25091001 > 0 ? ((ORG_B25091008 + ORG_B25091009 + ORG_B25091010 + ORG_B25091011 + ORG_B25091019 + ORG_B25091020 + ORG_B25091021 + ORG_B25091022) / ORG_B25091001) * 100 : 0' },
     { Name: 'PctOwnerSevereBurden', Label: '% Owner 50%+', Formula: 'ORG_B25091001 > 0 ? ((ORG_B25091011 + ORG_B25091022) / ORG_B25091001) * 100 : 0' },
     // Mortgage-status breakout. Universe for "with a mortgage" is _002; for "without a mortgage" is _013.
@@ -5825,7 +5828,7 @@ async function generateBrief() {
       { Name: 'UnempRate',         Label: 'Unemployment %',  Formula: 'SE_A17005_001 > 0 ? (SE_A17005_003 / SE_A17005_001) * 100 : 0' },
       { Name: 'VacancyRate',       Label: 'Vacancy %',       Formula: '(SE_A10060_001 + SE_A10047_001) > 0 ? (SE_A10047_001 / (SE_A10060_001 + SE_A10047_001)) * 100 : 0' },
       { Name: 'PctPre1960',        Label: '% Pre-1960',      Formula: 'SE_A10055_001 > 0 ? ((SE_A10055_009 + SE_A10055_010 + SE_A10055_011) / SE_A10055_001) * 100 : 0' },
-      { Name: 'PctDriveAlone',     Label: '% Drive alone',   Formula: 'SE_A09005_001 > 0 ? (SE_A09005_002 / SE_A09005_001) * 100 : 0' },
+      { Name: 'PctDriveAlone',     Label: '% Drive alone',   Formula: 'SE_A09005_001 > 0 ? (SE_A09005_009 / SE_A09005_001) * 100 : 0' },
       // Equity
       { Name: 'PctDisabled',       Label: '% With a disability', Formula: 'ORG_B18101001 > 0 ? ((ORG_B18101004 + ORG_B18101007 + ORG_B18101010 + ORG_B18101013 + ORG_B18101016 + ORG_B18101019 + ORG_B18101023 + ORG_B18101026 + ORG_B18101029 + ORG_B18101032 + ORG_B18101035 + ORG_B18101038) / ORG_B18101001) * 100 : 0' },
       { Name: 'PctNonEnglishHome', Label: '% Non-English at home', Formula: 'ORG_C16001001 > 0 ? ((ORG_C16001001 - ORG_C16001002) / ORG_C16001001) * 100 : 0' },
@@ -7466,11 +7469,15 @@ function renderMobility(parent, geos, D) {
   const c = TABLES.commute.prefix;
 
   const rows = [
+    // A09005 cell map (verified vs live SE table 2026-06-04): _002 = Car/Truck/Van
+    // (parent = drove alone + carpool); _009 Drove Alone; _010 Carpooled; _003
+    // Public Transportation; _004 Motorcycle; _005 Bicycle; _006 Walked; _007 Other;
+    // _008 Worked at Home. (Earlier code read _002/_003/_004/_007/_010 — wrong cells.)
     { label: '% Drive alone',                     format: 'pct', values: { target: D.target.PctDriveAlone, msa: D.msa.PctDriveAlone, county: D.county.PctDriveAlone, state: D.state.PctDriveAlone }},
-    { label: '% Carpool',                         format: 'pct', values: shareRow(c, '_003', '_001', D) },
-    { label: '% Public transit',                  format: 'pct', values: shareRow(c, '_004', '_001', D) },
-    { label: '% Walk',                            format: 'pct', values: shareRow(c, '_007', '_001', D) },
-    { label: '% Work from home',                  format: 'pct', values: shareRow(c, '_010', '_001', D) },
+    { label: '% Carpool',                         format: 'pct', values: shareRow(c, '_010', '_001', D) },
+    { label: '% Public transit',                  format: 'pct', values: shareRow(c, '_003', '_001', D) },
+    { label: '% Walk',                            format: 'pct', values: shareRow(c, '_006', '_001', D) },
+    { label: '% Work from home',                  format: 'pct', values: shareRow(c, '_008', '_001', D) },
   ];
   body.innerHTML += compareTable(rows, geos, { title: 'Commute Mode Share (ACS)', universe: 'workers 16+ who commute · ACS A09005' });
 
@@ -7480,10 +7487,10 @@ function renderMobility(parent, geos, D) {
     if (!total) return null;
     return (val(geo, 'SE_A09005' + suffix) || 0) / total * 100;
   };
-  appendTrendBlock(body, geos, '% Drive alone', commuteShare('_002'), D, 'Drive-Alone Commute Share - 10-Year Trend', 'workers 16+ who commute · ACS A09005');
-  appendTrendBlock(body, geos, '% Transit', commuteShare('_004'), D, 'Transit Commute Share - 10-Year Trend', 'workers 16+ who commute · ACS A09005');
-  appendTrendBlock(body, geos, '% Walk', commuteShare('_007'), D, 'Walk Commute Share - 10-Year Trend', 'workers 16+ who commute · ACS A09005');
-  appendTrendBlock(body, geos, '% Work from home', commuteShare('_010'), D, 'Work-from-Home Share - 10-Year Trend', 'workers 16+ who commute · ACS A09005');
+  appendTrendBlock(body, geos, '% Drive alone', commuteShare('_009'), D, 'Drive-Alone Commute Share - 10-Year Trend', 'workers 16+ who commute · ACS A09005');
+  appendTrendBlock(body, geos, '% Transit', commuteShare('_003'), D, 'Transit Commute Share - 10-Year Trend', 'workers 16+ who commute · ACS A09005');
+  appendTrendBlock(body, geos, '% Walk', commuteShare('_006'), D, 'Walk Commute Share - 10-Year Trend', 'workers 16+ who commute · ACS A09005');
+  appendTrendBlock(body, geos, '% Work from home', commuteShare('_008'), D, 'Work-from-Home Share - 10-Year Trend', 'workers 16+ who commute · ACS A09005');
 
   // Chart: Commute mode share - stacked bar, all 4 geos
   const modeLabels = ['Drive Alone', 'Carpool', 'Transit', 'Walk', 'WFH'];
