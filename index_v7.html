@@ -7329,24 +7329,10 @@ function renderEquity(parent, geos, D) {
     `${disAboveState ? `Disability prevalence is <strong>${fmt(D.target.PctDisabled, 'pct')}</strong> vs. ${fmt(D.state.PctDisabled, 'pct')} statewide <span class="cite">(ACS Table B18101)</span>. ADA compliance obligations attach to specific facilities/services regardless of disability prevalence; this descriptive figure is the screening signal commonly cited when prioritizing accessibility investments - not itself a determination of need. ` : `Disability rate is ${fmt(D.target.PctDisabled, 'pct')} <span class="cite">(ACS Table B18101)</span>. `}` +
     `${lepHigh ? `Limited English Proficient share is <strong>${fmt(D.target.PctLEP, 'pct')}</strong> <span class="cite">(ACS Table C16001)</span>, above the 5% descriptive threshold typically referenced in language-access-plan guidance under Executive Order 13166. The applicable obligation depends on each agency's safe-harbor analysis, not on this number alone. ` : `LEP rate is ${fmt(D.target.PctLEP, 'pct')} <span class="cite">(ACS Table C16001)</span> (below the 5% threshold commonly referenced in language-access-plan guidance). `}` +
     `${noVehHigh ? `<strong>${fmt(D.target.PctNoVehicle, 'pct')}</strong> of households report no vehicle (rising to <strong>${fmt(D.target.PctRenterNoVehicle, 'pct')}</strong> among renters) <span class="cite">(ACS Table B25044)</span>. No-vehicle share is correlated with transit dependency and combined housing-plus-transportation cost burden in cross-sectional studies; whether transit investment closes that gap depends on service quality, frequency, and destination access this section does not measure. ` : `Vehicle access: ${fmt(D.target.PctNoVehicle, 'pct')} of households report no vehicle <span class="cite">(ACS Table B25044)</span>. `}` +
-    `Together these are the descriptive baseline planners cite in AFFH analysis, Justice40 screening, and the equity framework for federal grant applications. CDC SVI raw indicators at the county level appear below; EPA EJScreen environmental + cumulative-burden indicators are rendered in the Environmental Justice & Cumulative Burden section. The caveats below apply to every cross-group comparison shown above.`,
+    `Together these are the descriptive baseline planners cite in AFFH analysis, Justice40 screening, and the equity framework for federal grant applications. CDC SVI raw indicators at the county level appear below; EPA EJScreen environmental + cumulative-burden indicators are rendered in the Environmental Justice & Cumulative Burden section.`,
     'ACS 2020-2024 5-Year Estimates (B18101, C16001, B25044, A13004, A18002). Claim-strength: descriptive cross-sectional shares with sampling MOE; cross-group differences describe patterns, not causes.'
   );
 
-  // v5: Equity caveats footer - methodology hedging per J-PAL/Bloomberg civic-analytics guidance.
-  // Federal grant reviewers and AFFH submissions expect explicit acknowledgement of these
-  // limits; planners can keep, edit, or remove this block when authoring their own narrative.
-  body.innerHTML += `
-    <div class="mt-3 p-3 bg-amber-50 border-l-3 border-amber-300 rounded text-xs text-amber-900 leading-relaxed">
-      <div class="font-semibold mb-1.5">⚠ Equity-analysis caveats</div>
-      <ul class="list-disc list-outside ml-4 space-y-1">
-        <li><strong>Ecological fallacy.</strong> Neighborhood-level patterns may not apply to individuals - high-cost-burden tracts contain low-burden households and vice versa.</li>
-        <li><strong>Reporting bias.</strong> Open data reflects reported events. Communities with lower government-service engagement are likely under-represented; absence in the data is not evidence of absence in reality.</li>
-        <li><strong>Geographic-as-demographic proxy.</strong> Tract-level demographic averages are used here as a stand-in for individual-level data. Note this in any narrative claims about disparate impact.</li>
-        <li><strong>Disparities are descriptive, not causal.</strong> Cross-group differences shown above describe patterns; they do not establish what caused those patterns or what intervention would close them.</li>
-      </ul>
-      <div class="mt-2 text-amber-800">Source methodology: J-PAL evidence-to-policy framework, Bloomberg Public Innovation centers, AFFH Rule 2024 disclosure expectations.</div>
-    </div>`;
 }
 
 // ============================================================
