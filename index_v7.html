@@ -5319,24 +5319,13 @@ const EJSCREEN_INDICATORS = [
 function renderMaps(parent, geos, D) {
   const body = createSection(parent, 8, 'Environmental Justice & Cumulative Burden', 'live', false);
 
-  // Per-row map intro stays - explains the v7 "explore any variable" pattern.
-  body.insertAdjacentHTML('beforeend', `
-    <p class="text-sm text-gray-600 mb-4 leading-relaxed">
-      Maps are opened per-variable: click the map icon next to any row in any
-      data table above to view that indicator as a choropleth in Social
-      Explorer's explore-maps tool. The data below is the environmental layer
-      that drives the AFFH-required cumulative-burden disclosure.
-    </p>
-  `);
-
   const ej = (D && D.ejscreenCounty) || {};
   if (!Object.keys(ej).length) {
     body.insertAdjacentHTML('beforeend', `
       <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
         EPA EJScreen 2025 unavailable for this geography. EJScreen is published at
         block group / tract / county only - place and MSA fall back to the
-        enclosing county. For custom areas, the production resolver will pull
-        EJScreen at SL140 across the selected tracts.
+        enclosing county.
       </div>
     `);
     return;
@@ -5435,8 +5424,7 @@ function renderMaps(parent, geos, D) {
     <div class="mt-4 p-3 rounded-md bg-slate-50 border border-slate-200 text-xs text-slate-600 leading-relaxed">
       <strong>Methodology.</strong> EPA EJScreen 2025 publishes 13 environmental
       burden indicators and 13 paired EJ Indexes (burden × vulnerability) at
-      block-group resolution. EC currently surfaces the county-level
-      aggregation; production will add tract-level overlay for custom areas.
+      block-group resolution. EC surfaces the county-level aggregation.
       Percentile ranks are against all US block groups, calculated by EPA. The
       75th-percentile threshold for "cumulative-burden" flagging follows EPA
       EJScreen guidance and HUD AFFH Rule 2024 disclosure expectations.
