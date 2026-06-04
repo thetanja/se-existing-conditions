@@ -236,6 +236,10 @@
   /* Inline ± margin of error (MVP: concrete value under each estimate, no CV flags) */
   .cell-val { display: block; }
   .moe-val { display: block; font-size: 11px; color: #9ca3af; font-weight: 400; margin-top: 2px; font-variant-numeric: tabular-nums; }
+  /* Change / shift rows — signed +/− value (neutral; no good/bad color) + quiet row tint */
+  .delta { font-variant-numeric: tabular-nums; font-weight: 600; color: #374151; white-space: nowrap; }
+  .data-table tr.delta-row > td { background: #fafafa; }
+  .data-table tr.delta-row > td:nth-child(2) { color: #6b7280; font-weight: 500; font-size: 12px; }
   /* Universe: per-row (mixed tables) and once-under-title (homogeneous tables) */
   .uni-inline { display: block; font-size: 11px; font-weight: 400; color: #6b7280; margin-top: 2px; }
   .uni-caption { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: #6b7280; margin: 2px 0 8px; }
@@ -4037,6 +4041,9 @@ function applyRoundingToDom() {
   // Re-format every rendered cell that carries a raw value + format hint.
   // Updates only the .cell-val span so the inline ±MOE sub-line is preserved.
   document.querySelectorAll('[data-raw][data-fmt]').forEach(td => {
+    // Rounding only affects counts/dollars; skip others so delta caret markup
+    // (and pct/index/rate precision) is preserved.
+    if (td.dataset.fmt !== 'number' && td.dataset.fmt !== 'dollar') return;
     const raw = td.dataset.raw;
     if (raw === '' || raw == null) return;
     const num = parseFloat(raw);
@@ -4263,18 +4270,22 @@ function compareTable(rows, geos, opts = {}) {
     // selection count - exactly 1 row → open in map; 2 rows → side-by-side
     // (when endpoint lands); 3+ → disabled.
     const uni = row.universe ? `<span class="uni-inline">${row.universe}</span>` : '';
-    html += `<tr><td class="edit-col text-center"><input type="checkbox" class="row-select" onchange="updateToolbar('${tid}')"></td><td class="font-medium text-gray-700"><span contenteditable="true" spellcheck="false">${row.label}</span>${uni}</td>`;
-    // MVP: ± rides the COUNT. Show it only on count-type displays
-    // (count / dollar / median); percentage and delta rows show no ± —
-    // we don't compute a derived-percentage MOE. Blank where the survey
-    // provides no standard error — never fabricated.
+    // MVP: ± rides the COUNT — count/dollar/median displays only; percentage and
+    // delta rows show no ± (no derived-% MOE). Change/shift (delta/reldelta) rows
+    // get directional carets + muted green(up)/red(down) for fast trend scanning.
     const fmtType = row.format || 'number';
+    const isDelta = (fmtType === 'delta' || fmtType === 'reldelta');
     const moeAllowed = (fmtType === 'number' || fmtType === 'dollar' || fmtType === 'decimal');
+    html += `<tr${isDelta ? ' class="delta-row"' : ''}><td class="edit-col text-center"><input type="checkbox" class="row-select" onchange="updateToolbar('${tid}')"></td><td class="font-medium text-gray-700"><span contenteditable="true" spellcheck="false">${row.label}</span>${uni}</td>`;
     for (const c of cols) {
       const v = row.values[c.key];
       const moeStr = (moeAllowed && row.moe) ? (row.moe[c.key] || '') : '';
       const moeEl = moeStr ? `<span class="moe-val">${moeStr}</span>` : '';
-      html += `<td class="${c.bold ? 'font-semibold text-gray-900' : 'text-gray-600'}" data-fmt="${row.format || 'number'}" data-raw="${v == null ? '' : v}" contenteditable="true" spellcheck="false"><span class="cell-val">${fmt(v, row.format || 'number')}</span>${moeEl}</td>`;
+      // Change/shift cells: signed +/− value (direction only — no green/red, since
+      // "good" direction is indicator-specific, e.g. falling poverty is good).
+      let cellInner = fmt(v, fmtType);
+      if (isDelta && v != null) cellInner = `<span class="delta">${cellInner}</span>`;
+      html += `<td class="${c.bold ? 'font-semibold text-gray-900' : 'text-gray-600'}" data-fmt="${fmtType}" data-raw="${v == null ? '' : v}" contenteditable="true" spellcheck="false"><span class="cell-val">${cellInner}</span>${moeEl}</td>`;
     }
     html += '</tr>';
   }
