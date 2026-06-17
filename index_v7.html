@@ -6448,6 +6448,23 @@ function renderPopulation(parent, geos, D) {
   };
   appendTrendBlock(body, geos, `Bachelor's+`, bachelorsPct, D, `Bachelor's or Higher - 10-Year Trend (All Geographies)`, 'population 25+ · ACS A12001');
 
+  // Educational attainment - distribution (% of population 25+). A12001 is a
+  // CUMULATIVE ("X or more") table; discrete buckets are telescoping differences
+  // that sum to _001: <HS = _002; HS grad = _003-_004; some college/assoc = _004-_005;
+  // bachelor's-or-higher = _005 (the team's verified single-cell usage; the graduate
+  // split _006/_007/_008 is avoided - Professional/Doctorate don't nest cleanly).
+  const educDefs = [
+    { label: 'Less than high school',            num: (g) => val(g, `${ed}_002`) },
+    { label: 'High school graduate',             num: (g) => (val(g, `${ed}_003`) || 0) - (val(g, `${ed}_004`) || 0) },
+    { label: 'Some college or associate degree', num: (g) => (val(g, `${ed}_004`) || 0) - (val(g, `${ed}_005`) || 0) },
+    { label: "Bachelor's degree or higher",      num: (g) => val(g, `${ed}_005`) },
+  ];
+  const educRows = educDefs.map(d => {
+    const share = (g) => { const tot = val(g, `${ed}_001`); if (!tot) return null; const n = d.num(g); return n == null ? null : (n / tot) * 100; };
+    return { label: d.label, format: 'pct', values: { target: share(t), msa: share(m), county: share(c), state: share(s) } };
+  });
+  body.innerHTML += compareTable(educRows, geos, { title: 'Educational Attainment (% of population 25+)', universe: 'population 25+ · ACS A12001' });
+
   // Age distribution by cohort (Sprint 1.1)
   const ag = TABLES.age.prefix;
   const ageCohorts = [
@@ -6907,6 +6924,20 @@ function renderHousing(parent, geos, D) {
     { label: '% Pre-1960 stock',   format: 'pct', universe: 'total housing units · ACS A10055', values: { target: D.target.PctPre1960, msa: D.msa.PctPre1960, county: D.county.PctPre1960, state: D.state.PctPre1960 }},
   ];
   body.innerHTML += compareTable(market, geos, { title: 'Housing Market Indicators' });
+
+  // Median home value - 10-year real-$ change (target geography). Historical (ACS
+  // 2010-2014) value is CPI-U adjusted to 2024$ so the change is real, not inflation.
+  // Built manually (not changeRowVal) because only the start value is inflated.
+  const hvOldReal = toReal2024(val(h, `${hv}_001`));
+  const hvNew = val(t, `${hv}_001`);
+  if (hvOldReal != null || hvNew != null) {
+    const hvChange = (hvOldReal != null && hvNew != null) ? hvNew - hvOldReal : null;
+    const hvRow = { label: 'Median home value', universe: 'owner-occupied housing units · 2024 $ · ACS A10036', format: 'dollar',
+      start: hvOldReal, end: hvNew, change: hvChange, changeFormat: 'dollar',
+      pctChange: (hvOldReal != null && hvNew != null && hvOldReal !== 0) ? ((hvNew - hvOldReal) / hvOldReal) * 100 : null };
+    body.innerHTML += changeTable([hvRow], { title: 'Median Home Value - 10-Year Real-$ Change (2024 $)' });
+    body.innerHTML += `<p class="text-xs text-gray-500 italic mt-1 px-1">Historical (ACS 2010-2014) home value inflation-adjusted to 2024 dollars (CPI-U, factor ≈ ${CPI_2014_TO_2024.toFixed(3)}); the change shown is real growth above or below inflation. Target geography only.</p>`;
+  }
 
   // 10-year trends - % Renter and Vacancy rate across 4 geos
   const renterShare = (geo) => {
@@ -7528,6 +7559,36 @@ function renderMobility(parent, geos, D) {
     }},
   ];
   body.innerHTML += compareTable(travelDistRows, geos, { title: 'Travel Time Distribution (% of workers, excludes work-from-home)', universe: 'workers who commute, excl. work-from-home · ACS A09001' });
+
+  // Vehicle availability - full distribution (% of occupied housing units). B25044
+  // (Tenure by Vehicles Available, ORG prefix): owner none/1/2/3/4/5+ = _003.._008,
+  // renter none/1/2/3/4/5+ = _010.._015; total = _001. Buckets sum owner+renter.
+  const vehDefs = [
+    { label: 'No vehicle',          cells: ['ORG_B25044003','ORG_B25044010'] },
+    { label: '1 vehicle',           cells: ['ORG_B25044004','ORG_B25044011'] },
+    { label: '2 vehicles',          cells: ['ORG_B25044005','ORG_B25044012'] },
+    { label: '3 or more vehicles',  cells: ['ORG_B25044006','ORG_B25044007','ORG_B25044008','ORG_B25044013','ORG_B25044014','ORG_B25044015'] },
+  ];
+  const vehBucket = (g, cells) => { const tot = val(g, 'ORG_B25044001'); if (!tot) return null; return cells.reduce((a, k) => a + (val(g, k) || 0), 0) / tot * 100; };
+  const vehRows = vehDefs.map(d => ({ label: d.label, format: 'pct',
+    values: { target: vehBucket(D.target, d.cells), msa: vehBucket(D.msa, d.cells), county: vehBucket(D.county, d.cells), state: vehBucket(D.state, d.cells) } }));
+  body.innerHTML += compareTable(vehRows, geos, { title: 'Vehicle Availability (% of occupied housing units)', universe: 'occupied housing units · ACS B25044' });
+
+  // Chart: Vehicle availability - stacked bar, all 4 geos
+  const vehColors = ['#818CF8', '#A5B4FC', '#06b6d4', '#94a3b8'];
+  hcChart(body, {
+    chart: { type: 'bar', height: 280 },
+    title: { text: 'Vehicle Availability by Geography' },
+    xAxis: { categories: [geos.target.label, geos.msa.label, geos.county.label, geos.state.label] },
+    yAxis: { title: { text: null }, labels: { format: '{value}%' }, max: 100 },
+    plotOptions: { bar: { stacking: 'normal', borderRadius: 2 } },
+    series: vehDefs.map((d, i) => ({
+      name: d.label,
+      data: [vehRows[i].values.target, vehRows[i].values.msa, vehRows[i].values.county, vehRows[i].values.state].map(v => +(v?.toFixed(1) || 0)),
+      color: vehColors[i],
+    })),
+    tooltip: { pointFormat: '{series.name}: <b>{point.y}%</b><br/>', shared: false },
+  }, 'ACS 2020-2024 5-Year Estimates, Table B25044');
 
   // LEHD jobs by NAICS sector (county + state)
   const lC = D.lehdCounty || {}, lS = D.lehdState || {};
